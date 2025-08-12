@@ -771,7 +771,11 @@
         }
 
         async function saveProject() {
-            if (!currentAnalysis) return;
+            console.log('🔧 Save Project function called');
+            if (!currentAnalysis) {
+                console.error('❌ No current analysis data');
+                return;
+            }
 
             console.log('Saving project with data:', currentAnalysis); // Debug log
 
@@ -797,6 +801,7 @@
         }
 
         function closeModal() {
+            console.log('🔧 Close Modal function called');
             document.getElementById('resultsModal').classList.remove('show');
         }
 
@@ -1042,10 +1047,31 @@
             document.getElementById('closeModalBtn2').addEventListener('click', closeModal);
             
             // Save project button
-            document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
+            const saveProjectBtn = document.getElementById('saveProjectBtn');
+            if (saveProjectBtn) {
+                saveProjectBtn.addEventListener('click', saveProject);
+                console.log('✅ Save Project button listener attached');
+            } else {
+                console.error('❌ Save Project button not found');
+            }
             
             // Modal close button
-            document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            if (modalCloseBtn) {
+                modalCloseBtn.addEventListener('click', closeModal);
+                console.log('✅ Modal close button listener attached');
+            } else {
+                console.error('❌ Modal close button not found');
+            }
+            
+            // Close modal button 2
+            const closeModalBtn2 = document.getElementById('closeModalBtn2');
+            if (closeModalBtn2) {
+                closeModalBtn2.addEventListener('click', closeModal);
+                console.log('✅ Close modal button 2 listener attached');
+            } else {
+                console.error('❌ Close modal button 2 not found');
+            }
             
             // Language removal buttons (delegated event listener)
             document.addEventListener('click', function(e) {
