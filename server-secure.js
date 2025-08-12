@@ -64,6 +64,16 @@ app.use(cors({
 app.use(express.static('public'));
 app.use(express.json({ limit: '1mb' }));
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Root endpoint to serve index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Simple logout endpoint for clients to call
 app.post('/logout', (req, res) => {
     return res.json({ success: true });
@@ -1045,8 +1055,9 @@ async function startServer() {
         console.log('Database tables initialized');
         
         // Start the server
-        app.listen(PORT, () => {
-            console.log(`🚀 Secure VerbiForge server running on http://localhost:${PORT}`);
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 Secure VerbiForge server running on port ${PORT}`);
+            console.log(`🌐 Server accessible at: http://localhost:${PORT}`);
             console.log('🔒 Security features enabled:');
             console.log('  - SQLite database with encrypted storage');
             console.log('  - Bcrypt password hashing');
