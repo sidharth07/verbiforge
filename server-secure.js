@@ -359,10 +359,21 @@ app.get('/projects', async (req, res) => {
         );
         
         const formattedProjects = projects.map(project => ({
-            ...project,
-            breakdown: JSON.parse(project.breakdown),
+            id: project.id,
+            name: project.name,
+            fileName: project.file_name,
+            wordCount: project.word_count,
             projectType: project.project_type || 'fusion',
-            multiplier: project.multiplier || 1
+            multiplier: project.multiplier || 1,
+            breakdown: JSON.parse(project.breakdown || '[]'),
+            subtotal: project.subtotal,
+            projectManagementCost: project.project_management_cost,
+            total: project.total,
+            status: project.status,
+            createdAt: project.created_at,
+            submittedAt: project.submitted_at,
+            eta: project.eta,
+            translatedFileName: project.translated_file_name
         }));
         
         res.json(formattedProjects);
