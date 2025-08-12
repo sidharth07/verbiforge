@@ -813,12 +813,15 @@
 
         async function saveProject() {
             console.log('🔧 Save Project function called');
+            console.log('🔍 Current analysis data:', currentAnalysis);
+            
             if (!currentAnalysis) {
                 console.error('❌ No current analysis data');
+                alert('No project data to save. Please analyze a file first.');
                 return;
             }
 
-            console.log('Saving project with data:', currentAnalysis); // Debug log
+            console.log('📤 Sending project data to server:', currentAnalysis);
 
             try {
                 const response = await Auth.authFetch('/projects', {
@@ -827,16 +830,26 @@
                     body: JSON.stringify(currentAnalysis)
                 });
 
+                console.log('📥 Server response:', response);
+                console.log('📥 Response status:', response.status);
+
                 if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Project saved successfully:', result);
+                    alert('Project saved successfully!');
                     closeModal();
                     resetCreateForm();
                     switchTab('projects');
                     loadProjects();
                 } else {
                     const data = await response.json();
+                    console.error('❌ Server error:', data);
+                    alert('Error saving project: ' + data.error);
                     showError(data.error);
                 }
             } catch (error) {
+                console.error('❌ Network error:', error);
+                alert('Network error saving project: ' + error.message);
                 showError('Error saving project');
             }
         }

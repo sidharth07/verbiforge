@@ -311,15 +311,25 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
 // Save project
 app.post('/projects', async (req, res) => {
     try {
+        console.log('📥 Received project save request:', req.body);
+        console.log('👤 User ID:', req.user.id);
+        
         const { 
             projectName, fileName, wordCount, projectType, multiplier, 
             breakdown, subtotal, projectManagementCost, total, tempFileId 
         } = req.body;
         
+        console.log('📋 Project data:', {
+            projectName, fileName, wordCount, projectType, multiplier,
+            breakdown: breakdown ? breakdown.length : 0, subtotal, projectManagementCost, total, tempFileId
+        });
+        
         const projectId = uuidv4();
         const user = await authManager.getUserById(req.user.id);
         
-        await dbHelpers.run(`
+        console.log('👤 User data:', user);
+        
+        const insertResult = await dbHelpers.run(`
             INSERT INTO projects (
                 id, user_id, user_name, user_email, name, file_name, file_path,
                 project_type, multiplier, word_count, breakdown, subtotal,
@@ -331,10 +341,12 @@ app.post('/projects', async (req, res) => {
             subtotal || '0.00', projectManagementCost || '500.00', total, 'quote_generated'
         ]);
         
+        console.log('✅ Project saved successfully:', { projectId, insertResult });
         res.json({ success: true, project: { id: projectId } });
     } catch (error) {
-        console.error('Project save error:', error);
-        res.status(500).json({ error: 'Failed to save project' });
+        console.error('❌ Project save error:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to save project: ' + error.message });
     }
 });
 
