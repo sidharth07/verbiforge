@@ -275,7 +275,9 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
         const total = subtotal + projectManagementCost;
 
         // Store file securely
+        console.log('Attempting to save file:', req.file.originalname, 'Size:', req.file.size);
         const fileInfo = await fileManager.saveUploadedFile(req.file, uuidv4());
+        console.log('File saved successfully:', fileInfo.filePath);
 
         res.json({
             fileName: req.file.originalname,
@@ -291,7 +293,14 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
 
     } catch (error) {
         console.error('Analysis error:', error);
+        console.error('Error stack:', error.stack);
+        
         if (error.message.includes('Failed to save file securely') || error.message.includes('File encryption failed')) {
+            console.error('File processing failed - details:', {
+                fileName: req.file?.originalname,
+                fileSize: req.file?.size,
+                error: error.message
+            });
             res.status(500).json({ error: 'File processing failed. Please try again or contact support.' });
         } else {
             res.status(500).json({ error: error.message });

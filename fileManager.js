@@ -27,17 +27,28 @@ class FileManager {
     // Encrypt file content
     encryptFile(buffer) {
         try {
+            console.log('Encryption: Starting encryption process');
             const algorithm = 'aes-256-cbc';
             const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+            console.log('Encryption: Key generated, length:', key.length);
+            
             const iv = crypto.randomBytes(16);
+            console.log('Encryption: IV generated, length:', iv.length);
             
             const cipher = crypto.createCipher(algorithm, key);
-            const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
+            console.log('Encryption: Cipher created');
             
-            return Buffer.concat([iv, encrypted]);
+            const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
+            console.log('Encryption: Data encrypted, length:', encrypted.length);
+            
+            const result = Buffer.concat([iv, encrypted]);
+            console.log('Encryption: Final result length:', result.length);
+            
+            return result;
         } catch (error) {
-            console.error('Encryption error:', error);
-            throw new Error('File encryption failed');
+            console.error('Encryption: Error during encryption:', error);
+            console.error('Encryption: Error stack:', error.stack);
+            throw new Error(`File encryption failed: ${error.message}`);
         }
     }
 
@@ -62,22 +73,33 @@ class FileManager {
     // Save uploaded file securely
     async saveUploadedFile(file, projectId) {
         try {
+            console.log('FileManager: Starting file save process');
+            
             // Ensure directories exist
             await this.initializeDirectories();
+            console.log('FileManager: Directories initialized');
             
             const fileName = `${projectId}_${Date.now()}_${file.originalname}`;
             const filePath = path.join(UPLOAD_DIR, fileName);
+            console.log('FileManager: File path:', filePath);
             
             // Validate file
             if (!file || !file.buffer) {
+                console.error('FileManager: Invalid file data - file:', !!file, 'buffer:', !!file?.buffer);
                 throw new Error('Invalid file data');
             }
             
+            console.log('FileManager: File validation passed, size:', file.buffer.length);
+            
             // Encrypt file content
+            console.log('FileManager: Starting encryption');
             const encryptedContent = this.encryptFile(file.buffer);
+            console.log('FileManager: Encryption completed, encrypted size:', encryptedContent.length);
             
             // Save encrypted file
+            console.log('FileManager: Writing file to disk');
             await fs.writeFile(filePath, encryptedContent);
+            console.log('FileManager: File written successfully');
             
             return {
                 filePath: fileName, // Store relative path only
@@ -86,8 +108,9 @@ class FileManager {
                 size: file.size
             };
         } catch (error) {
-            console.error('Error saving file:', error);
-            throw new Error('Failed to save file securely');
+            console.error('FileManager: Error saving file:', error);
+            console.error('FileManager: Error stack:', error.stack);
+            throw new Error(`Failed to save file securely: ${error.message}`);
         }
     }
 
