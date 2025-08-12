@@ -974,16 +974,16 @@
                         
                         <div class="project-total">$${project.total}</div>
                         
-                        <div class="project-actions">
+                        <div class="project-actions" style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
                             ${project.status === 'quote_generated' ? `
                                 <button class="submit-project-btn" data-project-id="${project.id}" 
-                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-right: 5px; font-weight: 500;">
+                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
                                     Submit Project
                                 </button>
                             ` : ''}
                             ${project.translatedFileName ? `
                                 <a href="/projects/${project.id}/download-translated" 
-                                   style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block; margin-right: 5px;">
+                                   style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block;">
                                    Download Translated
                                 </a>
                             ` : ''}
