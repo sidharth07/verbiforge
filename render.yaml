@@ -11,6 +11,8 @@ services:
         value: 10000
       - key: JWT_SECRET
         generateValue: true
+      - key: DATABASE_PATH
+        value: /opt/render/project/src/data
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS
