@@ -394,7 +394,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>📋 Analysis Results</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <button class="close-btn" id="modalCloseBtn">&times;</button>
             </div>
 
             <div id="resultsContent">
@@ -565,7 +565,7 @@
                     tag.style.cssText = 'background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; display: flex; align-items: center; gap: 6px;';
                     tag.innerHTML = `
                         <span>${lang}</span>
-                        <button onclick="removeLanguage('${lang}')" style="background: rgba(255,255,255,0.3); border: none; color: white; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 12px;">×</button>
+                        <button class="remove-lang-btn" data-language="${lang}" style="background: rgba(255,255,255,0.3); border: none; color: white; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 12px;">×</button>
                     `;
                     tagsContainer.appendChild(tag);
                 });
@@ -917,7 +917,7 @@
                         
                         <div class="project-actions">
                             ${project.status === 'quote_generated' ? `
-                                <button onclick="submitProject('${project.id}')" 
+                                <button class="submit-project-btn" data-project-id="${project.id}" 
                                         style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-right: 5px;">
                                     Submit Project
                                 </button>
@@ -929,7 +929,7 @@
                                 </a>
                             ` : ''}
                             ${project.status === 'quote_generated' ? `
-                                <button class="delete-btn" onclick="deleteProject('${project.id}')">Delete</button>
+                                <button class="delete-project-btn" data-project-id="${project.id}">Delete</button>
                             ` : ''}
                         </div>
                     </div>
@@ -1043,6 +1043,29 @@
             
             // Save project button
             document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
+            
+            // Modal close button
+            document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+            
+            // Language removal buttons (delegated event listener)
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-lang-btn')) {
+                    const language = e.target.getAttribute('data-language');
+                    removeLanguage(language);
+                }
+            });
+            
+            // Project action buttons (delegated event listeners)
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('submit-project-btn')) {
+                    const projectId = e.target.getAttribute('data-project-id');
+                    submitProject(projectId);
+                }
+                if (e.target.classList.contains('delete-project-btn')) {
+                    const projectId = e.target.getAttribute('data-project-id');
+                    deleteProject(projectId);
+                }
+            });
 
             // File input change
             document.getElementById('fileInput').addEventListener('change', function() {

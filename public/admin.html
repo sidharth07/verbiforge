@@ -672,7 +672,7 @@
                                 <input type="number" id="globalPrice" placeholder="35" min="1" max="999" class="global-price-input">
                                 <span style="color: #666; font-weight: 500;">cents/word</span>
                             </div>
-                            <button onclick="applyGlobalPricing()" class="apply-global-btn">
+                            <button id="applyGlobalPricingBtn" class="apply-global-btn">
                                 🚀 Apply to All Languages
                             </button>
                         </div>
@@ -693,7 +693,7 @@
                                        style="width: 80px; padding: 10px 12px; border: 2px solid #28a745; border-radius: 6px; text-align: center; font-size: 14px;">
                                 <span style="color: #666; font-weight: 500;">cents/word</span>
                             </div>
-                            <button onclick="addNewLanguage()" 
+                            <button id="addNewLanguageBtn" 
                                     style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                                 ✨ Add Language
                             </button>
@@ -711,7 +711,7 @@
                                        style="width: 80px; padding: 8px 12px; border: 2px solid #007bff; border-radius: 6px; text-align: center; font-size: 14px;">
                                 <span style="color: #666; font-weight: 500;">x</span>
                             </div>
-                            <button onclick="updateMultiplier()" 
+                            <button id="updateMultiplierBtn" 
                                     style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
                                 Update Multiplier
                             </button>
@@ -720,8 +720,8 @@
                     </div>
                     
                     <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <button class="save-all-btn" onclick="saveAllLanguagePricing()">Save All Changes</button>
-                        <button class="reset-btn" onclick="resetLanguagePricing()">Reset to Defaults</button>
+                        <button id="saveAllLanguagePricingBtn" class="save-all-btn">Save All Changes</button>
+                        <button id="resetLanguagePricingBtn" class="reset-btn">Reset to Defaults</button>
                     </div>
                     
                     <div id="languageGrid" class="language-grid">
@@ -786,7 +786,7 @@
                             <input type="email" id="newAdminEmail" placeholder="Email Address" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                             <input type="text" id="newAdminName" placeholder="Full Name" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                             <input type="password" id="newAdminPassword" placeholder="Temporary Password" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                            <button onclick="createAdmin()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                            <button id="createAdminBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
                                 Create Admin
                             </button>
                         </div>
@@ -2111,41 +2111,14 @@
             });
 
             // Language pricing buttons
-            const applyGlobalBtn = document.querySelector('.apply-global-btn');
-            if (applyGlobalBtn) {
-                applyGlobalBtn.addEventListener('click', applyGlobalPricing);
-            }
-
-            const addLanguageBtn = document.querySelector('button[onclick="addNewLanguage()"]');
-            if (addLanguageBtn) {
-                addLanguageBtn.removeAttribute('onclick');
-                addLanguageBtn.addEventListener('click', addNewLanguage);
-            }
-
-            const updateMultiplierBtn = document.querySelector('button[onclick="updateMultiplier()"]');
-            if (updateMultiplierBtn) {
-                updateMultiplierBtn.removeAttribute('onclick');
-                updateMultiplierBtn.addEventListener('click', updateMultiplier);
-            }
-
-            const saveAllBtn = document.querySelector('.save-all-btn');
-            if (saveAllBtn) {
-                saveAllBtn.removeAttribute('onclick');
-                saveAllBtn.addEventListener('click', saveAllLanguagePricing);
-            }
-
-            const resetBtn = document.querySelector('.reset-btn');
-            if (resetBtn) {
-                resetBtn.removeAttribute('onclick');
-                resetBtn.addEventListener('click', resetLanguagePricing);
-            }
+            document.getElementById('applyGlobalPricingBtn').addEventListener('click', applyGlobalPricing);
+            document.getElementById('addNewLanguageBtn').addEventListener('click', addNewLanguage);
+            document.getElementById('updateMultiplierBtn').addEventListener('click', updateMultiplier);
+            document.getElementById('saveAllLanguagePricingBtn').addEventListener('click', saveAllLanguagePricing);
+            document.getElementById('resetLanguagePricingBtn').addEventListener('click', resetLanguagePricing);
 
             // Admin management buttons
-            const createAdminBtn = document.querySelector('button[onclick="createAdmin()"]');
-            if (createAdminBtn) {
-                createAdminBtn.removeAttribute('onclick');
-                createAdminBtn.addEventListener('click', createAdmin);
-            }
+            document.getElementById('createAdminBtn').addEventListener('click', createAdmin);
 
             // Contact modal buttons
             const closeContactBtn = document.querySelector('button[onclick="closeContactModal()"]');
