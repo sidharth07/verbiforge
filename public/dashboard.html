@@ -768,6 +768,47 @@
             `;
 
             document.getElementById('resultsModal').classList.add('show');
+            
+            // Re-attach button listeners when modal is shown
+            console.log('🔧 Modal shown, re-attaching button listeners...');
+            setTimeout(() => {
+                attachModalButtonListeners();
+            }, 100);
+        }
+        
+        function attachModalButtonListeners() {
+            // Save project button
+            const saveProjectBtn = document.getElementById('saveProjectBtn');
+            console.log('🔍 Re-attaching saveProjectBtn:', saveProjectBtn);
+            if (saveProjectBtn) {
+                // Remove existing listeners by cloning
+                const newSaveBtn = saveProjectBtn.cloneNode(true);
+                saveProjectBtn.parentNode.replaceChild(newSaveBtn, saveProjectBtn);
+                
+                newSaveBtn.addEventListener('click', function(e) {
+                    console.log('🔧 Save Project button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    saveProject();
+                });
+                console.log('✅ Save Project button listener re-attached');
+            }
+            
+            // Close buttons
+            const closeBtn = document.getElementById('closeModalBtn2');
+            console.log('🔍 Re-attaching closeModalBtn2:', closeBtn);
+            if (closeBtn) {
+                const newCloseBtn = closeBtn.cloneNode(true);
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                
+                newCloseBtn.addEventListener('click', function(e) {
+                    console.log('🔧 Close modal button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeModal();
+                });
+                console.log('✅ Close modal button listener re-attached');
+            }
         }
 
         async function saveProject() {
@@ -1048,27 +1089,53 @@
             
             // Save project button
             const saveProjectBtn = document.getElementById('saveProjectBtn');
+            console.log('🔍 Looking for saveProjectBtn:', saveProjectBtn);
             if (saveProjectBtn) {
-                saveProjectBtn.addEventListener('click', saveProject);
+                saveProjectBtn.addEventListener('click', function(e) {
+                    console.log('🔧 Save Project button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    saveProject();
+                });
                 console.log('✅ Save Project button listener attached');
+                
+                // Test if button is clickable
+                saveProjectBtn.style.pointerEvents = 'auto';
+                saveProjectBtn.style.zIndex = '9999';
             } else {
                 console.error('❌ Save Project button not found');
             }
             
             // Modal close button
             const modalCloseBtn = document.getElementById('modalCloseBtn');
+            console.log('🔍 Looking for modalCloseBtn:', modalCloseBtn);
             if (modalCloseBtn) {
-                modalCloseBtn.addEventListener('click', closeModal);
+                modalCloseBtn.addEventListener('click', function(e) {
+                    console.log('🔧 Modal close button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeModal();
+                });
                 console.log('✅ Modal close button listener attached');
+                modalCloseBtn.style.pointerEvents = 'auto';
+                modalCloseBtn.style.zIndex = '9999';
             } else {
                 console.error('❌ Modal close button not found');
             }
             
             // Close modal button 2
             const closeModalBtn2 = document.getElementById('closeModalBtn2');
+            console.log('🔍 Looking for closeModalBtn2:', closeModalBtn2);
             if (closeModalBtn2) {
-                closeModalBtn2.addEventListener('click', closeModal);
+                closeModalBtn2.addEventListener('click', function(e) {
+                    console.log('🔧 Close modal button 2 clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeModal();
+                });
                 console.log('✅ Close modal button 2 listener attached');
+                closeModalBtn2.style.pointerEvents = 'auto';
+                closeModalBtn2.style.zIndex = '9999';
             } else {
                 console.error('❌ Close modal button 2 not found');
             }
