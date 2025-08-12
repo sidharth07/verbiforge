@@ -402,7 +402,7 @@
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button onclick="saveProject()"
+                <button id="saveProjectBtn"
                     style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; flex: 1;">
                     Save Project
                 </button>
@@ -1040,6 +1040,9 @@
             // Close modal buttons
             document.getElementById('closeModalBtn').addEventListener('click', closeModal);
             document.getElementById('closeModalBtn2').addEventListener('click', closeModal);
+            
+            // Save project button
+            document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
 
             // File input change
             document.getElementById('fileInput').addEventListener('change', function() {
