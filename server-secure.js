@@ -74,6 +74,24 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Authentication middleware
+function requireAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = authManager.verifyToken(token);
+    
+    if (!decoded) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    req.user = decoded;
+    next();
+}
+
 // Simple logout endpoint for clients to call
 app.post('/logout', (req, res) => {
     return res.json({ success: true });
@@ -207,7 +225,7 @@ app.use('/languages', authManager.authenticateToken.bind(authManager));
 app.use('/admin/*', authManager.authenticateToken.bind(authManager));
 
 // User info route
-app.get('/me', async (req, res) => {
+app.get('/me', requireAuth, async (req, res) => {
     try {
         const user = await authManager.getUserById(req.user.id);
         if (!user) {
@@ -220,7 +238,7 @@ app.get('/me', async (req, res) => {
 });
 
 // Get languages
-app.get('/languages', async (req, res) => {
+app.get('/languages', requireAuth, async (req, res) => {
     try {
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
         const languages = JSON.parse(settings.value);
@@ -231,7 +249,7 @@ app.get('/languages', async (req, res) => {
 });
 
 // Analyze file
-app.post('/analyze', upload.single('file'), async (req, res) => {
+app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
@@ -309,7 +327,7 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
 });
 
 // Save project
-app.post('/projects', async (req, res) => {
+app.post('/projects', requireAuth, async (req, res) => {
     try {
         console.log('📥 Received project save request:', req.body);
         console.log('👤 User ID:', req.user.id);
@@ -351,7 +369,7 @@ app.post('/projects', async (req, res) => {
 });
 
 // Get user projects
-app.get('/projects', async (req, res) => {
+app.get('/projects', requireAuth, async (req, res) => {
     try {
         const projects = await dbHelpers.query(
             'SELECT * FROM projects WHERE user_id = ? ORDER BY created_at DESC',
@@ -384,7 +402,7 @@ app.get('/projects', async (req, res) => {
 });
 
 // Submit project (change status from quote_generated to submitted)
-app.put('/projects/:id/submit', async (req, res) => {
+app.put('/projects/:id/submit', requireAuth, async (req, res) => {
     try {
         const project = await dbHelpers.get(
             'SELECT * FROM projects WHERE id = ? AND user_id = ?',
@@ -412,7 +430,7 @@ app.put('/projects/:id/submit', async (req, res) => {
 });
 
 // Delete project (only if status is quote_generated)
-app.delete('/projects/:id', async (req, res) => {
+app.delete('/projects/:id', requireAuth, async (req, res) => {
     try {
         const project = await dbHelpers.get(
             'SELECT * FROM projects WHERE id = ? AND user_id = ?',
@@ -436,7 +454,7 @@ app.delete('/projects/:id', async (req, res) => {
 });
 
 // Download translated file
-app.get('/projects/:id/download-translated', async (req, res) => {
+app.get('/projects/:id/download-translated', requireAuth, async (req, res) => {
     try {
         const project = await dbHelpers.get(
             'SELECT translated_file_path, translated_file_name FROM projects WHERE id = ? AND user_id = ?',
@@ -483,7 +501,7 @@ app.post('/contact', validateContact, async (req, res) => {
 });
 
 // Admin check
-app.get('/admin/check', async (req, res) => {
+app.get('/admin/check', requireAuth, async (req, res) => {
     try {
         const isAdmin = await authManager.isAdmin(req.user.email);
         const isSuperAdmin = await authManager.isSuperAdmin(req.user.email);
@@ -494,7 +512,7 @@ app.get('/admin/check', async (req, res) => {
 });
 
 // Admin routes
-app.get('/admin/projects', async (req, res) => {
+app.get('/admin/projects', requireAuth, async (req, res) => {
     try {
         const projects = await dbHelpers.query(`
             SELECT p.*, u.name as userName, u.email as userEmail 
@@ -517,7 +535,7 @@ app.get('/admin/projects', async (req, res) => {
     }
 });
 
-app.get('/admin/projects/:id', async (req, res) => {
+app.get('/admin/projects/:id', requireAuth, async (req, res) => {
     try {
         const project = await dbHelpers.get(`
             SELECT p.*, u.name as userName, u.email as userEmail 
@@ -541,7 +559,7 @@ app.get('/admin/projects/:id', async (req, res) => {
     }
 });
 
-app.put('/admin/projects/:id/status', async (req, res) => {
+app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
     try {
         const { status } = req.body;
         await dbHelpers.run(
@@ -555,7 +573,7 @@ app.put('/admin/projects/:id/status', async (req, res) => {
     }
 });
 
-app.put('/admin/projects/:id/eta', async (req, res) => {
+app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
     try {
         const { eta } = req.body;
         await dbHelpers.run(
@@ -569,7 +587,7 @@ app.put('/admin/projects/:id/eta', async (req, res) => {
     }
 });
 
-app.get('/admin/projects/:id/download', async (req, res) => {
+app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
     try {
         const project = await dbHelpers.get(
             'SELECT file_path FROM projects WHERE id = ?',
@@ -592,7 +610,7 @@ app.get('/admin/projects/:id/download', async (req, res) => {
     }
 });
 
-app.post('/admin/projects/:id/upload-translated', upload.single('translatedFile'), async (req, res) => {
+app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('translatedFile'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
@@ -613,7 +631,7 @@ app.post('/admin/projects/:id/upload-translated', upload.single('translatedFile'
 });
 
 // Language management
-app.get('/admin/languages', async (req, res) => {
+app.get('/admin/languages', requireAuth, async (req, res) => {
     try {
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
         const languages = JSON.parse(settings.value);
@@ -623,7 +641,7 @@ app.get('/admin/languages', async (req, res) => {
     }
 });
 
-app.get('/admin/languages/defaults', async (req, res) => {
+app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
     try {
         const defaultLanguages = {
             'English': 25,
@@ -758,7 +776,7 @@ app.get('/admin/languages/defaults', async (req, res) => {
     }
 });
 
-app.put('/admin/languages', async (req, res) => {
+app.put('/admin/languages', requireAuth, async (req, res) => {
     try {
         const { languages } = req.body;
         await dbHelpers.run(
@@ -771,7 +789,7 @@ app.put('/admin/languages', async (req, res) => {
     }
 });
 
-app.post('/admin/languages/add', async (req, res) => {
+app.post('/admin/languages/add', requireAuth, async (req, res) => {
     try {
         const { languageName, price } = req.body;
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
@@ -789,7 +807,7 @@ app.post('/admin/languages/add', async (req, res) => {
     }
 });
 
-app.delete('/admin/languages/:languageName', async (req, res) => {
+app.delete('/admin/languages/:languageName', requireAuth, async (req, res) => {
     try {
         const languageName = decodeURIComponent(req.params.languageName);
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
@@ -807,7 +825,7 @@ app.delete('/admin/languages/:languageName', async (req, res) => {
     }
 });
 
-app.post('/admin/languages/reset', async (req, res) => {
+app.post('/admin/languages/reset', requireAuth, async (req, res) => {
     try {
         const defaultLanguages = {
             'English': 25,
@@ -949,7 +967,7 @@ app.post('/admin/languages/reset', async (req, res) => {
 });
 
 // User management
-app.get('/admin/users', async (req, res) => {
+app.get('/admin/users', requireAuth, async (req, res) => {
     try {
         const users = await dbHelpers.query(`
             SELECT u.*, 
@@ -966,7 +984,7 @@ app.get('/admin/users', async (req, res) => {
     }
 });
 
-app.delete('/admin/users/:userId', async (req, res) => {
+app.delete('/admin/users/:userId', requireAuth, async (req, res) => {
     try {
         await dbHelpers.run('DELETE FROM projects WHERE user_id = ?', [req.params.userId]);
         await dbHelpers.run('DELETE FROM users WHERE id = ?', [req.params.userId]);
@@ -977,7 +995,7 @@ app.delete('/admin/users/:userId', async (req, res) => {
 });
 
 // Admin management
-app.get('/admin/admins', async (req, res) => {
+app.get('/admin/admins', requireAuth, async (req, res) => {
     try {
         const admins = await dbHelpers.query('SELECT * FROM admin_users ORDER BY created_at DESC');
         res.json(admins);
@@ -986,7 +1004,7 @@ app.get('/admin/admins', async (req, res) => {
     }
 });
 
-app.post('/admin/admins', async (req, res) => {
+app.post('/admin/admins', requireAuth, async (req, res) => {
     try {
         const { email, name, tempPassword } = req.body;
         await dbHelpers.run(
@@ -999,7 +1017,7 @@ app.post('/admin/admins', async (req, res) => {
     }
 });
 
-app.delete('/admin/admins/:email', async (req, res) => {
+app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
     try {
         const email = decodeURIComponent(req.params.email);
         await dbHelpers.run('DELETE FROM admin_users WHERE email = ? AND is_super_admin = FALSE', [email]);
@@ -1010,7 +1028,7 @@ app.delete('/admin/admins/:email', async (req, res) => {
 });
 
 // Contact management
-app.get('/admin/contacts', async (req, res) => {
+app.get('/admin/contacts', requireAuth, async (req, res) => {
     try {
         const submissions = await dbHelpers.query('SELECT * FROM contact_submissions ORDER BY submitted_at DESC');
         const unreadCount = await dbHelpers.get('SELECT COUNT(*) as count FROM contact_submissions WHERE is_read = FALSE');
@@ -1020,7 +1038,7 @@ app.get('/admin/contacts', async (req, res) => {
     }
 });
 
-app.put('/admin/contacts/:id/read', async (req, res) => {
+app.put('/admin/contacts/:id/read', requireAuth, async (req, res) => {
     try {
         await dbHelpers.run('UPDATE contact_submissions SET is_read = TRUE WHERE id = ?', [req.params.id]);
         res.json({ success: true });
@@ -1029,7 +1047,7 @@ app.put('/admin/contacts/:id/read', async (req, res) => {
     }
 });
 
-app.put('/admin/contacts/:id/status', async (req, res) => {
+app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
     try {
         const { status } = req.body;
         await dbHelpers.run('UPDATE contact_submissions SET status = ? WHERE id = ?', [req.params.id]);
@@ -1039,7 +1057,7 @@ app.put('/admin/contacts/:id/status', async (req, res) => {
     }
 });
 
-app.delete('/admin/contacts/:id', async (req, res) => {
+app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
     try {
         await dbHelpers.run('DELETE FROM contact_submissions WHERE id = ?', [req.params.id]);
         res.json({ success: true });
@@ -1049,7 +1067,7 @@ app.delete('/admin/contacts/:id', async (req, res) => {
 });
 
 // Multiplier management
-app.get('/admin/multiplier', async (req, res) => {
+app.get('/admin/multiplier', requireAuth, async (req, res) => {
     try {
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['project_type_multiplier']);
         res.json({ multiplier: parseFloat(settings.value) });
@@ -1058,7 +1076,7 @@ app.get('/admin/multiplier', async (req, res) => {
     }
 });
 
-app.put('/admin/multiplier', async (req, res) => {
+app.put('/admin/multiplier', requireAuth, async (req, res) => {
     try {
         const { multiplier } = req.body;
         await dbHelpers.run(
