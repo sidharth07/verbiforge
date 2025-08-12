@@ -5,12 +5,19 @@ const fs = require('fs');
 // Create database directory if it doesn't exist
 // Use environment variable for database path or default to local data directory
 const dbDir = process.env.DATABASE_PATH || path.join(__dirname, 'data');
+console.log('🔍 Database directory:', dbDir);
+console.log('🔍 Environment DATABASE_PATH:', process.env.DATABASE_PATH);
+
 if (!fs.existsSync(dbDir)) {
+    console.log('📁 Creating database directory:', dbDir);
     fs.mkdirSync(dbDir, { recursive: true });
+} else {
+    console.log('📁 Database directory already exists:', dbDir);
 }
 
 const dbPath = path.join(dbDir, 'verbiforge.db');
-console.log('Database path:', dbPath);
+console.log('🗄️ Database path:', dbPath);
+console.log('🗄️ Database file exists:', fs.existsSync(dbPath));
 
 // Initialize database
 const db = new sqlite3.Database(dbPath, (err) => {

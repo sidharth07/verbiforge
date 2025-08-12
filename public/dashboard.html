@@ -977,7 +977,7 @@
                         <div class="project-actions">
                             ${project.status === 'quote_generated' ? `
                                 <button class="submit-project-btn" data-project-id="${project.id}" 
-                                        style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-right: 5px;">
+                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-right: 5px; font-weight: 500;">
                                     Submit Project
                                 </button>
                             ` : ''}
@@ -988,7 +988,10 @@
                                 </a>
                             ` : ''}
                             ${project.status === 'quote_generated' ? `
-                                <button class="delete-project-btn" data-project-id="${project.id}">Delete</button>
+                                <button class="delete-project-btn" data-project-id="${project.id}" 
+                                        style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
+                                    Delete
+                                </button>
                             ` : ''}
                         </div>
                     </div>
