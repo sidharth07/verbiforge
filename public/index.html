@@ -7,28 +7,64 @@
     <title>LexiTech</title>
     <script src="client-auth.js"></script>
     <script>
-        // Redirect to login if not authenticated (send JWT if present)
-        Auth.authFetch('/me').then(async response => {
-            if (!response.ok) {
-                window.location.href = 'login.html';
-            } else {
-                // Check if user is admin
-                try {
-                    const adminResponse = await Auth.authFetch('/admin/check');
-                    if (adminResponse.ok) {
-                        const adminData = await adminResponse.json();
-                        if (adminData.isAdmin) {
-                            window.location.href = 'admin.html';
-                            return;
-                        }
+        // Show loading state immediately
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide the main content and show loading
+            document.body.innerHTML = `
+                <div style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                ">
+                    <div style="text-align: center;">
+                        <div style="
+                            border: 3px solid #f3f3f3;
+                            border-top: 3px solid #4facfe;
+                            border-radius: 50%;
+                            width: 40px;
+                            height: 40px;
+                            animation: spin 1s linear infinite;
+                            margin: 0 auto 20px;
+                        "></div>
+                        <h2>VerbiForge</h2>
+                        <p>Loading...</p>
+                    </div>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
                     }
-                } catch (error) {
-                    // If admin check fails, continue to dashboard
+                </style>
+            `;
+            
+            // Check authentication
+            Auth.authFetch('/me').then(async response => {
+                if (!response.ok) {
+                    window.location.href = 'login.html';
+                } else {
+                    // Check if user is admin
+                    try {
+                        const adminResponse = await Auth.authFetch('/admin/check');
+                        if (adminResponse.ok) {
+                            const adminData = await adminResponse.json();
+                            if (adminData.isAdmin) {
+                                window.location.href = 'admin.html';
+                                return;
+                            }
+                        }
+                    } catch (error) {
+                        // If admin check fails, continue to dashboard
+                    }
+                    window.location.href = 'dashboard.html';
                 }
-                window.location.href = 'dashboard.html';
-            }
-        }).catch(() => {
-            window.location.href = 'login.html';
+            }).catch(() => {
+                window.location.href = 'login.html';
+            });
         });
     </script>
     <style>
