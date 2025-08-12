@@ -503,17 +503,36 @@ app.post('/contact', validateContact, async (req, res) => {
 // Admin check
 app.get('/admin/check', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Admin check request from user:', req.user.email);
+        
         const isAdmin = await authManager.isAdmin(req.user.email);
         const isSuperAdmin = await authManager.isSuperAdmin(req.user.email);
+        
+        console.log('🔍 Admin check results:', { email: req.user.email, isAdmin, isSuperAdmin });
+        
         res.json({ isAdmin, isSuperAdmin });
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        console.error('❌ Admin check error:', error);
+        res.status(500).json({ error: 'Server error: ' + error.message });
     }
 });
 
 // Admin routes
 app.get('/admin/projects', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Admin projects request from user:', req.user.email);
+        
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        console.log('🔍 Is admin check result:', isAdmin);
+        
+        if (!isAdmin) {
+            console.log('❌ User is not admin:', req.user.email);
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
+        
+        console.log('✅ User is admin, fetching projects...');
+        
         const projects = await dbHelpers.query(`
             SELECT p.*, u.name as userName, u.email as userEmail 
             FROM projects p 
@@ -521,17 +540,34 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
             ORDER BY p.created_at DESC
         `);
         
+        console.log('📋 Raw projects from database:', projects.length);
+        
         const formattedProjects = projects.map(project => ({
-            ...project,
-            breakdown: JSON.parse(project.breakdown),
+            id: project.id,
+            name: project.name,
+            fileName: project.file_name,
+            wordCount: project.word_count,
             projectType: project.project_type || 'fusion',
-            multiplier: project.multiplier || 1
+            multiplier: project.multiplier || 1,
+            breakdown: JSON.parse(project.breakdown || '[]'),
+            subtotal: project.subtotal,
+            projectManagementCost: project.project_management_cost,
+            total: project.total,
+            status: project.status,
+            createdAt: project.created_at,
+            submittedAt: project.submitted_at,
+            eta: project.eta,
+            translatedFileName: project.translated_file_name,
+            userName: project.userName,
+            userEmail: project.userEmail
         }));
         
+        console.log('✅ Sending formatted projects:', formattedProjects.length);
         res.json(formattedProjects);
     } catch (error) {
-        console.error('Admin projects fetch error:', error);
-        res.status(500).json({ error: 'Failed to load projects' });
+        console.error('❌ Admin projects fetch error:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to load projects: ' + error.message });
     }
 });
 
