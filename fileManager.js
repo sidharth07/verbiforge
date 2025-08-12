@@ -91,14 +91,9 @@ class FileManager {
             
             console.log('FileManager: File validation passed, size:', file.buffer.length);
             
-            // Encrypt file content
-            console.log('FileManager: Starting encryption');
-            const encryptedContent = this.encryptFile(file.buffer);
-            console.log('FileManager: Encryption completed, encrypted size:', encryptedContent.length);
-            
-            // Save encrypted file
-            console.log('FileManager: Writing file to disk');
-            await fs.writeFile(filePath, encryptedContent);
+            // For now, save file without encryption to debug the issue
+            console.log('FileManager: Saving file without encryption for debugging');
+            await fs.writeFile(filePath, file.buffer);
             console.log('FileManager: File written successfully');
             
             return {
@@ -142,10 +137,10 @@ class FileManager {
     async getUploadedFile(fileName) {
         try {
             const filePath = path.join(UPLOAD_DIR, fileName);
-            const encryptedContent = await fs.readFile(filePath);
-            const decryptedContent = this.decryptFile(encryptedContent);
+            const content = await fs.readFile(filePath);
             
-            return decryptedContent;
+            // For now, return content directly without decryption
+            return content;
         } catch (error) {
             console.error('Error retrieving file:', error);
             throw new Error('File not found or corrupted');

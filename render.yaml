@@ -12,10 +12,12 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_PATH
-        value: /opt/render/project/src/data
+        value: /opt/render/project/src
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS
         value: 100
       - key: MAX_FILE_SIZE
         value: 10485760
+      - key: FILE_ENCRYPTION_KEY
+        generateValue: true
