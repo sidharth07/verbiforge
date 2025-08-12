@@ -548,6 +548,163 @@
             document.getElementById('loading').style.display = show ? 'block' : 'none';
             document.getElementById('analyzeBtn').disabled = show;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                margin: 0;
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+                margin-bottom: 6px;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            .form-section {
+                padding: 20px 15px;
+            }
+            
+            .upload-area {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .file-label {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .language-section {
+                margin: 20px 0;
+            }
+            
+            .language-section h3 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
+            
+            .language-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .language-item {
+                padding: 12px 10px;
+            }
+            
+            .language-name {
+                font-size: 14px;
+            }
+            
+            .language-price {
+                font-size: 12px;
+            }
+            
+            .analyze-btn {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+            
+            .results {
+                padding: 20px 15px;
+            }
+            
+            .result-header h2 {
+                font-size: 1.3em;
+            }
+            
+            .basic-info {
+                padding: 15px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .breakdown-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                padding: 10px;
+            }
+            
+            .total-section {
+                padding: 15px;
+            }
+            
+            .total-amount {
+                font-size: 1.5em;
+            }
+            
+            .reset-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .header {
+                padding: 15px 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .form-section {
+                padding: 15px 10px;
+            }
+            
+            .upload-area {
+                padding: 15px 10px;
+            }
+            
+            .language-grid {
+                gap: 6px;
+            }
+            
+            .language-item {
+                padding: 10px 8px;
+            }
+            
+            .results {
+                padding: 15px 10px;
+            }
+            
+            .basic-info {
+                padding: 12px;
+            }
+            
+            .breakdown-item {
+                padding: 8px;
+            }
+            
+            .total-section {
+                padding: 12px;
+            }
+            
+            .total-amount {
+                font-size: 1.3em;
+            }
+        }
     </script>
 </body>
 
