@@ -291,7 +291,11 @@ app.post('/analyze', upload.single('file'), async (req, res) => {
 
     } catch (error) {
         console.error('Analysis error:', error);
-        res.status(500).json({ error: error.message });
+        if (error.message.includes('Failed to save file securely') || error.message.includes('File encryption failed')) {
+            res.status(500).json({ error: 'File processing failed. Please try again or contact support.' });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 

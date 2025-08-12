@@ -26,34 +26,52 @@ class FileManager {
 
     // Encrypt file content
     encryptFile(buffer) {
-        const algorithm = 'aes-256-cbc';
-        const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
-        const iv = crypto.randomBytes(16);
-        
-        const cipher = crypto.createCipher(algorithm, key);
-        const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
-        
-        return Buffer.concat([iv, encrypted]);
+        try {
+            const algorithm = 'aes-256-cbc';
+            const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+            const iv = crypto.randomBytes(16);
+            
+            const cipher = crypto.createCipher(algorithm, key);
+            const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
+            
+            return Buffer.concat([iv, encrypted]);
+        } catch (error) {
+            console.error('Encryption error:', error);
+            throw new Error('File encryption failed');
+        }
     }
 
     // Decrypt file content
     decryptFile(encryptedBuffer) {
-        const algorithm = 'aes-256-cbc';
-        const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
-        const iv = encryptedBuffer.slice(0, 16);
-        const encrypted = encryptedBuffer.slice(16);
-        
-        const decipher = crypto.createDecipher(algorithm, key);
-        const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-        
-        return decrypted;
+        try {
+            const algorithm = 'aes-256-cbc';
+            const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+            const iv = encryptedBuffer.slice(0, 16);
+            const encrypted = encryptedBuffer.slice(16);
+            
+            const decipher = crypto.createDecipher(algorithm, key);
+            const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+            
+            return decrypted;
+        } catch (error) {
+            console.error('Decryption error:', error);
+            throw new Error('File decryption failed');
+        }
     }
 
     // Save uploaded file securely
     async saveUploadedFile(file, projectId) {
         try {
+            // Ensure directories exist
+            await this.initializeDirectories();
+            
             const fileName = `${projectId}_${Date.now()}_${file.originalname}`;
             const filePath = path.join(UPLOAD_DIR, fileName);
+            
+            // Validate file
+            if (!file || !file.buffer) {
+                throw new Error('Invalid file data');
+            }
             
             // Encrypt file content
             const encryptedContent = this.encryptFile(file.buffer);
