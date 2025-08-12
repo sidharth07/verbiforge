@@ -123,14 +123,10 @@
             margin: 0 auto;
         }
         
-        .founder-image {
+        .founder-content img {
+            max-width: 200px;
+            height: auto;
             flex-shrink: 0;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         
         .founder-info h2 {
@@ -158,25 +154,51 @@
         
         @media (max-width: 768px) {
             .container {
-                margin: 10px;
+                margin: 5px;
                 border-radius: 8px;
             }
             
             .header {
-                padding: 30px 20px;
+                padding: 20px 15px;
             }
             
             .header h1 {
-                font-size: 2em;
+                font-size: 1.8em;
+            }
+            
+            .header p {
+                font-size: 1em;
             }
             
             .content {
-                padding: 30px 20px;
+                padding: 20px 15px;
+            }
+            
+            .content p {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .feature {
+                padding: 20px 15px;
+            }
+            
+            .feature h3 {
+                font-size: 1.2em;
+            }
+            
+            .feature p {
+                font-size: 14px;
             }
             
             .founder-section {
-                margin: 30px -20px;
-                padding: 30px 20px;
+                margin: 20px -15px;
+                padding: 20px 15px;
             }
             
             .founder-content {
@@ -185,13 +207,50 @@
                 gap: 20px;
             }
             
-            .founder-image {
-                width: 150px;
-                height: 150px;
+            .founder-content img {
+                max-width: 150px;
+                height: auto;
             }
             
             .founder-info h2 {
                 font-size: 1.5em;
+            }
+            
+            .founder-info p {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            
+            .back-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .content {
+                padding: 15px 10px;
+            }
+            
+            .features {
+                gap: 15px;
+            }
+            
+            .feature {
+                padding: 15px 10px;
+            }
+            
+            .founder-section {
+                margin: 15px -10px;
+                padding: 15px 10px;
+            }
+            
+            .founder-content img {
+                max-width: 120px;
             }
         }
     </style>
@@ -251,7 +310,7 @@
             
             <div class="founder-section">
                 <div class="founder-content">
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="Sidharth - Founder of VerbiForge" class="founder-image">
+                    <img src="sidharth.jpg" alt="Sidharth - Founder of VerbiForge">
                     <div class="founder-info">
                         <h2>Meet the Founder</h2>
                         <p><span class="founder-name">Sidharth</span></p>
