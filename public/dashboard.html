@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - VerbiForge</title>
+    <script src="client-auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #4facfe;
+            border-bottom-color: #4facfe;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .create-project-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: transform 0.2s;
+        }
+
+        .create-project-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .project-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .project-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .project-details {
+            margin-bottom: 15px;
+        }
+
+        .project-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .project-total {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            flex: 1;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" style="margin-right: 8px; vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea" />
+                            <stop offset="100%" style="stop-color:#764ba2" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="16" cy="16" r="15" fill="url(#logoGradient)" stroke="white" stroke-width="2" />
+                    <text x="8" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold"
+                        fill="white">V</text>
+                    <text x="18" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold"
+                        fill="white">F</text>
+                </svg>
+                VerbiForge
+            </div>
+            <div class="nav-user">
+                <span id="userName">Loading...</span>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Dashboard</h1>
+            <p>Manage your translation projects</p>
+        </div>
+
+        <div class="dashboard-tabs">
+            <button class="tab-btn active" data-tab="projects">My Projects</button>
+            <button class="tab-btn" data-tab="create">Create Project</button>
+        </div>
+
+        <div id="projectsTab" class="tab-content active">
+            <div id="projectsList">
+                <div class="empty-state">
+                    <h3>Loading projects...</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="createTab" class="tab-content">
+            <div style="background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h2 style="margin-bottom: 20px;">Create New Project</h2>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Project Name</label>
+                    <input type="text" id="projectName" placeholder="Enter project name"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+
+                <div
+                    style="border: 2px dashed #ddd; border-radius: 8px; padding: 30px; text-align: center; margin-bottom: 25px;">
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                    <label for="fileInput"
+                        style="background: #f8f9fa; padding: 12px 24px; border-radius: 6px; cursor: pointer; display: inline-block;">
+                        📁 Choose Excel File
+                    </label>
+                    <p id="fileName" style="margin-top: 10px; color: #666;"></p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h3 style="margin-bottom: 15px;">🌍 Select Languages</h3>
+                    <div style="position: relative;">
+                        <div id="languageDropdown"
+                            style="border: 2px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer; background: white; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.3s;">
+                            <span id="selectedLanguagesText" style="color: #666;">Choose languages...</span>
+                            <span id="dropdownArrow"
+                                style="transform: rotate(0deg); transition: transform 0.3s; color: #666;">▼</span>
+                        </div>
+                        <div id="languageOptions"
+                            style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #4facfe; border-top: none; border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <div style="padding: 10px; border-bottom: 1px solid #eee; background: #f8f9fa;">
+                                <input type="text" id="languageSearch" placeholder="Search languages..."
+                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                            </div>
+                            <div id="languageList">
+                                <!-- Language options loaded by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div id="selectedLanguagesTags" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
+                        <!-- Selected language tags -->
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h3 style="margin-bottom: 15px;">🎯 Project Type</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="project-type-option" data-project-type="fusion" id="fusionOption">
+                            <div class="project-type-header">
+                                <input type="radio" name="projectType" value="fusion" checked>
+                                <h4>Fusion</h4>
+                                <span class="project-type-badge">Standard</span>
+                            </div>
+                            <p>Standard translation (AI + human refinement))</p>
+                            <div class="project-type-price">Base Rate</div>
+                        </div>
+
+                        <div class="project-type-option" data-project-type="pure" id="pureOption">
+                            <div class="project-type-header">
+                                <input type="radio" name="projectType" value="pure">
+                                <h4>Pure</h4>
+                                <span class="project-type-badge premium">Premium</span>
+                            </div>
+                            <p>Premium translation with enhanced quality (100% human translation)</p>
+                            <div class="project-type-price"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error"
+                    style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; margin: 15px 0; display: none;">
+                </div>
+                <div id="loading" style="text-align: center; padding: 20px; display: none;">
+                    <div
+                        style="border: 3px solid #f3f3f3; border-top: 3px solid #4facfe; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px;">
+                    </div>
+                    <p>Analyzing file...</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="analyzeBtn"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 6px; font-size: 1.1em; cursor: pointer; width: 200px; transition: transform 0.2s;">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="resultsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Analysis Results</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div id="resultsContent">
+                <!-- Results will be populated here -->
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="saveProject()"
+                    style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; flex: 1;">
+                    Save Project
+                </button>
+                <button id="closeModalBtn2"
+                    style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let selectedLanguages = [];
+        let availableLanguages = {};
+        let currentAnalysis = null;
+        let selectedProjectType = 'fusion';
+
+        // Check authentication on page load
+        checkAuth();
+
+        async function checkAuth() {
+            console.log('🔍 Checking authentication...');
+            try {
+                console.log('🔑 Auth object:', window.Auth);
+                console.log('🔑 Token:', Auth.getToken());
+                console.log('🔑 User:', Auth.getUser());
+                
+                const [userResponse, adminResponse] = await Promise.all([
+                    Auth.authFetch('/me'),
+                    Auth.authFetch('/admin/check')
+                ]);
+
+                console.log('👤 User response:', userResponse);
+                console.log('👑 Admin response:', adminResponse);
+
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    console.log('✅ User data:', userData);
+                    currentUser = userData.user;
+                    document.getElementById('userName').textContent = currentUser.name;
+
+                    // Check if user is admin and add admin link
+                    if (adminResponse.ok) {
+                        const adminData = await adminResponse.json();
+                        console.log('👑 Admin data:', adminData);
+                        if (adminData.isAdmin) {
+                            const navUser = document.querySelector('.nav-user');
+                            const adminLink = document.createElement('a');
+                            adminLink.href = 'admin.html';
+                            adminLink.className = 'logout-btn';
+                            adminLink.textContent = 'Admin Panel';
+                            adminLink.style.marginRight = '10px';
+                            navUser.insertBefore(adminLink, navUser.firstChild);
+                        }
+                    }
+
+                    loadLanguages();
+                    loadProjects();
+                } else {
+                    console.log('❌ User not authenticated, redirecting to login');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('❌ Authentication error:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        async function logout() {
+            Auth.clearAuth();
+            await Auth.authFetch('/logout', { method: 'POST' });
+            window.location.href = 'login.html';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            if (tab === 'projects') {
+                loadProjects();
+            }
+        }
+
+        async function loadLanguages() {
+            try {
+                const response = await Auth.authFetch('/languages');
+                const data = await response.json();
+                availableLanguages = data;
+                renderLanguages();
+            } catch (error) {
+                console.error('Error loading languages:', error);
+            }
+        }
+
+        let filteredLanguages = {};
+
+        function renderLanguages() {
+            const languageList = document.getElementById('languageList');
+            languageList.innerHTML = '';
+
+            const searchTerm = document.getElementById('languageSearch').value.toLowerCase();
+            filteredLanguages = {};
+
+            Object.entries(availableLanguages).forEach(([name, price]) => {
+                if (name.toLowerCase().includes(searchTerm)) {
+                    filteredLanguages[name] = price;
+                }
+            });
+
+            Object.entries(filteredLanguages).forEach(([name, price]) => {
+                const option = document.createElement('div');
+                option.style.cssText = 'padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; border-bottom: 1px solid #f0f0f0;';
+                option.onmouseover = () => option.style.background = selectedLanguages.includes(name) ? '#e3f2fd' : '#f8f9fa';
+                option.onmouseout = () => option.style.background = selectedLanguages.includes(name) ? '#e3f2fd' : 'white';
+                option.onclick = () => toggleLanguage(name);
+
+                if (selectedLanguages.includes(name)) {
+                    option.style.background = '#e3f2fd';
+                    option.style.color = '#1976d2';
+                }
+
+                option.innerHTML = `
+                    <div style="font-weight: 500;">${name}</div>
+                    <div style="font-size: 18px; color: #28a745;">${selectedLanguages.includes(name) ? '✓' : ''}</div>
+                `;
+
+                languageList.appendChild(option);
+            });
+
+            updateSelectedLanguagesDisplay();
+        }
+
+        // Add search functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                const searchInput = document.getElementById('languageSearch');
+                if (searchInput) {
+                    searchInput.addEventListener('input', renderLanguages);
+                }
+            }, 1000);
+        });
+
+        function updateSelectedLanguagesDisplay() {
+            const textElement = document.getElementById('selectedLanguagesText');
+            const tagsContainer = document.getElementById('selectedLanguagesTags');
+
+            if (selectedLanguages.length === 0) {
+                textElement.textContent = 'Choose languages...';
+                tagsContainer.innerHTML = '';
+            } else {
+                textElement.textContent = `${selectedLanguages.length} language${selectedLanguages.length > 1 ? 's' : ''} selected`;
+
+                tagsContainer.innerHTML = '';
+                selectedLanguages.forEach(lang => {
+                    const tag = document.createElement('div');
+                    tag.style.cssText = 'background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; display: flex; align-items: center; gap: 6px;';
+                    tag.innerHTML = `
+                        <span>${lang}</span>
+                        <button onclick="removeLanguage('${lang}')" style="background: rgba(255,255,255,0.3); border: none; color: white; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 12px;">×</button>
+                    `;
+                    tagsContainer.appendChild(tag);
+                });
+            }
+        }
+
+        // Toggle dropdown visibility
+        document.getElementById('languageDropdown').onclick = function (e) {
+            e.stopPropagation();
+            const options = document.getElementById('languageOptions');
+            const arrow = document.getElementById('dropdownArrow');
+            const dropdown = document.getElementById('languageDropdown');
+
+            if (options.style.display === 'none' || !options.style.display) {
+                options.style.display = 'block';
+                arrow.style.transform = 'rotate(180deg)';
+                dropdown.style.borderColor = '#4facfe';
+                dropdown.style.borderBottomLeftRadius = '0';
+                dropdown.style.borderBottomRightRadius = '0';
+                // Focus search input
+                setTimeout(() => {
+                    document.getElementById('languageSearch').focus();
+                }, 100);
+            } else {
+                options.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+                dropdown.style.borderColor = '#ddd';
+                dropdown.style.borderRadius = '8px';
+            }
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('languageDropdown');
+            const options = document.getElementById('languageOptions');
+            const arrow = document.getElementById('dropdownArrow');
+
+            if (!dropdown.contains(e.target) && !options.contains(e.target)) {
+                options.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+                dropdown.style.borderColor = '#ddd';
+                dropdown.style.borderRadius = '8px';
+            }
+        });
+
+        window.removeLanguage = function (name) {
+            const index = selectedLanguages.indexOf(name);
+            if (index > -1) {
+                selectedLanguages.splice(index, 1);
+                renderLanguages();
+            }
+        };
+
+        function selectProjectType(type) {
+            selectedProjectType = type;
+
+            // Update radio buttons
+            document.querySelectorAll('input[name="projectType"]').forEach(radio => {
+                radio.checked = radio.value === type;
+            });
+
+            // Update visual selection
+            document.querySelectorAll('.project-type-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById(type + 'Option').classList.add('selected');
+        }
+
+        function toggleLanguage(name) {
+            const index = selectedLanguages.indexOf(name);
+            if (index > -1) {
+                selectedLanguages.splice(index, 1);
+            } else {
+                selectedLanguages.push(name);
+            }
+            renderLanguages();
+        }
+
+        document.getElementById('fileInput').onchange = function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = file.name;
+            }
+        };
+
+        async function analyzeFile() {
+            console.log('🚀 analyzeFile function called!');
+            const projectName = document.getElementById('projectName').value;
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!projectName.trim()) {
+                showError('Please enter a project name');
+                return;
+            }
+
+            if (!file) {
+                showError('Please select an Excel file');
+                return;
+            }
+
+            if (selectedLanguages.length === 0) {
+                showError('Please select at least one language');
+                return;
+            }
+
+            showLoading(true);
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('languages', JSON.stringify(selectedLanguages));
+            formData.append('projectType', selectedProjectType);
+
+            try {
+                const response = await Auth.authFetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    currentAnalysis = {
+                        projectName,
+                        fileName: result.fileName,
+                        wordCount: result.wordCount,
+                        projectType: result.projectType,
+                        multiplier: result.multiplier,
+                        breakdown: result.breakdown,
+                        subtotal: result.subtotal,
+                        projectManagementCost: result.projectManagementCost || '500.00',
+                        total: result.total,
+                        tempFileId: result.tempFileId
+                    };
+                    showResults(result);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+
+            showLoading(false);
+        }
+
+        function showResults(data) {
+            console.log('Analysis data:', data); // Debug log
+            const content = document.getElementById('resultsContent');
+
+            let breakdownHtml = '';
+            data.breakdown.forEach(item => {
+                breakdownHtml += `
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span>${item.language}</span>
+                        <span>$${item.cost}</span>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = `
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>File:</span>
+                        <span>${data.fileName}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Total Words:</span>
+                        <span>${data.wordCount.toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Project Type:</span>
+                        <span style="font-weight: 600; color: ${data.projectType === 'pure' ? '#ffd700' : '#4facfe'};">
+                            ${data.projectType === 'pure' ? 'Pure (Premium)' : 'Fusion (Standard)'}
+                            ${data.multiplier > 1 ? ` (${data.multiplier}x)` : ''}
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px;">💰 Translation Costs</h3>
+                    <div>${breakdownHtml}</div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-weight: 500;">
+                        <span>Subtotal</span>
+                        <span>$${data.subtotal}</span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px;">📋 Additional Costs</h3>
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <span>Project Management</span>
+                        <span>$${data.projectManagementCost || '500.00'}</span>
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div>Grand Total</div>
+                    <div style="font-size: 2em; font-weight: bold;">$${data.total}</div>
+                </div>
+            `;
+
+            document.getElementById('resultsModal').classList.add('show');
+        }
+
+        async function saveProject() {
+            if (!currentAnalysis) return;
+
+            console.log('Saving project with data:', currentAnalysis); // Debug log
+
+            try {
+                const response = await Auth.authFetch('/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentAnalysis)
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    resetCreateForm();
+                    switchTab('projects');
+                    loadProjects();
+                } else {
+                    const data = await response.json();
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Error saving project');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('resultsModal').classList.remove('show');
+        }
+
+        function resetCreateForm() {
+            document.getElementById('projectName').value = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileName').textContent = '';
+            selectedLanguages = [];
+            selectedProjectType = 'fusion';
+            renderLanguages();
+            selectProjectType('fusion');
+            currentAnalysis = null;
+            const options = document.getElementById('languageOptions');
+            const dropdown = document.getElementById('languageDropdown');
+            const arrow = document.getElementById('dropdownArrow');
+
+            options.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+            dropdown.style.borderColor = '#ddd';
+            dropdown.style.borderRadius = '8px';
+            document.getElementById('languageSearch').value = '';
+        }
+
+        async function loadProjects() {
+            console.log('📋 Loading projects...');
+            try {
+                const response = await Auth.authFetch('/projects');
+                console.log('📋 Projects response:', response);
+                const projects = await response.json();
+                console.log('📋 Projects data:', projects);
+                renderProjects(projects);
+            } catch (error) {
+                console.error('❌ Error loading projects:', error);
+            }
+        }
+
+        function renderProjects(projects) {
+            const container = document.getElementById('projectsList');
+
+            console.log('Rendering projects:', projects); // Debug log
+
+            if (projects.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No projects yet</h3>
+                        <p>Create your first project to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="projects-grid">';
+
+            projects.forEach(project => {
+                const date = new Date(project.createdAt).toLocaleDateString();
+
+                let breakdownHtml = '';
+                project.breakdown.forEach(item => {
+                    breakdownHtml += `
+                        <div class="project-detail">
+                            <span>${item.language}</span>
+                            <span>$${item.cost}</span>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div class="project-name">${project.name}</div>
+                            <div class="project-date">${date}</div>
+                        </div>
+                        
+                        <div class="project-details">
+                            <div class="project-detail">
+                                <span>File:</span>
+                                <span>${project.fileName}</span>
+                            </div>
+                            <div class="project-detail">
+                                <span>Words:</span>
+                                <span>${project.wordCount.toLocaleString()}</span>
+                            </div>
+                            <div class="project-detail">
+                                <span>Type:</span>
+                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                                    ${(project.projectType || 'fusion') === 'pure' ? 'Pure' : 'Fusion'}
+                                    ${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}
+                                </span>
+                            </div>
+                            <div class="project-detail">
+                                <span>Status:</span>
+                                <span style="color: ${getStatusColor(project.status)};">
+                                    ${getStatusText(project.status)}
+                                </span>
+                            </div>
+                            ${project.eta ? `
+                                <div class="project-detail">
+                                    <span>ETA:</span>
+                                    <span style="font-weight: 600; color: #28a745;">${project.eta} working days</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <h4 style="margin-bottom: 10px; font-size: 0.9em; color: #666;">Translation Costs:</h4>
+                            ${breakdownHtml}
+                            <div class="project-detail" style="border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
+                                <span>Subtotal:</span>
+                                <span>$${project.subtotal || '0.00'}</span>
+                            </div>
+                            <div class="project-detail">
+                                <span>Project Management:</span>
+                                <span>$${project.projectManagementCost || '500.00'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="project-total">$${project.total}</div>
+                        
+                        <div class="project-actions">
+                            ${project.status === 'quote_generated' ? `
+                                <button onclick="submitProject('${project.id}')" 
+                                        style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-right: 5px;">
+                                    Submit Project
+                                </button>
+                            ` : ''}
+                            ${project.translatedFileName ? `
+                                <a href="/projects/${project.id}/download-translated" 
+                                   style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block; margin-right: 5px;">
+                                   Download Translated
+                                </a>
+                            ` : ''}
+                            ${project.status === 'quote_generated' ? `
+                                <button class="delete-btn" onclick="deleteProject('${project.id}')">Delete</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'quote_generated': '#856404',
+                'submitted': '#0c5460',
+                'in_progress': '#0c5460',
+                'proofreading': '#6f42c1',
+                'ready': '#fd7e14',
+                'completed': '#155724'
+            };
+            return colors[status] || '#666';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'quote_generated': 'Quote Generated',
+                'submitted': 'Submitted',
+                'in_progress': 'In Progress',
+                'proofreading': 'Proofreading',
+                'ready': 'Ready',
+                'completed': 'Completed'
+            };
+            return texts[status] || status;
+        }
+
+        async function submitProject(id) {
+            if (!confirm('Are you sure you want to submit this project? Once submitted, you cannot delete it.')) {
+                return;
+            }
+
+            try {
+                const response = await Auth.authFetch(`/projects/${id}/submit`, {
+                    method: 'PUT'
+                });
+
+                if (response.ok) {
+                    loadProjects();
+                    alert('Project submitted successfully!');
+                } else {
+                    const data = await response.json();
+                    alert('Error submitting project: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error submitting project:', error);
+                alert('Network error submitting project');
+            }
+        }
+
+        async function deleteProject(id) {
+            if (!confirm('Are you sure you want to delete this project?')) return;
+
+            try {
+                const response = await Auth.authFetch(`/projects/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadProjects();
+                }
+            } catch (error) {
+                console.error('Error deleting project:', error);
+            }
+        }
+
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('analyzeBtn').disabled = show;
+        }
+
+        // Add event listeners after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Setting up event listeners...');
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    switchTab(tab);
+                });
+            });
+
+            // Analyze button
+            document.getElementById('analyzeBtn').addEventListener('click', analyzeFile);
+
+            // Project type selection
+            document.querySelectorAll('.project-type-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const projectType = this.getAttribute('data-project-type');
+                    selectProjectType(projectType);
+                });
+            });
+
+            // Close modal buttons
+            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+            document.getElementById('closeModalBtn2').addEventListener('click', closeModal);
+
+            // File input change
+            document.getElementById('fileInput').addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    document.getElementById('fileName').textContent = file.name;
+                }
+            });
+
+            // Language dropdown
+            document.getElementById('languageDropdown').addEventListener('click', function() {
+                const options = document.getElementById('languageOptions');
+                const arrow = document.getElementById('dropdownArrow');
+                
+                if (options.style.display === 'none' || !options.style.display) {
+                    options.style.display = 'block';
+                    arrow.style.transform = 'rotate(180deg)';
+                    this.style.borderColor = '#4facfe';
+                    this.style.borderRadius = '8px 8px 0 0';
+                    document.getElementById('languageSearch').focus();
+                } else {
+                    hideLanguageDropdown();
+                }
+            });
+
+            // Language search
+            document.getElementById('languageSearch').addEventListener('input', function() {
+                renderLanguages();
+            });
+
+            // Click outside to close dropdown
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#languageDropdown')) {
+                    hideLanguageDropdown();
+                }
+            });
+
+            console.log('✅ Event listeners set up successfully');
+        });
+    </script>
+
+    <style>
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .project-type-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .project-type-option:hover {
+            border-color: #4facfe;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.1);
+        }
+
+        .project-type-option.selected {
+            border-color: #4facfe;
+            background: #f8f9ff;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.2);
+        }
+
+        .project-type-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .project-type-header h4 {
+            margin: 0;
+            color: #333;
+            flex: 1;
+        }
+
+        .project-type-badge {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .project-type-badge.premium {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #744210;
+        }
+
+        .project-type-option p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .project-type-price {
+            font-weight: 600;
+            color: #4facfe;
+            font-size: 0.9em;
+        }
+    </style>
+</body>
+
+</html>

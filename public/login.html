@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - VerbiForge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #f8fafc;
+        }
+
+        .left-section {
+            flex: 0 0 65%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 40px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-content p {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin-top: 40px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-icon {
+            font-size: 1.5em;
+        }
+
+        .feature-text {
+            font-weight: 500;
+        }
+
+        .right-section {
+            flex: 0 0 35%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: white;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-header h2 {
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+
+        .auth-header p {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-switch {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 24px;
+        }
+
+        .auth-switch a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-links {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            display: none;
+            border: 1px solid #feb2b2;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #718096;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .left-section {
+                flex: 0 0 40vh;
+            }
+
+            .right-section {
+                flex: 1;
+                padding: 20px;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5em;
+            }
+
+            .hero-content p {
+                font-size: 1.1em;
+            }
+
+            .features-list {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="left-section">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea'/%3E%3Cstop offset='100%25' style='stop-color:%23764ba2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='url(%23bg)'/%3E%3Cg transform='translate(100,100)'%3E%3Ccircle cx='300' cy='200' r='120' fill='rgba(255,255,255,0.1)' stroke='rgba(255,255,255,0.3)' stroke-width='2'/%3E%3Crect x='200' y='150' width='200' height='100' rx='10' fill='rgba(255,255,255,0.2)' stroke='rgba(255,255,255,0.4)' stroke-width='2'/%3E%3Ctext x='300' y='210' text-anchor='middle' fill='white' font-size='24' font-weight='bold'%3EExcel%3C/text%3E%3Cpath d='M150 300 L450 300 M150 320 L450 320 M150 340 L450 340' stroke='rgba(255,255,255,0.6)' stroke-width='3'/%3E%3Ccircle cx='500' cy='150' r='40' fill='rgba(255,255,255,0.15)'/%3E%3Ctext x='500' y='160' text-anchor='middle' fill='white' font-size='16'%3E🌍%3C/text%3E%3Ccircle cx='500' cy='250' r='40' fill='rgba(255,255,255,0.15)'/%3E%3Ctext x='500' y='260' text-anchor='middle' fill='white' font-size='16'%3E📊%3C/text%3E%3Ccircle cx='500' cy='350' r='40' fill='rgba(255,255,255,0.15)'/%3E%3Ctext x='500' y='360' text-anchor='middle' fill='white' font-size='16'%3E💰%3C/text%3E%3C/g%3E%3C/svg%3E"
+            alt="Translation Services" class="hero-image">
+
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>
+                    <svg width="50" height="50" viewBox="0 0 50 50" style="margin-right: 15px; vertical-align: middle;">
+                        <defs>
+                            <linearGradient id="loginLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea"/>
+                                <stop offset="100%" style="stop-color:#764ba2"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="25" cy="25" r="22" fill="url(#loginLogoGradient)" stroke="white" stroke-width="4"/>
+                        <text x="13" y="32" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">V</text>
+                        <text x="28" y="32" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">F</text>
+                    </svg>
+                    VerbiForge
+                </h1>
+            <p>Professional translation services with instant pricing and project management</p>
+
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-icon">🌍</span>
+                    <span class="feature-text">100+ Languages</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <span class="feature-text">Instant Quotes</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <span class="feature-text">Project Tracking</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <span class="feature-text">Secure & Confidential</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="right-section">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account</p>
+            </div>
+
+            <div class="error" id="error"></div>
+            <div class="loading" id="loading">Signing in...</div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="auth-btn" id="loginBtn">Sign In</button>
+            </form>
+
+            <div class="auth-switch">
+                Don't have an account? <a href="signup.html">Create one</a>
+            </div>
+
+            <div class="footer-links">
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="client-auth.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            showLoading(true);
+            hideError();
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Persist auth
+                    Auth.setAuth(data.token, data.user);
+                    // Redirect admin users to admin panel, regular users to dashboard
+                    if (data.isAdmin) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+
+            showLoading(false);
+        });
+
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('loginBtn').disabled = show;
+        }
+    </script>
+</body>
+
+</html>

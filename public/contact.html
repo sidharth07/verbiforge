@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - VerbiForge</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .form-section {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .required {
+            color: #dc3545;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .back-link {
+            color: #4facfe;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Contact Us</h1>
+            <p>Get in touch with our team</p>
+        </div>
+        
+        <div class="form-section">
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="loading" id="loading">Sending your message...</div>
+            
+            <form id="contactForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">Company</label>
+                        <input type="text" id="company" name="company">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Subject <span class="required">*</span></label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message <span class="required">*</span></label>
+                    <textarea id="message" name="message" placeholder="Tell us about your translation needs..." required></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
+            </form>
+            
+            <a href="login.html" class="back-link">← Back to Login</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            showLoading(true);
+            hideMessages();
+            
+            try {
+                const response = await fetch('/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(result.message);
+                    document.getElementById('contactForm').reset();
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+            
+            showLoading(false);
+        });
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideMessages() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('submitBtn').disabled = show;
+        }
+    </script>
+</body>
+</html>

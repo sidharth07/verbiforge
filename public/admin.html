@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - VerbiForge</title>
+    <script src="client-auth.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .admin-header {
+            margin-bottom: 30px;
+        }
+        
+        .admin-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .projects-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .section-header h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .projects-table th,
+        .projects-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .projects-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .projects-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .status-quote_generated {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-submitted {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-in_progress {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-proofreading {
+            background: #e2e3f1;
+            color: #6f42c1;
+        }
+        
+        .status-ready {
+            background: #ffeaa7;
+            color: #fd7e14;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-new {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .action-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-right: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .action-btn:hover {
+            background: #0056b3;
+        }
+        
+        .action-btn.download {
+            background: #28a745;
+        }
+        
+        .action-btn.download:hover {
+            background: #1e7e34;
+        }
+        
+        .eta-input {
+            width: 80px;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .eta-save {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        .eta-save:hover {
+            background: #1e7e34;
+        }
+        
+        .languages-list {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #dc3545;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .project-name-link {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .project-name-link:hover {
+            color: #0056b3;
+        }
+        
+        .modal-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .modal-section h4 {
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #dc3545;
+            border-bottom-color: #dc3545;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .language-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .language-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .price-input {
+            width: 80px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .save-all-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        
+        .save-all-btn:hover {
+            background: #1e7e34;
+        }
+        
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        
+        .reset-btn:hover {
+            background: #545b62;
+        }
+        
+        .global-pricing-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.1);
+        }
+        
+        .global-pricing-section h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .global-price-input {
+            width: 100px;
+            padding: 10px 15px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .global-price-input:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        
+        .apply-global-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .apply-global-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        
+        .add-language-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4f1d4 100%);
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(40,167,69,0.1);
+        }
+        
+        .add-language-section h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .add-language-input {
+            padding: 10px 15px;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .add-language-input:focus {
+            outline: none;
+            border-color: #1e7e34;
+            box-shadow: 0 0 0 3px rgba(40,167,69,0.1);
+        }
+        
+        .add-language-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .add-language-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+        }
+        
+        .custom-language-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            margin-left: 8px;
+        }
+        
+        .delete-language-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 5px;
+            transition: background 0.2s;
+        }
+        
+        .delete-language-btn:hover {
+            background: #c82333;
+        }
+        
+        .notification-badge {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 8px;
+            min-width: 18px;
+            text-align: center;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        .tab-btn.has-notifications {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-bottom-color: #dc3545;
+        }
+        
+        .tab-btn.has-notifications:hover {
+            background: rgba(220, 53, 69, 0.15);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .unread-message {
+            background: #fff3cd !important;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .unread-indicator {
+            width: 8px;
+            height: 8px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .projects-table {
+                font-size: 0.9em;
+            }
+            
+            .projects-table th,
+            .projects-table td {
+                padding: 10px 8px;
+            }
+            
+            .container {
+                padding: 20px 10px;
+            }
+            
+            #projectModal > div {
+                width: 95%;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" style="margin-right: 8px; vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="adminLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#dc3545"/>
+                            <stop offset="100%" style="stop-color:#c82333"/>
+                        </linearGradient>
+                    </defs>
+                    <circle cx="16" cy="16" r="15" fill="url(#adminLogoGradient)" stroke="white" stroke-width="2"/>
+                    <text x="8" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">V</text>
+                    <text x="18" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">F</text>
+                </svg>
+                VerbiForge Admin
+            </div>
+            <div class="nav-actions">
+                <span id="adminName">Loading...</span>
+                <a href="dashboard.html" class="nav-btn">User Dashboard</a>
+                <button class="nav-btn" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="admin-header">
+            <h1>Admin Panel</h1>
+            <p>Manage projects and language pricing</p>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #ddd; flex-wrap: wrap;">
+            <button class="tab-btn active" data-admin-tab="projects" id="projectsTabBtn">Projects</button>
+            <button class="tab-btn" data-admin-tab="languages" id="languagesTabBtn">Language Pricing</button>
+            <button class="tab-btn" data-admin-tab="users" id="usersTabBtn">User Management</button>
+            <button class="tab-btn" data-admin-tab="contacts" id="contactsTabBtn">
+                Contact Messages
+                <span id="contactsNotification" class="notification-badge" style="display: none;">0</span>
+            </button>
+            <button class="tab-btn" data-admin-tab="admins" id="adminsTabBtn" style="display: none;">Admin Management</button>
+        </div>
+        
+        <div id="projectsTab" class="tab-content active">
+            <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalProjects">0</div>
+                <div class="stat-label">Total Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingProjects">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressProjects">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRevenue">$0</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+        
+        <div class="projects-section">
+            <div class="section-header">
+                <h2>All Projects</h2>
+                <p>View and manage all user projects</p>
+            </div>
+            
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>Loading projects...</p>
+            </div>
+            
+            <div id="projectsContent" style="display: none;">
+                <table class="projects-table">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>User</th>
+                            <th>File</th>
+                            <th>Languages</th>
+                            <th>Words</th>
+                            <th>Total Cost</th>
+                            <th>Status</th>
+                            <th>ETA (Days)</th>
+                            <th>Dates</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <!-- Projects will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h3>No projects found</h3>
+                <p>No users have created projects yet</p>
+            </div>
+        </div>
+        </div>
+        
+        <div id="languagesTab" class="tab-content">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>Language Pricing Management</h2>
+                    <p>Set pricing for each language (in cents per word)</p>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <div class="global-pricing-section">
+                        <h3>🌍 Global Pricing</h3>
+                        <p style="color: #666; margin-bottom: 20px; font-size: 15px;">Set the same price for all languages at once, or customize individual language pricing below.</p>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <label for="globalPrice" style="font-weight: 600; color: #333;">Global Price:</label>
+                                <input type="number" id="globalPrice" placeholder="35" min="1" max="999" class="global-price-input">
+                                <span style="color: #666; font-weight: 500;">cents/word</span>
+                            </div>
+                            <button onclick="applyGlobalPricing()" class="apply-global-btn">
+                                🚀 Apply to All Languages
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 2px solid #28a745;">
+                        <h3 style="margin-bottom: 15px; color: #28a745;">➕ Add New Language</h3>
+                        <p style="color: #666; margin-bottom: 15px;">Add a custom language that's not in the default list.</p>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="newLanguageName" style="font-weight: 600; color: #333;">Language Name:</label>
+                                <input type="text" id="newLanguageName" placeholder="e.g., Swahili (Kenya)" 
+                                       style="width: 200px; padding: 10px 12px; border: 2px solid #28a745; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="newLanguagePrice" style="font-weight: 600; color: #333;">Price:</label>
+                                <input type="number" id="newLanguagePrice" placeholder="35" min="1" max="999" 
+                                       style="width: 80px; padding: 10px 12px; border: 2px solid #28a745; border-radius: 6px; text-align: center; font-size: 14px;">
+                                <span style="color: #666; font-weight: 500;">cents/word</span>
+                            </div>
+                            <button onclick="addNewLanguage()" 
+                                    style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                                ✨ Add Language
+                            </button>
+                        </div>
+                        <div id="addLanguageStatus" style="margin-top: 15px; padding: 10px; border-radius: 4px; display: none;"></div>
+                    </div>
+                    
+                    <div style="background: #f0f8ff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 2px solid #007bff;">
+                        <h3 style="margin-bottom: 15px; color: #007bff;">⚙️ Pure Project Multiplier</h3>
+                        <p style="color: #666; margin-bottom: 15px;">Set the pricing multiplier for Pure (Premium) projects. This applies to all languages.</p>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="multiplierValue" style="font-weight: 600; color: #333;">Multiplier:</label>
+                                <input type="number" id="multiplierValue" step="0.1" min="1" max="5" 
+                                       style="width: 80px; padding: 8px 12px; border: 2px solid #007bff; border-radius: 6px; text-align: center; font-size: 14px;">
+                                <span style="color: #666; font-weight: 500;">x</span>
+                            </div>
+                            <button onclick="updateMultiplier()" 
+                                    style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                Update Multiplier
+                            </button>
+                        </div>
+                        <div id="multiplierStatus" style="margin-top: 15px; padding: 10px; border-radius: 4px; display: none;"></div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button class="save-all-btn" onclick="saveAllLanguagePricing()">Save All Changes</button>
+                        <button class="reset-btn" onclick="resetLanguagePricing()">Reset to Defaults</button>
+                    </div>
+                    
+                    <div id="languageGrid" class="language-grid">
+                        <!-- Language pricing items will be loaded here -->
+                    </div>
+                    
+                    <div id="languageSaveStatus" style="margin-top: 20px; padding: 10px; border-radius: 4px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="usersTab" class="tab-content">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <p>View and manage all registered users</p>
+                </div>
+                
+                <div id="usersContent" style="padding: 20px;">
+                    <div id="usersLoading" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading users...</p>
+                    </div>
+                    
+                    <div id="usersTable" style="display: none;">
+                        <table class="projects-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Joined</th>
+                                    <th>Projects</th>
+                                    <th>Total Spent</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="usersEmpty" class="empty-state" style="display: none;">
+                        <h3>No users found</h3>
+                        <p>No users have registered yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="adminsTab" class="tab-content">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>Admin Management</h2>
+                    <p>Manage admin users and access permissions</p>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                        <h3 style="margin-bottom: 15px;">➕ Add New Admin</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                            <input type="email" id="newAdminEmail" placeholder="Email Address" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <input type="text" id="newAdminName" placeholder="Full Name" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <input type="password" id="newAdminPassword" placeholder="Temporary Password" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button onclick="createAdmin()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                                Create Admin
+                            </button>
+                        </div>
+                        <div id="adminCreateStatus" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
+                    </div>
+                    
+                    <div id="adminsLoading" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading admin users...</p>
+                    </div>
+                    
+                    <div id="adminsTable" style="display: none;">
+                        <table class="projects-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                    <th>Created By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminsTableBody">
+                                <!-- Admins will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="contactsTab" class="tab-content">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>Contact Messages</h2>
+                    <p>View and manage contact form submissions</p>
+                </div>
+                
+                <div id="contactsContent" style="padding: 20px;">
+                    <div id="contactsLoading" class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading contact messages...</p>
+                    </div>
+                    
+                    <div id="contactsTable" style="display: none;">
+                        <table class="projects-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Company</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactsTableBody">
+                                <!-- Contact messages will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="contactsEmpty" class="empty-state" style="display: none;">
+                        <h3>No contact messages</h3>
+                        <p>No contact form submissions yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Details Modal -->
+    <div id="contactModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 8px; padding: 30px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="contactModalTitle">Contact Details</h2>
+                <button onclick="closeContactModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            
+            <div id="contactDetailsContent">
+                <!-- Contact details will be loaded here -->
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <select id="contactStatusSelect" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="new">New</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+                <button onclick="updateContactStatus()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                    Update Status
+                </button>
+                <button onclick="deleteContact()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Details Modal -->
+    <div id="projectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 8px; padding: 30px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="modalProjectName">Project Details</h2>
+                <button onclick="closeProjectModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            
+            <div id="projectDetailsContent">
+                <!-- Project details will be loaded here -->
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                <h3 style="margin-bottom: 15px;">📤 Upload Translated File</h3>
+                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                    <input type="file" id="translatedFileInput" accept=".xlsx,.xls" style="flex: 1;">
+                    <button onclick="uploadTranslatedFile()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                        Upload
+                    </button>
+                </div>
+                <div id="uploadStatus" style="font-size: 0.9em; margin-top: 10px;"></div>
+                <div id="currentTranslatedFile" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProjects = [];
+        let allLanguages = {};
+        let allUsers = [];
+        let allAdmins = [];
+        let allContacts = [];
+        let currentContactId = null;
+        let isSuperAdmin = false;
+        let DEFAULT_LANGUAGES = {};
+        let unreadContactsCount = 0;
+        let currentMultiplier = 1.3;
+
+        // Check admin access and load data
+        checkAdminAccess();
+        
+        // Check for new contact messages every 30 seconds
+        setInterval(loadContactsCount, 30000);
+
+        async function checkAdminAccess() {
+            try {
+                const [userResponse, adminResponse] = await Promise.all([
+                    Auth.authFetch('/me'),
+                    Auth.authFetch('/admin/check')
+                ]);
+
+                if (!userResponse.ok) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const userData = await userResponse.json();
+                const adminData = await adminResponse.json();
+
+                if (!adminData.isAdmin) {
+                    alert('Access denied. Admin privileges required.');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                document.getElementById('adminName').textContent = userData.user.name;
+                isSuperAdmin = adminData.isSuperAdmin;
+                
+                // Show admin management tab only for super admin
+                if (isSuperAdmin) {
+                    document.getElementById('adminsTabBtn').style.display = 'block';
+                }
+                
+                loadProjects();
+                loadLanguages();
+                loadContactsCount(); // Load initial contact count
+                loadMultiplier(); // Load current multiplier
+            } catch (error) {
+                console.error('Error checking admin access:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        async function loadProjects() {
+            try {
+                const response = await Auth.authFetch('/admin/projects');
+                if (response.ok) {
+                    allProjects = await response.json();
+                    renderProjects();
+                    updateStats();
+                } else {
+                    showError('Failed to load projects');
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                showError('Network error loading projects');
+            }
+        }
+
+        function renderProjects() {
+            const loadingState = document.getElementById('loadingState');
+            const projectsContent = document.getElementById('projectsContent');
+            const emptyState = document.getElementById('emptyState');
+            const tbody = document.getElementById('projectsTableBody');
+
+            loadingState.style.display = 'none';
+
+            if (allProjects.length === 0) {
+                emptyState.style.display = 'block';
+                projectsContent.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            projectsContent.style.display = 'block';
+
+            tbody.innerHTML = '';
+
+            allProjects.forEach(project => {
+                const row = document.createElement('tr');
+                const createdDate = new Date(project.createdAt).toLocaleDateString();
+                const languages = project.breakdown.map(b => b.language).join(', ');
+                
+                const statusClass = `status-${project.status}`;
+                const statusText = getAdminStatusText(project.status);
+                const hasTranslatedFile = project.translatedFileName ? '✓' : '';
+                const submittedDate = project.submittedAt ? new Date(project.submittedAt).toLocaleDateString() : '';
+
+                row.innerHTML = `
+                    <td>
+                        <div style="font-weight: 500; cursor: pointer; color: #007bff;" onclick="openProjectDetails('${project.id}')">
+                            ${project.name}
+                        </div>
+                    </td>
+                    <td>
+                        <div>${project.userName}</div>
+                        <div style="font-size: 0.8em; color: #666;">${project.userEmail}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.9em;">${project.fileName}</div>
+                    </td>
+                    <td>
+                        <div class="languages-list">${languages}</div>
+                    </td>
+                    <td>${project.wordCount.toLocaleString()}</td>
+                    <td style="font-weight: 600;">$${project.total}</td>
+                    <td>
+                        ${project.status === 'quote_generated' ? `
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                            <div style="font-size: 0.8em; color: #856404; margin-top: 2px;">Awaiting Submission</div>
+                        ` : `
+                            <select onchange="updateProjectStatus('${project.id}', this.value)" 
+                                    style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+                                <option value="submitted" ${project.status === 'submitted' ? 'selected' : ''}>Submitted</option>
+                                <option value="in_progress" ${project.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="proofreading" ${project.status === 'proofreading' ? 'selected' : ''}>Proofreading</option>
+                                <option value="ready" ${project.status === 'ready' ? 'selected' : ''}>Ready</option>
+                                <option value="completed" ${project.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                        `}
+                        ${hasTranslatedFile ? '<div style="font-size: 0.8em; color: #28a745; margin-top: 2px;">File Uploaded</div>' : ''}
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <input type="number" class="eta-input" value="${project.eta || ''}" 
+                                   placeholder="Days" id="eta-${project.id}" min="1" max="365">
+                            <button class="eta-save" onclick="updateETA('${project.id}')">Save</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div>Created: ${createdDate}</div>
+                        ${submittedDate ? `<div style="font-size: 0.8em; color: #666;">Submitted: ${submittedDate}</div>` : ''}
+                    </td>
+                    <td>
+                        <a href="/admin/projects/${project.id}/download" class="action-btn download" 
+                           target="_blank">Download</a>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function getAdminStatusText(status) {
+            const texts = {
+                'quote_generated': 'Quote Generated',
+                'submitted': 'Submitted',
+                'in_progress': 'In Progress',
+                'proofreading': 'Proofreading',
+                'ready': 'Ready',
+                'completed': 'Completed'
+            };
+            return texts[status] || status;
+        }
+
+        function updateStats() {
+            const total = allProjects.length;
+            const quotes = allProjects.filter(p => p.status === 'quote_generated').length;
+            const submitted = allProjects.filter(p => p.status === 'submitted').length;
+            const inProgress = allProjects.filter(p => ['in_progress', 'proofreading', 'ready'].includes(p.status)).length;
+            const revenue = allProjects.reduce((sum, p) => sum + parseFloat(p.total), 0);
+
+            document.getElementById('totalProjects').textContent = total;
+            document.getElementById('pendingProjects').textContent = quotes;
+            document.getElementById('inProgressProjects').textContent = inProgress;
+            document.getElementById('totalRevenue').textContent = `$${revenue.toFixed(2)}`;
+            
+            // Update stat labels
+            document.querySelector('#pendingProjects').nextElementSibling.textContent = 'Quotes Generated';
+            document.querySelector('#inProgressProjects').nextElementSibling.textContent = 'Active Projects';
+        }
+
+        async function updateProjectStatus(projectId, newStatus) {
+            try {
+                const response = await Auth.authFetch(`/admin/projects/${projectId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (response.ok) {
+                    // Update the project in our local array
+                    const project = allProjects.find(p => p.id === projectId);
+                    if (project) {
+                        project.status = newStatus;
+                        updateStats();
+                    }
+                } else {
+                    const data = await response.json();
+                    alert('Error updating status: ' + data.error);
+                    // Reload projects to reset the dropdown
+                    loadProjects();
+                }
+            } catch (error) {
+                console.error('Error updating project status:', error);
+                alert('Network error updating status');
+                loadProjects();
+            }
+        }
+
+        async function updateETA(projectId) {
+            const etaInput = document.getElementById(`eta-${projectId}`);
+            const eta = parseInt(etaInput.value);
+
+            if (!eta || eta < 1) {
+                alert('Please enter a valid ETA in days');
+                return;
+            }
+
+            try {
+                const response = await Auth.authFetch(`/admin/projects/${projectId}/eta`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eta })
+                });
+
+                if (response.ok) {
+                    // Refresh projects to show updated status
+                    loadProjects();
+                    alert('ETA updated successfully');
+                } else {
+                    const data = await response.json();
+                    alert('Error updating ETA: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error updating ETA:', error);
+                alert('Network error updating ETA');
+            }
+        }
+
+        async function logout() {
+            await fetch('/logout', { method: 'POST' });
+            window.location.href = 'login.html';
+        }
+
+        let currentProjectId = null;
+
+        async function openProjectDetails(projectId) {
+            currentProjectId = projectId;
+            
+            try {
+                const response = await Auth.authFetch(`/admin/projects/${projectId}`);
+                if (response.ok) {
+                    const project = await response.json();
+                    showProjectDetails(project);
+                } else {
+                    alert('Error loading project details');
+                }
+            } catch (error) {
+                console.error('Error loading project:', error);
+                alert('Network error loading project');
+            }
+        }
+
+        function showProjectDetails(project) {
+            document.getElementById('modalProjectName').textContent = project.name;
+            
+            const languages = project.breakdown.map(b => `${b.language}: $${b.cost}`).join('<br>');
+            const createdDate = new Date(project.createdAt).toLocaleDateString();
+            
+            const content = document.getElementById('projectDetailsContent');
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: #333;">User Information</h4>
+                        <p><strong>Name:</strong> ${project.userName}</p>
+                        <p><strong>Email:</strong> ${project.userEmail}</p>
+                        <p><strong>Created:</strong> ${createdDate}</p>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: #333;">Project Details</h4>
+                        <p><strong>File:</strong> ${project.fileName}</p>
+                        <p><strong>Words:</strong> ${project.wordCount.toLocaleString()}</p>
+                        <p><strong>Project Type:</strong> 
+                            <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                                ${(project.projectType || 'fusion') === 'pure' ? 'Pure (Premium)' : 'Fusion (Standard)'}
+                                ${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}
+                            </span>
+                        </p>
+                        <p><strong>Status:</strong> ${project.status.replace('_', ' ').toUpperCase()}</p>
+                        ${project.eta ? `<p><strong>ETA:</strong> ${project.eta} days</p>` : ''}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px; color: #333;">Language Breakdown</h4>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                        ${languages}
+                        <hr style="margin: 10px 0;">
+                        <strong>Subtotal: $${project.subtotal}</strong><br>
+                        <strong>Project Management: $${project.projectManagementCost}</strong><br>
+                        <strong style="color: #28a745;">Total: $${project.total}</strong>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <a href="/admin/projects/${project.id}/download" class="action-btn download" target="_blank">
+                        Download Original File
+                    </a>
+                </div>
+            `;
+            
+            // Show current translated file if exists
+            const currentFileDiv = document.getElementById('currentTranslatedFile');
+            if (project.translatedFileName) {
+                currentFileDiv.innerHTML = `
+                    <div style="background: #d4edda; padding: 10px; border-radius: 4px; color: #155724;">
+                        ✅ Translated file uploaded: <strong>${project.translatedFileName}</strong>
+                    </div>
+                `;
+            } else {
+                currentFileDiv.innerHTML = `
+                    <div style="background: #fff3cd; padding: 10px; border-radius: 4px; color: #856404;">
+                        ⏳ No translated file uploaded yet
+                    </div>
+                `;
+            }
+            
+            document.getElementById('projectModal').style.display = 'flex';
+        }
+
+        function closeProjectModal() {
+            document.getElementById('projectModal').style.display = 'none';
+            currentProjectId = null;
+            document.getElementById('translatedFileInput').value = '';
+            document.getElementById('uploadStatus').innerHTML = '';
+        }
+
+        async function uploadTranslatedFile() {
+            if (!currentProjectId) return;
+            
+            const fileInput = document.getElementById('translatedFileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('translatedFile', file);
+            
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.innerHTML = '<div style="color: #007bff;">Uploading...</div>';
+            
+            try {
+                const response = await Auth.authFetch(`/admin/projects/${currentProjectId}/upload-translated`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = '<div style="color: #28a745;">✅ File uploaded successfully!</div>';
+                    
+                    // Update the current file display
+                    document.getElementById('currentTranslatedFile').innerHTML = `
+                        <div style="background: #d4edda; padding: 10px; border-radius: 4px; color: #155724;">
+                            ✅ Translated file uploaded: <strong>${result.fileName}</strong>
+                        </div>
+                    `;
+                    
+                    // Refresh the projects list
+                    setTimeout(() => {
+                        loadProjects();
+                        closeProjectModal();
+                    }, 1500);
+                } else {
+                    statusDiv.innerHTML = `<div style="color: #dc3545;">❌ Error: ${result.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                statusDiv.innerHTML = '<div style="color: #dc3545;">❌ Network error during upload</div>';
+            }
+        }
+
+        function switchAdminTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tab + 'TabBtn').classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            
+            // Load data for the selected tab
+            if (tab === 'users') {
+                loadUsers();
+            } else if (tab === 'admins' && isSuperAdmin) {
+                loadAdmins();
+            } else if (tab === 'contacts') {
+                loadContacts();
+            } else if (tab === 'languages') {
+                loadMultiplier(); // Reload multiplier when switching to languages tab
+            }
+        }
+
+        async function loadLanguages() {
+            try {
+                const [languagesResponse, defaultsResponse] = await Promise.all([
+                    Auth.authFetch('/admin/languages'),
+                    Auth.authFetch('/admin/languages/defaults')
+                ]);
+                
+                if (languagesResponse.ok && defaultsResponse.ok) {
+                    allLanguages = await languagesResponse.json();
+                    DEFAULT_LANGUAGES = await defaultsResponse.json();
+                    renderLanguageGrid();
+                } else {
+                    showError('Failed to load languages');
+                }
+            } catch (error) {
+                console.error('Error loading languages:', error);
+                showError('Network error loading languages');
+            }
+        }
+
+        function renderLanguageGrid() {
+            const grid = document.getElementById('languageGrid');
+            grid.innerHTML = '';
+
+            Object.entries(allLanguages).forEach(([language, price]) => {
+                const item = document.createElement('div');
+                item.className = 'language-item';
+                
+                // Check if this is a custom language (not in defaults)
+                const isCustomLanguage = !Object.keys(DEFAULT_LANGUAGES).includes(language);
+                
+                item.innerHTML = `
+                    <div class="language-name" style="flex: 1;">
+                        ${language}
+                        ${isCustomLanguage ? '<span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7em; margin-left: 8px;">CUSTOM</span>' : ''}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="number" class="price-input" value="${price}" 
+                               min="1" max="999" data-language="${language}">
+                        <span style="color: #666; font-size: 0.9em;">¢/word</span>
+                        ${isCustomLanguage ? `
+                            <button onclick="deleteCustomLanguage('${language}')" 
+                                    style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; margin-left: 5px;"
+                                    title="Delete custom language">
+                                🗑️
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                grid.appendChild(item);
+            });
+        }
+
+        async function saveAllLanguagePricing() {
+            const inputs = document.querySelectorAll('.price-input');
+            const updatedLanguages = {};
+            
+            inputs.forEach(input => {
+                const language = input.dataset.language;
+                const price = parseInt(input.value);
+                
+                if (price && price > 0) {
+                    updatedLanguages[language] = price;
+                }
+            });
+            
+            const statusDiv = document.getElementById('languageSaveStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d1ecf1';
+            statusDiv.style.color = '#0c5460';
+            statusDiv.textContent = 'Saving language pricing...';
+            
+            try {
+                const response = await Auth.authFetch('/admin/languages', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ languages: updatedLanguages })
+                });
+                
+                if (response.ok) {
+                    allLanguages = updatedLanguages;
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.textContent = '✅ Language pricing updated successfully!';
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    const data = await response.json();
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.textContent = '❌ Error: ' + data.error;
+                }
+            } catch (error) {
+                console.error('Error saving languages:', error);
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.textContent = '❌ Network error saving languages';
+            }
+        }
+
+        function applyGlobalPricing() {
+            const globalPrice = document.getElementById('globalPrice').value;
+            
+            if (!globalPrice || globalPrice < 1 || globalPrice > 999) {
+                alert('Please enter a valid price between 1 and 999 cents');
+                return;
+            }
+            
+            const price = parseInt(globalPrice);
+            
+            if (!confirm(`Are you sure you want to set all languages to ${price} cents per word?`)) {
+                return;
+            }
+            
+            // Update all language inputs
+            const inputs = document.querySelectorAll('.price-input');
+            inputs.forEach(input => {
+                input.value = price;
+            });
+            
+            // Update the allLanguages object
+            Object.keys(allLanguages).forEach(language => {
+                allLanguages[language] = price;
+            });
+            
+            // Show success message
+            const statusDiv = document.getElementById('languageSaveStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d4edda';
+            statusDiv.style.color = '#155724';
+            statusDiv.textContent = `✅ Global pricing of ${price} cents applied to all languages! Don't forget to save changes.`;
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+            
+            // Clear the global price input
+            document.getElementById('globalPrice').value = '';
+        }
+
+        async function addNewLanguage() {
+            const languageName = document.getElementById('newLanguageName').value.trim();
+            const price = parseInt(document.getElementById('newLanguagePrice').value);
+            
+            if (!languageName) {
+                alert('Please enter a language name');
+                return;
+            }
+            
+            if (!price || price < 1 || price > 999) {
+                alert('Please enter a valid price between 1 and 999 cents');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('addLanguageStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d1ecf1';
+            statusDiv.style.color = '#0c5460';
+            statusDiv.textContent = 'Adding new language...';
+            
+            try {
+                const response = await Auth.authFetch('/admin/languages/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ languageName, price })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    allLanguages = data.languages;
+                    renderLanguageGrid();
+                    
+                    // Clear form
+                    document.getElementById('newLanguageName').value = '';
+                    document.getElementById('newLanguagePrice').value = '';
+                    
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.textContent = `✅ Language "${languageName}" added successfully! Don't forget to save changes.`;
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 5000);
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.textContent = '❌ Error: ' + data.error;
+                }
+            } catch (error) {
+                console.error('Error adding language:', error);
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.textContent = '❌ Network error adding language';
+            }
+        }
+
+        async function deleteCustomLanguage(languageName) {
+            if (!confirm(`Are you sure you want to delete the custom language "${languageName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await Auth.authFetch(`/admin/languages/${encodeURIComponent(languageName)}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    allLanguages = data.languages;
+                    renderLanguageGrid();
+                    
+                    const statusDiv = document.getElementById('languageSaveStatus');
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.textContent = `✅ Language "${languageName}" deleted successfully!`;
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    alert('Error deleting language: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error deleting language:', error);
+                alert('Network error deleting language');
+            }
+        }
+
+        async function resetLanguagePricing() {
+            if (!confirm('Are you sure you want to reset all language pricing to defaults? This will remove all custom languages.')) {
+                return;
+            }
+            
+            const statusDiv = document.getElementById('languageSaveStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d1ecf1';
+            statusDiv.style.color = '#0c5460';
+            statusDiv.textContent = 'Resetting to default pricing...';
+            
+            try {
+                const response = await Auth.authFetch('/admin/languages/reset', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    allLanguages = data.languages;
+                    renderLanguageGrid();
+                    
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.textContent = '✅ Language pricing reset to defaults! All custom languages removed.';
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.textContent = '❌ Error resetting language pricing';
+                }
+            } catch (error) {
+                console.error('Error resetting languages:', error);
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.textContent = '❌ Network error resetting languages';
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await Auth.authFetch('/admin/users');
+                if (response.ok) {
+                    allUsers = await response.json();
+                    renderUsers();
+                } else {
+                    showError('Failed to load users');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('Network error loading users');
+            }
+        }
+
+        function renderUsers() {
+            const loading = document.getElementById('usersLoading');
+            const table = document.getElementById('usersTable');
+            const empty = document.getElementById('usersEmpty');
+            const tbody = document.getElementById('usersTableBody');
+
+            loading.style.display = 'none';
+
+            if (allUsers.length === 0) {
+                empty.style.display = 'block';
+                table.style.display = 'none';
+                return;
+            }
+
+            empty.style.display = 'none';
+            table.style.display = 'block';
+            tbody.innerHTML = '';
+
+            allUsers.forEach(user => {
+                const joinedDate = new Date(user.createdAt).toLocaleDateString();
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${joinedDate}</td>
+                    <td>${user.projectCount}</td>
+                    <td>$${user.totalSpent.toFixed(2)}</td>
+                    <td>
+                        ${isSuperAdmin ? `
+                            <button onclick="deleteUser('${user.id}', '${user.name}')" 
+                                    style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+                                Delete
+                            </button>
+                        ` : 'View Only'}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}" and all their projects? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await Auth.authFetch(`/admin/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadUsers();
+                    loadProjects(); // Refresh projects as well
+                    alert('User deleted successfully');
+                } else {
+                    const data = await response.json();
+                    alert('Error deleting user: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Network error deleting user');
+            }
+        }
+
+        async function loadAdmins() {
+            try {
+                const response = await Auth.authFetch('/admin/admins');
+                if (response.ok) {
+                    allAdmins = await response.json();
+                    renderAdmins();
+                } else {
+                    showError('Failed to load admin users');
+                }
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                showError('Network error loading admin users');
+            }
+        }
+
+        function renderAdmins() {
+            const loading = document.getElementById('adminsLoading');
+            const table = document.getElementById('adminsTable');
+            const tbody = document.getElementById('adminsTableBody');
+
+            loading.style.display = 'none';
+            table.style.display = 'block';
+            tbody.innerHTML = '';
+
+            allAdmins.forEach(admin => {
+                const createdDate = new Date(admin.createdAt).toLocaleDateString();
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${admin.name}</td>
+                    <td>${admin.email}</td>
+                    <td>
+                        <span style="background: ${admin.isSuperAdmin ? '#dc3545' : '#007bff'}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">
+                            ${admin.isSuperAdmin ? 'Super Admin' : 'Admin'}
+                        </span>
+                    </td>
+                    <td>${createdDate}</td>
+                    <td>${admin.createdBy}</td>
+                    <td>
+                        ${!admin.isSuperAdmin ? `
+                            <button onclick="deleteAdmin('${admin.email}', '${admin.name}')" 
+                                    style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+                                Delete
+                            </button>
+                        ` : '<span style="color: #666;">Protected</span>'}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        async function createAdmin() {
+            const email = document.getElementById('newAdminEmail').value;
+            const name = document.getElementById('newAdminName').value;
+            const tempPassword = document.getElementById('newAdminPassword').value;
+            
+            if (!email || !name || !tempPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('adminCreateStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d1ecf1';
+            statusDiv.style.color = '#0c5460';
+            statusDiv.textContent = 'Creating admin user...';
+            
+            try {
+                const response = await Auth.authFetch('/admin/admins', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, name, tempPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.textContent = '✅ Admin user created successfully! They can now sign up with the provided credentials.';
+                    
+                    // Clear form
+                    document.getElementById('newAdminEmail').value = '';
+                    document.getElementById('newAdminName').value = '';
+                    document.getElementById('newAdminPassword').value = '';
+                    
+                    // Refresh admin list
+                    loadAdmins();
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 5000);
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.textContent = '❌ Error: ' + data.error;
+                }
+            } catch (error) {
+                console.error('Error creating admin:', error);
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.textContent = '❌ Network error creating admin';
+            }
+        }
+
+        async function deleteAdmin(email, name) {
+            if (!confirm(`Are you sure you want to delete admin "${name}"? They will lose admin access immediately.`)) {
+                return;
+            }
+            
+            try {
+                const response = await Auth.authFetch(`/admin/admins/${encodeURIComponent(email)}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadAdmins();
+                    alert('Admin user deleted successfully');
+                } else {
+                    const data = await response.json();
+                    alert('Error deleting admin: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                alert('Network error deleting admin');
+            }
+        }
+
+        async function loadContacts() {
+            try {
+                const response = await Auth.authFetch('/admin/contacts');
+                if (response.ok) {
+                    const data = await response.json();
+                    allContacts = data.submissions;
+                    unreadContactsCount = data.unreadCount;
+                    updateContactsNotification();
+                    renderContacts();
+                } else {
+                    showError('Failed to load contact messages');
+                }
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+                showError('Network error loading contact messages');
+            }
+        }
+
+        async function loadContactsCount() {
+            try {
+                const response = await Auth.authFetch('/admin/contacts');
+                if (response.ok) {
+                    const data = await response.json();
+                    unreadContactsCount = data.unreadCount;
+                    updateContactsNotification();
+                }
+            } catch (error) {
+                console.error('Error loading contacts count:', error);
+            }
+        }
+
+        function updateContactsNotification() {
+            const notificationBadge = document.getElementById('contactsNotification');
+            const contactsTab = document.getElementById('contactsTabBtn');
+            
+            if (unreadContactsCount > 0) {
+                notificationBadge.textContent = unreadContactsCount;
+                notificationBadge.style.display = 'inline-block';
+                contactsTab.classList.add('has-notifications');
+            } else {
+                notificationBadge.style.display = 'none';
+                contactsTab.classList.remove('has-notifications');
+            }
+        }
+
+        function renderContacts() {
+            const loading = document.getElementById('contactsLoading');
+            const table = document.getElementById('contactsTable');
+            const empty = document.getElementById('contactsEmpty');
+            const tbody = document.getElementById('contactsTableBody');
+
+            loading.style.display = 'none';
+
+            if (allContacts.length === 0) {
+                empty.style.display = 'block';
+                table.style.display = 'none';
+                return;
+            }
+
+            empty.style.display = 'none';
+            table.style.display = 'block';
+            tbody.innerHTML = '';
+
+            allContacts.forEach(contact => {
+                const submittedDate = new Date(contact.submittedAt).toLocaleDateString();
+                const row = document.createElement('tr');
+                
+                const statusClass = `status-${contact.status}`;
+                const statusText = contact.status.replace('_', ' ').toUpperCase();
+                
+                // Add unread styling
+                if (!contact.isRead) {
+                    row.classList.add('unread-message');
+                }
+                
+                row.innerHTML = `
+                    <td>
+                        ${!contact.isRead ? '<span class="unread-indicator"></span>' : ''}
+                        ${contact.name}
+                    </td>
+                    <td>${contact.email}</td>
+                    <td>${contact.company || '-'}</td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${contact.subject}</td>
+                    <td>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td>${submittedDate}</td>
+                    <td>
+                        <button onclick="viewContact('${contact.id}')" 
+                                style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+                            View
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        async function viewContact(contactId) {
+            const contact = allContacts.find(c => c.id === contactId);
+            if (!contact) return;
+            
+            currentContactId = contactId;
+            
+            // Mark as read if it's unread
+            if (!contact.isRead) {
+                try {
+                    await Auth.authFetch(`/admin/contacts/${contactId}/read`, {
+                        method: 'PUT'
+                    });
+                    
+                    // Update local data
+                    contact.isRead = true;
+                    unreadContactsCount = Math.max(0, unreadContactsCount - 1);
+                    updateContactsNotification();
+                    renderContacts(); // Re-render to remove unread styling
+                } catch (error) {
+                    console.error('Error marking contact as read:', error);
+                }
+            }
+            
+            document.getElementById('contactModalTitle').textContent = `Contact from ${contact.name}`;
+            
+            const content = document.getElementById('contactDetailsContent');
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Name:</strong><br>${contact.name}
+                    </div>
+                    <div>
+                        <strong>Email:</strong><br><a href="mailto:${contact.email}">${contact.email}</a>
+                    </div>
+                    <div>
+                        <strong>Phone:</strong><br>${contact.phone || 'Not provided'}
+                    </div>
+                    <div>
+                        <strong>Company:</strong><br>${contact.company || 'Not provided'}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>Subject:</strong><br>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 5px;">
+                        ${contact.subject}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>Message:</strong><br>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 5px; white-space: pre-wrap;">
+                        ${contact.message}
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.9em; color: #666;">
+                    <strong>Submitted:</strong> ${new Date(contact.submittedAt).toLocaleString()}
+                </div>
+            `;
+            
+            document.getElementById('contactStatusSelect').value = contact.status;
+            document.getElementById('contactModal').style.display = 'flex';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').style.display = 'none';
+            currentContactId = null;
+        }
+
+        async function updateContactStatus() {
+            if (!currentContactId) return;
+            
+            const newStatus = document.getElementById('contactStatusSelect').value;
+            
+            try {
+                const response = await Auth.authFetch(`/admin/contacts/${currentContactId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (response.ok) {
+                    loadContacts();
+                    closeContactModal();
+                    alert('Status updated successfully');
+                } else {
+                    const data = await response.json();
+                    alert('Error updating status: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error updating contact status:', error);
+                alert('Network error updating status');
+            }
+        }
+
+        async function deleteContact() {
+            if (!currentContactId) return;
+            
+            if (!confirm('Are you sure you want to delete this contact message?')) {
+                return;
+            }
+            
+            try {
+                const response = await Auth.authFetch(`/admin/contacts/${currentContactId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadContacts();
+                    closeContactModal();
+                    alert('Contact message deleted successfully');
+                } else {
+                    const data = await response.json();
+                    alert('Error deleting contact: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error deleting contact:', error);
+                alert('Network error deleting contact');
+            }
+        }
+
+        async function loadMultiplier() {
+            try {
+                const response = await Auth.authFetch('/admin/multiplier');
+                if (response.ok) {
+                    const data = await response.json();
+                    currentMultiplier = data.multiplier;
+                    document.getElementById('multiplierValue').value = currentMultiplier;
+                }
+            } catch (error) {
+                console.error('Error loading multiplier:', error);
+            }
+        }
+
+        async function updateMultiplier() {
+            const multiplier = parseFloat(document.getElementById('multiplierValue').value);
+            
+            if (!multiplier || multiplier < 1 || multiplier > 5) {
+                alert('Please enter a valid multiplier between 1 and 5');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('multiplierStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d1ecf1';
+            statusDiv.style.color = '#0c5460';
+            statusDiv.textContent = 'Updating multiplier...';
+            
+            try {
+                const response = await Auth.authFetch('/admin/multiplier', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ multiplier })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentMultiplier = data.multiplier;
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.textContent = `✅ Multiplier updated to ${multiplier}x! This will apply to all new Pure projects.`;
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 5000);
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.textContent = '❌ Error: ' + data.error;
+                }
+            } catch (error) {
+                console.error('Error updating multiplier:', error);
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.textContent = '❌ Network error updating multiplier';
+            }
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        // Add event listeners after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Setting up admin event listeners...');
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Admin tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-admin-tab');
+                    switchAdminTab(tab);
+                });
+            });
+
+            // Language pricing buttons
+            const applyGlobalBtn = document.querySelector('.apply-global-btn');
+            if (applyGlobalBtn) {
+                applyGlobalBtn.addEventListener('click', applyGlobalPricing);
+            }
+
+            const addLanguageBtn = document.querySelector('button[onclick="addNewLanguage()"]');
+            if (addLanguageBtn) {
+                addLanguageBtn.removeAttribute('onclick');
+                addLanguageBtn.addEventListener('click', addNewLanguage);
+            }
+
+            const updateMultiplierBtn = document.querySelector('button[onclick="updateMultiplier()"]');
+            if (updateMultiplierBtn) {
+                updateMultiplierBtn.removeAttribute('onclick');
+                updateMultiplierBtn.addEventListener('click', updateMultiplier);
+            }
+
+            const saveAllBtn = document.querySelector('.save-all-btn');
+            if (saveAllBtn) {
+                saveAllBtn.removeAttribute('onclick');
+                saveAllBtn.addEventListener('click', saveAllLanguagePricing);
+            }
+
+            const resetBtn = document.querySelector('.reset-btn');
+            if (resetBtn) {
+                resetBtn.removeAttribute('onclick');
+                resetBtn.addEventListener('click', resetLanguagePricing);
+            }
+
+            // Admin management buttons
+            const createAdminBtn = document.querySelector('button[onclick="createAdmin()"]');
+            if (createAdminBtn) {
+                createAdminBtn.removeAttribute('onclick');
+                createAdminBtn.addEventListener('click', createAdmin);
+            }
+
+            // Contact modal buttons
+            const closeContactBtn = document.querySelector('button[onclick="closeContactModal()"]');
+            if (closeContactBtn) {
+                closeContactBtn.removeAttribute('onclick');
+                closeContactBtn.addEventListener('click', closeContactModal);
+            }
+
+            const updateContactStatusBtn = document.querySelector('button[onclick="updateContactStatus()"]');
+            if (updateContactStatusBtn) {
+                updateContactStatusBtn.removeAttribute('onclick');
+                updateContactStatusBtn.addEventListener('click', updateContactStatus);
+            }
+
+            const deleteContactBtn = document.querySelector('button[onclick="deleteContact()"]');
+            if (deleteContactBtn) {
+                deleteContactBtn.removeAttribute('onclick');
+                deleteContactBtn.addEventListener('click', deleteContact);
+            }
+
+            // Project modal buttons
+            const closeProjectBtn = document.querySelector('button[onclick="closeProjectModal()"]');
+            if (closeProjectBtn) {
+                closeProjectBtn.removeAttribute('onclick');
+                closeProjectBtn.addEventListener('click', closeProjectModal);
+            }
+
+            const uploadTranslatedBtn = document.querySelector('button[onclick="uploadTranslatedFile()"]');
+            if (uploadTranslatedBtn) {
+                uploadTranslatedBtn.removeAttribute('onclick');
+                uploadTranslatedBtn.addEventListener('click', uploadTranslatedFile);
+            }
+
+            console.log('✅ Admin event listeners set up successfully');
+        });
+    </script>
+</body>
+</html>
