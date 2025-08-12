@@ -266,7 +266,7 @@ function initializeTables() {
                                 // Insert default super admin
                                 db.run(`
                                     INSERT OR IGNORE INTO admin_users (email, name, is_super_admin, created_by) 
-                                    VALUES ('admin@test.com', 'Super Admin', TRUE, 'system')
+                                    VALUES ('sid@verbiforge.com', 'Super Admin', TRUE, 'system')
                                 `, (err) => {
                                     if (err) {
                                         console.error('Error inserting default admin:', err);
