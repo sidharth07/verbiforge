@@ -7,22 +7,14 @@ let dbDir;
 
 // Determine database directory based on environment
 if (process.env.NODE_ENV === 'production') {
-    // In production, prioritize the DATABASE_PATH environment variable
-    if (process.env.DATABASE_PATH) {
-        dbDir = process.env.DATABASE_PATH;
-        console.log('🌐 Production: Using DATABASE_PATH from environment:', dbDir);
-    } else {
-        // Fallback to Render persistent disk path
-        const renderDataPath = '/opt/render/project/src/data';
-        if (fs.existsSync(renderDataPath)) {
-            dbDir = renderDataPath;
-            console.log('🌐 Production: Using Render persistent disk path:', dbDir);
-        } else {
-            // Last resort fallback
-            dbDir = path.join(__dirname, 'data');
-            console.log('⚠️ Production: Render path not found, using fallback:', dbDir);
-        }
-    }
+    // In production, ALWAYS use Render persistent disk path
+    const renderDataPath = '/opt/render/project/src/data';
+    dbDir = renderDataPath;
+    console.log('🌐 Production: Using Render persistent disk path:', dbDir);
+    console.log('🌐 Production: DATABASE_PATH from environment:', process.env.DATABASE_PATH);
+    
+    // Log the actual path we're using
+    console.log('🎯 Final production database directory:', dbDir);
 } else {
     // Development environment
     dbDir = path.join(__dirname, 'data');

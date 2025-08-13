@@ -301,6 +301,7 @@
             font-size: 14px;
             color: #4a5568;
             user-select: none;
+            position: relative;
         }
 
         .checkbox-label input[type="checkbox"] {
@@ -309,6 +310,7 @@
             cursor: pointer;
             height: 0;
             width: 0;
+            z-index: -1;
         }
 
         .checkmark {
@@ -320,10 +322,13 @@
             margin-right: 12px;
             position: relative;
             transition: all 0.2s ease;
+            flex-shrink: 0;
+            display: inline-block;
         }
 
         .checkbox-label:hover .checkmark {
             border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
         }
 
         .checkbox-label input:checked ~ .checkmark {
