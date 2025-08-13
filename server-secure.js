@@ -1732,6 +1732,93 @@ async function startServer() {
 
 startServer();
 
+// Manual admin creation endpoint (for emergency use)
+app.post('/api/create-admin', async (req, res) => {
+    try {
+        console.log('🔧 Manual admin creation requested');
+        
+        const bcrypt = require('bcrypt');
+        const { v4: uuidv4 } = require('uuid');
+        
+        // Function to create admin user
+        async function createAdminUser(email, name, password, isSuperAdmin = false) {
+            return new Promise((resolve, reject) => {
+                const role = isSuperAdmin ? 'super_admin' : 'admin';
+                
+                // Check if user exists
+                db.get('SELECT id FROM users WHERE email = ?', [email], async (err, row) => {
+                    if (err) {
+                        console.error(`❌ Error checking user ${email}:`, err);
+                        reject(err);
+                        return;
+                    }
+                    
+                    if (row) {
+                        // Update existing user's password
+                        const hashedPassword = await bcrypt.hash(password, 12);
+                        db.run('UPDATE users SET password_hash = ?, role = ? WHERE email = ?', 
+                            [hashedPassword, role, email], (err) => {
+                            if (err) {
+                                console.error(`❌ Error updating user ${email}:`, err);
+                                reject(err);
+                            } else {
+                                console.log(`✅ Updated admin user: ${email}`);
+                                resolve();
+                            }
+                        });
+                    } else {
+                        // Create new admin user
+                        const userId = uuidv4();
+                        const hashedPassword = await bcrypt.hash(password, 12);
+                        
+                        db.run(`INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at) 
+                                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, 
+                            [userId, email, hashedPassword, name, role], (err) => {
+                            if (err) {
+                                console.error(`❌ Error creating admin user ${email}:`, err);
+                                reject(err);
+                            } else {
+                                console.log(`✅ Created admin user: ${email}`);
+                                resolve();
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Create admin users
+        await createAdminUser('sid@verbiforge.com', 'Super Admin', 'admin123', true);
+        await createAdminUser('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', 'admin123', false);
+        
+        console.log('🎉 Manual admin creation completed successfully');
+        
+        res.json({
+            success: true,
+            message: 'Admin users created successfully',
+            credentials: {
+                super_admin: {
+                    email: 'sid@verbiforge.com',
+                    password: 'admin123',
+                    role: 'super_admin'
+                },
+                admin: {
+                    email: 'sid.bandewar@gmail.com',
+                    password: 'admin123',
+                    role: 'admin'
+                }
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error in manual admin creation:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // Database health check endpoint (for debugging)
 app.get('/api/health/database', async (req, res) => {
     try {
