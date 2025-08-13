@@ -650,6 +650,12 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
 
 app.get('/admin/projects/:id', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
+        
         console.log('🔍 Admin project details request for ID:', req.params.id);
         
         const project = await dbHelpers.get(`
@@ -699,6 +705,11 @@ app.get('/admin/projects/:id', requireAuth, async (req, res) => {
 
 app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const { status } = req.body;
         await dbHelpers.run(
             'UPDATE projects SET status = ? WHERE id = ?',
@@ -713,6 +724,11 @@ app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
 
 app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const { eta } = req.body;
         await dbHelpers.run(
             'UPDATE projects SET eta = ? WHERE id = ?',
@@ -727,6 +743,11 @@ app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
 
 app.put('/admin/projects/:id/notes', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const { notes } = req.body;
         await dbHelpers.run(
             'UPDATE projects SET notes = ? WHERE id = ?',
@@ -741,6 +762,11 @@ app.put('/admin/projects/:id/notes', requireAuth, async (req, res) => {
 
 app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         console.log('🔍 Admin download request for project ID:', req.params.id);
         
         const project = await dbHelpers.get(
@@ -789,6 +815,11 @@ app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
 
 app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('translatedFile'), async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         console.log('📤 Admin upload translated file request for project:', req.params.id);
         console.log('📤 File data:', req.file ? {
             originalname: req.file.originalname,
@@ -825,6 +856,12 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('tr
 // Language management
 app.get('/admin/languages', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
+        
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
         const languages = JSON.parse(settings.value);
         res.json(languages);
@@ -835,6 +872,11 @@ app.get('/admin/languages', requireAuth, async (req, res) => {
 
 app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const defaultLanguages = {
             'English': 25,
             'Arabic': 50,
@@ -970,6 +1012,11 @@ app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
 
 app.put('/admin/languages', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const { languages } = req.body;
         await dbHelpers.run(
             'UPDATE settings SET value = ? WHERE key = ?',
@@ -983,6 +1030,11 @@ app.put('/admin/languages', requireAuth, async (req, res) => {
 
 app.post('/admin/languages/add', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const { languageName, price } = req.body;
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
         const languages = JSON.parse(settings.value);
@@ -1001,6 +1053,11 @@ app.post('/admin/languages/add', requireAuth, async (req, res) => {
 
 app.delete('/admin/languages/:languageName', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const languageName = decodeURIComponent(req.params.languageName);
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
         const languages = JSON.parse(settings.value);
@@ -1019,6 +1076,11 @@ app.delete('/admin/languages/:languageName', requireAuth, async (req, res) => {
 
 app.post('/admin/languages/reset', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const defaultLanguages = {
             'English': 25,
             'Arabic': 50,
@@ -1161,6 +1223,11 @@ app.post('/admin/languages/reset', requireAuth, async (req, res) => {
 // User management
 app.get('/admin/users', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const users = await dbHelpers.query(`
             SELECT u.*, 
                    COUNT(p.id) as projectCount,
@@ -1178,6 +1245,11 @@ app.get('/admin/users', requireAuth, async (req, res) => {
 
 app.delete('/admin/users/:userId', requireAuth, async (req, res) => {
     try {
+        // Check if user is super admin
+        const isSuperAdmin = await authManager.isSuperAdmin(req.user.email);
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Access denied. Super admin privileges required.' });
+        }
         await dbHelpers.run('DELETE FROM projects WHERE user_id = ?', [req.params.userId]);
         await dbHelpers.run('DELETE FROM users WHERE id = ?', [req.params.userId]);
         res.json({ success: true });
@@ -1189,6 +1261,11 @@ app.delete('/admin/users/:userId', requireAuth, async (req, res) => {
 // Admin management
 app.get('/admin/admins', requireAuth, async (req, res) => {
     try {
+        // Check if user is super admin
+        const isSuperAdmin = await authManager.isSuperAdmin(req.user.email);
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Access denied. Super admin privileges required.' });
+        }
         const admins = await dbHelpers.query('SELECT * FROM admin_users ORDER BY created_at DESC');
         res.json(admins);
     } catch (error) {
@@ -1198,6 +1275,11 @@ app.get('/admin/admins', requireAuth, async (req, res) => {
 
 app.post('/admin/admins', requireAuth, async (req, res) => {
     try {
+        // Check if user is super admin
+        const isSuperAdmin = await authManager.isSuperAdmin(req.user.email);
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Access denied. Super admin privileges required.' });
+        }
         const { email, name, tempPassword } = req.body;
         
         // Check if user already exists
@@ -1236,6 +1318,11 @@ app.post('/admin/admins', requireAuth, async (req, res) => {
 
 app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
     try {
+        // Check if user is super admin
+        const isSuperAdmin = await authManager.isSuperAdmin(req.user.email);
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Access denied. Super admin privileges required.' });
+        }
         const email = decodeURIComponent(req.params.email);
         await dbHelpers.run('DELETE FROM admin_users WHERE email = ? AND is_super_admin = FALSE', [email]);
         res.json({ success: true });
@@ -1247,6 +1334,11 @@ app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
 // Contact management
 app.get('/admin/contacts', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const submissions = await dbHelpers.query('SELECT * FROM contact_submissions ORDER BY submitted_at DESC');
         const unreadCount = await dbHelpers.get('SELECT COUNT(*) as count FROM contact_submissions WHERE is_read = FALSE');
         res.json({ submissions, unreadCount: unreadCount.count });
@@ -1257,6 +1349,11 @@ app.get('/admin/contacts', requireAuth, async (req, res) => {
 
 app.put('/admin/contacts/:id/read', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         await dbHelpers.run('UPDATE contact_submissions SET is_read = TRUE WHERE id = ?', [req.params.id]);
         res.json({ success: true });
     } catch (error) {
@@ -1266,6 +1363,11 @@ app.put('/admin/contacts/:id/read', requireAuth, async (req, res) => {
 
 app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const { status } = req.body;
         await dbHelpers.run('UPDATE contact_submissions SET status = ? WHERE id = ?', [req.params.id]);
         res.json({ success: true });
@@ -1276,6 +1378,11 @@ app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
 
 app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         await dbHelpers.run('DELETE FROM contact_submissions WHERE id = ?', [req.params.id]);
         res.json({ success: true });
     } catch (error) {
@@ -1286,6 +1393,11 @@ app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
 // Multiplier management
 app.get('/admin/multiplier', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const settings = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['project_type_multiplier']);
         res.json({ multiplier: parseFloat(settings.value) });
     } catch (error) {
@@ -1295,6 +1407,11 @@ app.get('/admin/multiplier', requireAuth, async (req, res) => {
 
 app.put('/admin/multiplier', requireAuth, async (req, res) => {
     try {
+        // Check if user is admin
+        const isAdmin = await authManager.isAdmin(req.user.email);
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
         const { multiplier } = req.body;
         await dbHelpers.run(
             'UPDATE settings SET value = ? WHERE key = ?',
