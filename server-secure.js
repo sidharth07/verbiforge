@@ -456,24 +456,46 @@ app.delete('/projects/:id', requireAuth, async (req, res) => {
 // Download translated file
 app.get('/projects/:id/download-translated', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 User download translated file request for project ID:', req.params.id);
+        
         const project = await dbHelpers.get(
             'SELECT translated_file_path, translated_file_name FROM projects WHERE id = ? AND user_id = ?',
             [req.params.id, req.user.id]
         );
         
         if (!project || !project.translated_file_path) {
+            console.log('❌ Translated file not found for project:', req.params.id);
             return res.status(404).json({ error: 'Translated file not found' });
         }
         
-        const filePath = path.join(__dirname, 'secure-files', 'translated', project.translated_file_path);
-        const decryptedBuffer = fileManager.decryptFile(await fs.readFile(filePath));
+        console.log('📁 Translated file path:', project.translated_file_path);
+        console.log('📁 Translated file name:', project.translated_file_name);
         
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // Use fileManager to get the translated file content
+        const fileContent = await fileManager.getTranslatedFile(project.translated_file_path);
+        
+        // Determine content type based on file extension
+        const fileExtension = project.translated_file_name ? path.extname(project.translated_file_name).toLowerCase() : '.xlsx';
+        let contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        
+        if (fileExtension === '.xls') {
+            contentType = 'application/vnd.ms-excel';
+        }
+        
+        console.log('📤 Sending translated file:', project.translated_file_name);
+        console.log('📤 Content type:', contentType);
+        console.log('📤 File size:', fileContent.length);
+        
+        res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `attachment; filename="${project.translated_file_name}"`);
-        res.send(decryptedBuffer);
+        res.setHeader('Content-Length', fileContent.length);
+        res.send(fileContent);
+        
+        console.log('✅ Translated file download completed successfully');
     } catch (error) {
-        console.error('Download translated error:', error);
-        res.status(500).json({ error: 'Failed to download translated file' });
+        console.error('❌ Download translated error:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to download translated file: ' + error.message });
     }
 });
 
@@ -649,24 +671,49 @@ app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
 
 app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Admin download request for project ID:', req.params.id);
+        
         const project = await dbHelpers.get(
-            'SELECT file_path FROM projects WHERE id = ?',
+            'SELECT file_path, file_name FROM projects WHERE id = ?',
             [req.params.id]
         );
         
         if (!project || !project.file_path) {
+            console.log('❌ File not found for project:', req.params.id);
             return res.status(404).json({ error: 'File not found' });
         }
         
-        const filePath = path.join(__dirname, 'secure-files', 'uploads', project.file_path);
-        const decryptedBuffer = fileManager.decryptFile(await fs.readFile(filePath));
+        console.log('📁 Project file path:', project.file_path);
+        console.log('📁 Original file name:', project.file_name);
         
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', `attachment; filename="project_${req.params.id}.xlsx"`);
-        res.send(decryptedBuffer);
+        // Use fileManager to get the file content (handles encryption/decryption)
+        const fileContent = await fileManager.getUploadedFile(project.file_path);
+        
+        // Determine content type based on file extension
+        const fileExtension = project.file_name ? path.extname(project.file_name).toLowerCase() : '.xlsx';
+        let contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        
+        if (fileExtension === '.xls') {
+            contentType = 'application/vnd.ms-excel';
+        }
+        
+        // Use original filename if available, otherwise generate one
+        const downloadFilename = project.file_name || `project_${req.params.id}${fileExtension}`;
+        
+        console.log('📤 Sending file:', downloadFilename);
+        console.log('📤 Content type:', contentType);
+        console.log('📤 File size:', fileContent.length);
+        
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${downloadFilename}"`);
+        res.setHeader('Content-Length', fileContent.length);
+        res.send(fileContent);
+        
+        console.log('✅ File download completed successfully');
     } catch (error) {
-        console.error('Admin download error:', error);
-        res.status(500).json({ error: 'Failed to download file' });
+        console.error('❌ Admin download error:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to download file: ' + error.message });
     }
 });
 
