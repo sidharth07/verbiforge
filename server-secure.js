@@ -1512,12 +1512,70 @@ async function startServer() {
     try {
         console.log('🚀 Starting VerbiForge server...');
         
-        // Get database file information
-        const dbInfo = dbHelpers.getDatabaseInfo();
-        console.log('🗄️ Database file info:', dbInfo);
+        // Force database to be in the correct location
+        console.log('🔧 Ensuring database is in correct location...');
+        const path = require('path');
+        const fs = require('fs');
+        
+        // Determine the correct database path
+        let dbDir;
+        if (process.env.NODE_ENV === 'production') {
+            if (process.env.DATABASE_PATH) {
+                dbDir = process.env.DATABASE_PATH;
+            } else {
+                dbDir = '/opt/render/project/src/data';
+            }
+        } else {
+            dbDir = path.join(__dirname, 'data');
+        }
+        
+        const dbPath = path.join(dbDir, 'verbiforge.db');
+        console.log(`🎯 Target database path: ${dbPath}`);
+        
+        // Ensure directory exists
+        if (!fs.existsSync(dbDir)) {
+            console.log(`📁 Creating directory: ${dbDir}`);
+            fs.mkdirSync(dbDir, { recursive: true, mode: 0o755 });
+        }
+        
+        // Check if database exists and is valid
+        let dbExists = fs.existsSync(dbPath);
+        let dbValid = false;
+        
+        if (dbExists) {
+            try {
+                const stats = fs.statSync(dbPath);
+                const sizeInMB = stats.size / (1024 * 1024);
+                console.log(`📊 Existing database size: ${sizeInMB.toFixed(2)} MB`);
+                
+                if (sizeInMB > 0.001) {
+                    // Test if database is valid by trying to open it
+                    const sqlite3 = require('sqlite3').verbose();
+                    const testDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
+                        if (!err) {
+                            testDb.get('SELECT COUNT(*) as count FROM admin_users', (err, result) => {
+                                if (!err && result && result.count > 0) {
+                                    dbValid = true;
+                                    console.log(`✅ Existing database is valid with ${result.count} admin users`);
+                                } else {
+                                    console.log('⚠️ Existing database is invalid or empty');
+                                }
+                                testDb.close();
+                            });
+                        } else {
+                            console.log('⚠️ Cannot open existing database');
+                        }
+                    });
+                } else {
+                    console.log('⚠️ Existing database is too small');
+                }
+            } catch (error) {
+                console.log('⚠️ Error checking existing database:', error.message);
+            }
+        }
         
         // Check database health before initialization
-        const healthCheck = await dbHelpers.checkDatabaseHealth();
+        const healthCheck = await checkDatabaseHealth();
         console.log('🔍 Database health check result:', healthCheck);
         
         if (!healthCheck.healthy) {
@@ -1539,7 +1597,7 @@ async function startServer() {
         
         // Verify database persistence
         console.log('🔍 Verifying database persistence...');
-        const persistenceVerified = await dbHelpers.verifyPersistence();
+        const persistenceVerified = fs.existsSync(dbPath) && fs.statSync(dbPath).size > 1024;
         if (!persistenceVerified) {
             console.error('❌ Database persistence verification failed!');
             console.error('❌ This indicates the database is not being saved to persistent storage');
@@ -1557,9 +1615,6 @@ async function startServer() {
         }
         
         // Get final database info
-        const path = require('path');
-        const fs = require('fs');
-        const dbPath = path.join(process.env.DATABASE_PATH || '/opt/render/project/src/data', 'verbiforge.db');
         const finalDbInfo = {
             path: dbPath,
             exists: fs.existsSync(dbPath),
@@ -1596,9 +1651,6 @@ startServer();
 app.get('/api/health/database', async (req, res) => {
     try {
         const healthCheck = await checkDatabaseHealth();
-        const path = require('path');
-        const fs = require('fs');
-        const dbPath = path.join(process.env.DATABASE_PATH || '/opt/render/project/src/data', 'verbiforge.db');
         const dbInfo = {
             path: dbPath,
             exists: fs.existsSync(dbPath),
@@ -1628,9 +1680,6 @@ app.get('/api/health/database', async (req, res) => {
 // Database debugging endpoint (for detailed troubleshooting)
 app.get('/api/debug/database', async (req, res) => {
     try {
-        const path = require('path');
-        const fs = require('fs');
-        const dbPath = path.join(process.env.DATABASE_PATH || '/opt/render/project/src/data', 'verbiforge.db');
         const dbInfo = {
             path: dbPath,
             exists: fs.existsSync(dbPath),
