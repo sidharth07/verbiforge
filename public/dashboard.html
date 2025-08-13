@@ -1079,6 +1079,14 @@
                 const result = await response.json();
 
                 if (response.ok) {
+                    // Complete all steps before showing results
+                    for (let i = 1; i <= 5; i++) {
+                        completeStep(i);
+                    }
+                    
+                    // Wait a moment for the final step to be visible
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
                     currentAnalysis = {
                         projectName,
                         fileName: result.fileName,
@@ -1107,6 +1115,20 @@
         function showResults(data) {
             console.log('Analysis data:', data); // Debug log
             const content = document.getElementById('resultsContent');
+            
+            // Ensure close button is properly set up
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            if (modalCloseBtn) {
+                // Remove any existing listeners to prevent duplicates
+                modalCloseBtn.replaceWith(modalCloseBtn.cloneNode(true));
+                const newModalCloseBtn = document.getElementById('modalCloseBtn');
+                newModalCloseBtn.addEventListener('click', function(e) {
+                    console.log('🔧 Modal close button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeModal();
+                });
+            }
 
             let breakdownHtml = '';
             data.breakdown.forEach(item => {
@@ -1193,6 +1215,22 @@
                     saveProject();
                 });
                 console.log('✅ Save Project button listener re-attached');
+            }
+            
+            // Modal close button (X button)
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            console.log('🔍 Re-attaching modalCloseBtn:', modalCloseBtn);
+            if (modalCloseBtn) {
+                const newModalCloseBtn = modalCloseBtn.cloneNode(true);
+                modalCloseBtn.parentNode.replaceChild(newModalCloseBtn, modalCloseBtn);
+                
+                newModalCloseBtn.addEventListener('click', function(e) {
+                    console.log('🔧 Modal close button (X) clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeModal();
+                });
+                console.log('✅ Modal close button (X) listener re-attached');
             }
             
             // Close buttons
@@ -1504,12 +1542,12 @@
                 step.classList.remove('completed');
             }
             
-            // Start step animation
-            setTimeout(() => completeStep(1), 500);
-            setTimeout(() => completeStep(2), 1500);
-            setTimeout(() => completeStep(3), 2500);
-            setTimeout(() => completeStep(4), 3500);
-            setTimeout(() => completeStep(5), 4500);
+            // Start step animation with longer intervals
+            setTimeout(() => completeStep(1), 800);
+            setTimeout(() => completeStep(2), 2000);
+            setTimeout(() => completeStep(3), 3200);
+            setTimeout(() => completeStep(4), 4400);
+            setTimeout(() => completeStep(5), 5600);
         }
 
         function hideAnalysisLoading() {
