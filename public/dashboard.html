@@ -1000,6 +1000,9 @@
 
             html += '</div>';
             container.innerHTML = html;
+            
+            // Attach event listeners to dynamically created buttons
+            attachProjectButtonListeners();
         }
 
         function getStatusColor(status) {
@@ -1071,6 +1074,30 @@
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';
             document.getElementById('analyzeBtn').disabled = show;
+        }
+
+        function attachProjectButtonListeners() {
+            console.log('🔧 Attaching project button listeners...');
+            
+            // Submit project buttons
+            document.querySelectorAll('.submit-project-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const projectId = this.getAttribute('data-project-id');
+                    console.log('🔧 Submit project clicked:', projectId);
+                    submitProject(projectId);
+                });
+            });
+            
+            // Delete project buttons
+            document.querySelectorAll('.delete-project-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const projectId = this.getAttribute('data-project-id');
+                    console.log('🔧 Delete project clicked:', projectId);
+                    deleteProject(projectId);
+                });
+            });
+            
+            console.log('✅ Project button listeners attached');
         }
 
         // Add event listeners after DOM is loaded

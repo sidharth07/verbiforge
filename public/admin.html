@@ -865,7 +865,7 @@
         <div style="background: white; border-radius: 8px; padding: 30px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 id="contactModalTitle">Contact Details</h2>
-                <button onclick="closeContactModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                <button id="closeContactModalBtn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
             </div>
             
             <div id="contactDetailsContent">
@@ -878,10 +878,10 @@
                     <option value="in_progress">In Progress</option>
                     <option value="resolved">Resolved</option>
                 </select>
-                <button onclick="updateContactStatus()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                <button id="updateContactStatusBtn" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
                     Update Status
                 </button>
-                <button onclick="deleteContact()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                <button id="deleteContactBtn" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
                     Delete
                 </button>
             </div>
@@ -893,7 +893,7 @@
         <div style="background: white; border-radius: 8px; padding: 30px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 id="modalProjectName">Project Details</h2>
-                <button onclick="closeProjectModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+                <button id="closeProjectModalBtn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
             </div>
             
             <div id="projectDetailsContent">
@@ -904,7 +904,7 @@
                 <h3 style="margin-bottom: 15px;">📤 Upload Translated File</h3>
                 <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
                     <input type="file" id="translatedFileInput" accept=".xlsx,.xls" style="flex: 1;">
-                    <button onclick="uploadTranslatedFile()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                    <button id="uploadTranslatedFileBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
                         Upload
                     </button>
                 </div>
@@ -1077,6 +1077,9 @@
 
                 tbody.appendChild(row);
             });
+            
+            // Attach event listeners to dynamically created buttons
+            attachDynamicButtonListeners();
         }
 
         function getAdminStatusText(status) {
@@ -1387,6 +1390,9 @@
                 
                 grid.appendChild(item);
             });
+            
+            // Attach event listeners to dynamically created buttons
+            attachDynamicButtonListeners();
         }
 
         async function saveAllLanguagePricing() {
@@ -1665,6 +1671,9 @@
                 
                 tbody.appendChild(row);
             });
+            
+            // Attach event listeners to dynamically created buttons
+            attachDynamicButtonListeners();
         }
 
         async function deleteUser(userId, userName) {
@@ -1741,6 +1750,9 @@
                 
                 tbody.appendChild(row);
             });
+            
+            // Attach event listeners to dynamically created buttons
+            attachDynamicButtonListeners();
         }
 
         async function createAdmin() {
@@ -1917,6 +1929,9 @@
                 
                 tbody.appendChild(row);
             });
+            
+            // Attach event listeners to dynamically created buttons
+            attachDynamicButtonListeners();
         }
 
         async function viewContact(contactId) {
@@ -2103,6 +2118,53 @@
             alert(message);
         }
 
+        function attachDynamicButtonListeners() {
+            console.log('🔧 Attaching dynamic button listeners...');
+            
+            // Project action buttons
+            document.querySelectorAll('[onclick*="openProjectDetails"]').forEach(btn => {
+                const projectId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', () => openProjectDetails(projectId));
+            });
+            
+            document.querySelectorAll('[onclick*="updateETA"]').forEach(btn => {
+                const projectId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', () => updateETA(projectId));
+            });
+            
+            document.querySelectorAll('[onclick*="deleteCustomLanguage"]').forEach(btn => {
+                const language = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', () => deleteCustomLanguage(language));
+            });
+            
+            document.querySelectorAll('[onclick*="deleteUser"]').forEach(btn => {
+                const match = btn.getAttribute('onclick').match(/'([^']+)',\s*'([^']+)'/);
+                const userId = match[1];
+                const userName = match[2];
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', () => deleteUser(userId, userName));
+            });
+            
+            document.querySelectorAll('[onclick*="deleteAdmin"]').forEach(btn => {
+                const match = btn.getAttribute('onclick').match(/'([^']+)',\s*'([^']+)'/);
+                const email = match[1];
+                const name = match[2];
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', () => deleteAdmin(email, name));
+            });
+            
+            document.querySelectorAll('[onclick*="viewContact"]').forEach(btn => {
+                const contactId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', () => viewContact(contactId));
+            });
+            
+            console.log('✅ Dynamic button listeners attached');
+        }
+
         // Add event listeners after DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Setting up admin event listeners...');
@@ -2129,34 +2191,29 @@
             document.getElementById('createAdminBtn').addEventListener('click', createAdmin);
 
             // Contact modal buttons
-            const closeContactBtn = document.querySelector('button[onclick="closeContactModal()"]');
+            const closeContactBtn = document.getElementById('closeContactModalBtn');
             if (closeContactBtn) {
-                closeContactBtn.removeAttribute('onclick');
                 closeContactBtn.addEventListener('click', closeContactModal);
             }
 
-            const updateContactStatusBtn = document.querySelector('button[onclick="updateContactStatus()"]');
+            const updateContactStatusBtn = document.getElementById('updateContactStatusBtn');
             if (updateContactStatusBtn) {
-                updateContactStatusBtn.removeAttribute('onclick');
                 updateContactStatusBtn.addEventListener('click', updateContactStatus);
             }
 
-            const deleteContactBtn = document.querySelector('button[onclick="deleteContact()"]');
+            const deleteContactBtn = document.getElementById('deleteContactBtn');
             if (deleteContactBtn) {
-                deleteContactBtn.removeAttribute('onclick');
                 deleteContactBtn.addEventListener('click', deleteContact);
             }
 
             // Project modal buttons
-            const closeProjectBtn = document.querySelector('button[onclick="closeProjectModal()"]');
+            const closeProjectBtn = document.getElementById('closeProjectModalBtn');
             if (closeProjectBtn) {
-                closeProjectBtn.removeAttribute('onclick');
                 closeProjectBtn.addEventListener('click', closeProjectModal);
             }
 
-            const uploadTranslatedBtn = document.querySelector('button[onclick="uploadTranslatedFile()"]');
+            const uploadTranslatedBtn = document.getElementById('uploadTranslatedFileBtn');
             if (uploadTranslatedBtn) {
-                uploadTranslatedBtn.removeAttribute('onclick');
                 uploadTranslatedBtn.addEventListener('click', uploadTranslatedFile);
             }
 
