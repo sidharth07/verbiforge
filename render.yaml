@@ -3,7 +3,7 @@ services:
     name: verbiforge
     env: node
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node server-working.js
     disk:
       name: verbiforge-data
       mountPath: /opt/render/project/src/data
