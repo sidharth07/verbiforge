@@ -14,10 +14,15 @@ const fs = require('fs/promises'); // Added for file decryption
 const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup } = require('./database');
 const fileManager = require('./fileManager');
 const authManager = require('./auth');
-const { initializePassport, setupGoogleRoutes } = require('./google-oauth');
+const { initializePassport, setupGoogleRoutes, isGoogleOAuthConfigured } = require('./google-oauth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+console.log('🚀 Starting VerbiForge server with configuration:');
+console.log('  - Environment:', process.env.NODE_ENV);
+console.log('  - Port:', PORT);
+console.log('  - Google OAuth:', isGoogleOAuthConfigured ? 'Enabled' : 'Disabled');
 
 // Security middleware
 app.use(helmet({
@@ -1459,3 +1464,20 @@ app.get('/api/debug/database', async (req, res) => {
 
 // Setup Google OAuth routes
 setupGoogleRoutes(app);
+
+// Fallback route for Google OAuth when not configured
+if (!isGoogleOAuthConfigured) {
+    app.get('/auth/google', (req, res) => {
+        res.status(503).json({ 
+            error: 'Google OAuth not configured',
+            message: 'Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables'
+        });
+    });
+    
+    app.get('/auth/google/callback', (req, res) => {
+        res.status(503).json({ 
+            error: 'Google OAuth not configured',
+            message: 'Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables'
+        });
+    });
+}
