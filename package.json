@@ -11,7 +11,8 @@
     "test-persistence": "node test-persistence.js",
     "add-admin": "node add-admin.js",
     "fix-db": "node force-database-fix.js",
-    "debug-db": "node debug-database.js"
+    "debug-db": "node debug-database.js",
+    "create-admin": "node create-admin-user.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

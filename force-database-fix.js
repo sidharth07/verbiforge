@@ -177,23 +177,26 @@ db.run(`CREATE TABLE IF NOT EXISTS settings (
 // Step 5: Insert default admin users
 console.log('\n👤 STEP 5: Creating default admin users...');
 
-// Default super admin
+// Note: Admin users will be created in the users table by the create-admin-user.js script
+// during deployment. The admin_users table is for reference only.
+
+// Default super admin (reference)
 db.run(`INSERT OR IGNORE INTO admin_users (email, name, temp_password, is_super_admin, created_by) 
         VALUES ('sid@verbiforge.com', 'Super Admin', 'admin123', TRUE, 'system')`, (err) => {
     if (err) {
-        console.error('❌ Error creating super admin:', err);
+        console.error('❌ Error creating super admin reference:', err);
     } else {
-        console.log('✅ Super admin created: sid@verbiforge.com');
+        console.log('✅ Super admin reference created: sid@verbiforge.com');
     }
 });
 
-// Google SSO admin
+// Google SSO admin (reference)
 db.run(`INSERT OR IGNORE INTO admin_users (email, name, temp_password, is_super_admin, created_by) 
         VALUES ('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', 'admin123', FALSE, 'system')`, (err) => {
     if (err) {
-        console.error('❌ Error creating Google SSO admin:', err);
+        console.error('❌ Error creating Google SSO admin reference:', err);
     } else {
-        console.log('✅ Google SSO admin created: sid.bandewar@gmail.com');
+        console.log('✅ Google SSO admin reference created: sid.bandewar@gmail.com');
     }
 });
 
