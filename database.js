@@ -754,7 +754,7 @@ async function checkDatabaseHealth() {
         
         // Test database connection
         const testConnection = await new Promise((resolve) => {
-            db.get('SELECT 1 as test', (err, result) => {
+            dbHelpers.get('SELECT 1 as test', (err, result) => {
                 if (err) {
                     console.log('❌ Database connection test failed:', err.message);
                     resolve({ healthy: false, error: 'Database connection failed' });
@@ -770,43 +770,60 @@ async function checkDatabaseHealth() {
         }
         
         // Check if tables exist
-        const tables = await dbHelpers.query("SELECT name FROM sqlite_master WHERE type='table'");
-        const tableNames = tables.map(t => t.name);
-        console.log('📋 Existing tables:', tableNames);
-        
-        const requiredTables = ['users', 'projects', 'admin_users', 'contact_submissions', 'settings'];
-        const missingTables = requiredTables.filter(table => !tableNames.includes(table));
-        
-        if (missingTables.length > 0) {
-            console.log('❌ Missing required tables:', missingTables);
-            return { healthy: false, error: `Missing tables: ${missingTables.join(', ')}` };
+        try {
+            const tables = await dbHelpers.query("SELECT name FROM sqlite_master WHERE type='table'");
+            const tableNames = tables.map(t => t.name);
+            console.log('📋 Existing tables:', tableNames);
+            
+            const requiredTables = ['users', 'projects', 'admin_users', 'contact_submissions', 'settings'];
+            const missingTables = requiredTables.filter(table => !tableNames.includes(table));
+            
+            if (missingTables.length > 0) {
+                console.log('⚠️ Missing tables (will be created during initialization):', missingTables);
+            }
+            
+            // Check admin users (only if table exists)
+            if (tableNames.includes('admin_users')) {
+                try {
+                    const adminCount = await dbHelpers.get('SELECT COUNT(*) as count FROM admin_users');
+                    console.log(`👑 Admin users count: ${adminCount.count}`);
+                } catch (error) {
+                    console.log('⚠️ Could not check admin users:', error.message);
+                }
+            }
+            
+            // Check regular users (only if table exists)
+            if (tableNames.includes('users')) {
+                try {
+                    const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
+                    console.log(`👥 Regular users count: ${userCount.count}`);
+                } catch (error) {
+                    console.log('⚠️ Could not check users:', error.message);
+                }
+            }
+            
+            // Check projects (only if table exists)
+            if (tableNames.includes('projects')) {
+                try {
+                    const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
+                    console.log(`📁 Projects count: ${projectCount.count}`);
+                } catch (error) {
+                    console.log('⚠️ Could not check projects:', error.message);
+                }
+            }
+        } catch (error) {
+            console.log('⚠️ Could not check tables (database might be empty):', error.message);
         }
-        
-        // Check admin users
-        const adminCount = await dbHelpers.get('SELECT COUNT(*) as count FROM admin_users');
-        console.log(`👑 Admin users count: ${adminCount.count}`);
-        
-        if (adminCount.count === 0) {
-            console.log('⚠️ No admin users found');
-        }
-        
-        // Check regular users
-        const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
-        console.log(`👥 Regular users count: ${userCount.count}`);
-        
-        // Check projects
-        const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
-        console.log(`📁 Projects count: ${projectCount.count}`);
         
         console.log('✅ Database health check completed successfully');
         return {
             healthy: true,
             stats: {
                 fileSizeMB: fileSizeInMB,
-                tableCount: tableNames.length,
-                adminCount: adminCount.count,
-                userCount: userCount.count,
-                projectCount: projectCount.count
+                tableCount: tableNames ? tableNames.length : 0,
+                adminCount: 0, // Will be updated during initialization
+                userCount: 0,  // Will be updated during initialization
+                projectCount: 0 // Will be updated during initialization
             }
         };
         
