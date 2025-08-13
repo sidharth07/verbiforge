@@ -573,6 +573,8 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
 
 app.get('/admin/projects/:id', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Admin project details request for ID:', req.params.id);
+        
         const project = await dbHelpers.get(`
             SELECT p.*, u.name as userName, u.email as userEmail 
             FROM projects p 
@@ -581,17 +583,39 @@ app.get('/admin/projects/:id', requireAuth, async (req, res) => {
         `, [req.params.id]);
         
         if (!project) {
+            console.log('❌ Project not found:', req.params.id);
             return res.status(404).json({ error: 'Project not found' });
         }
         
-        project.breakdown = JSON.parse(project.breakdown);
-        project.projectType = project.project_type || 'fusion';
-        project.multiplier = project.multiplier || 1;
+        console.log('📋 Raw project data:', project);
         
-        res.json(project);
+        // Format the project data consistently with the projects list
+        const formattedProject = {
+            id: project.id,
+            name: project.name,
+            fileName: project.file_name,
+            wordCount: project.word_count,
+            projectType: project.project_type || 'fusion',
+            multiplier: project.multiplier || 1,
+            breakdown: JSON.parse(project.breakdown || '[]'),
+            subtotal: project.subtotal,
+            projectManagementCost: project.project_management_cost,
+            total: project.total,
+            status: project.status,
+            createdAt: project.created_at,
+            submittedAt: project.submitted_at,
+            eta: project.eta,
+            translatedFileName: project.translated_file_name,
+            userName: project.userName,
+            userEmail: project.userEmail
+        };
+        
+        console.log('✅ Sending formatted project:', formattedProject);
+        res.json(formattedProject);
     } catch (error) {
-        console.error('Admin project fetch error:', error);
-        res.status(500).json({ error: 'Failed to load project' });
+        console.error('❌ Admin project fetch error:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to load project: ' + error.message });
     }
 });
 

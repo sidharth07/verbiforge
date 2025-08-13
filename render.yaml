@@ -4,10 +4,6 @@ services:
     env: node
     buildCommand: npm install
     startCommand: npm start
-    disk:
-      name: verbiforge-data
-      mountPath: /opt/render/project/src/data
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -20,9 +16,9 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: DATABASE_PATH
-        value: /opt/render/project/src/data
+        value: /tmp
       - key: DATABASE_URL
-        value: /opt/render/project/src/data/verbiforge.db
+        value: /tmp/verbiforge.db
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS
@@ -32,6 +28,6 @@ services:
       - key: ALLOWED_FILE_TYPES
         value: .xlsx,.xls
       - key: DEFAULT_SUPER_ADMIN_EMAIL
-        value: admin@verbiforge.com
+        value: sid@verbiforge.com
       - key: DEFAULT_SUPER_ADMIN_NAME
         value: Super Admin

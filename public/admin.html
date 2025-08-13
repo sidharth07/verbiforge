@@ -1177,19 +1177,26 @@
         let currentProjectId = null;
 
         async function openProjectDetails(projectId) {
+            console.log('🔍 Opening project details for:', projectId);
             currentProjectId = projectId;
             
             try {
                 const response = await Auth.authFetch(`/admin/projects/${projectId}`);
+                console.log('📥 Project details response:', response);
+                console.log('📥 Response status:', response.status);
+                
                 if (response.ok) {
                     const project = await response.json();
+                    console.log('📋 Project details data:', project);
                     showProjectDetails(project);
                 } else {
-                    alert('Error loading project details');
+                    const errorData = await response.json();
+                    console.error('❌ Project details error:', errorData);
+                    alert('Error loading project details: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
-                console.error('Error loading project:', error);
-                alert('Network error loading project');
+                console.error('❌ Network error loading project:', error);
+                alert('Network error loading project: ' + error.message);
             }
         }
 
