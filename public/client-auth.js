@@ -37,6 +37,29 @@
       return response;
     }
     
+    // Handle rate limiting errors
+    if (response.status === 429) {
+      try {
+        const errorData = await response.json();
+        console.warn('Rate limit exceeded:', errorData);
+        
+        // Show user-friendly rate limit message
+        if (typeof showError === 'function') {
+          showError(`Rate limit exceeded. Please wait ${errorData.retryAfter || 15} minutes before trying again.`);
+        } else {
+          alert(`Rate limit exceeded. Please wait ${errorData.retryAfter || 15} minutes before trying again.`);
+        }
+      } catch (e) {
+        console.error('Failed to parse rate limit error:', e);
+        if (typeof showError === 'function') {
+          showError('Too many requests. Please wait a few minutes before trying again.');
+        } else {
+          alert('Too many requests. Please wait a few minutes before trying again.');
+        }
+      }
+      return response;
+    }
+    
     return response;
   }
 

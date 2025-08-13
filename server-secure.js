@@ -56,29 +56,71 @@ app.use(helmet({
 //     console.log('⚠️ Passport initialization skipped - Google OAuth not available');
 // }
 
-// Rate limiting
+// Rate limiting - More generous limits for better user experience
 const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 300, // Increased from 100 to 300
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        // Skip rate limiting for static files, health checks, and certain endpoints
+        return req.path.startsWith('/css') || 
+               req.path.startsWith('/js') || 
+               req.path.startsWith('/images') ||
+               req.path === '/health' ||
+               req.path === '/db-status' ||
+               req.path.endsWith('.css') ||
+               req.path.endsWith('.js') ||
+               req.path.endsWith('.png') ||
+               req.path.endsWith('.jpg') ||
+               req.path.endsWith('.jpeg') ||
+               req.path.endsWith('.gif') ||
+               req.path.endsWith('.svg') ||
+               req.path.endsWith('.ico');
+    },
     handler: (req, res) => {
-        res.status(429).json({ error: 'Too many requests from this IP, please try again later.' });
+        console.log(`🚫 Rate limit exceeded for IP: ${req.ip}, Path: ${req.path}`);
+        res.status(429).json({ 
+            error: 'Too many requests from this IP, please try again later.',
+            retryAfter: Math.ceil(limiter.windowMs / 1000 / 60) // minutes
+        });
     }
 });
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20, // 20 attempts per window (increased from 5)
+    max: 50, // Increased from 20 to 50 attempts per window
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res) => {
-        res.status(429).json({ error: 'Too many authentication attempts, please try again later.' });
+        console.log(`🚫 Auth rate limit exceeded for IP: ${req.ip}, Path: ${req.path}`);
+        res.status(429).json({ 
+            error: 'Too many authentication attempts, please try again later.',
+            retryAfter: 15 // minutes
+        });
     }
 });
 
+// API rate limiter for frequently called endpoints
+const apiLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 200, // 200 requests per 5 minutes for API calls
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+        console.log(`🚫 API rate limit exceeded for IP: ${req.ip}, Path: ${req.path}`);
+        res.status(429).json({ 
+            error: 'Too many API requests, please try again later.',
+            retryAfter: 5 // minutes
+        });
+    }
+});
+
+// Apply rate limiting with exemptions
 app.use('/login', authLimiter);
 app.use('/signup', authLimiter);
+app.use('/projects', apiLimiter); // Apply to projects endpoint
+app.use('/admin', apiLimiter); // Apply to admin endpoints
 app.use(limiter);
 
 // CORS configuration
@@ -93,6 +135,36 @@ app.use(express.json({ limit: '1mb' }));
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Rate limit status endpoint
+app.get('/rate-limit-status', (req, res) => {
+    const clientIp = req.ip;
+    const limiterStore = limiter.store;
+    
+    // Get current rate limit info for the client
+    limiterStore.get(clientIp, (err, info) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to get rate limit status' });
+        }
+        
+        if (!info) {
+            return res.json({
+                remaining: limiter.max,
+                resetTime: new Date(Date.now() + limiter.windowMs).toISOString(),
+                limit: limiter.max,
+                windowMs: limiter.windowMs
+            });
+        }
+        
+        res.json({
+            remaining: Math.max(0, limiter.max - info.totalHits),
+            resetTime: new Date(info.resetTime).toISOString(),
+            limit: limiter.max,
+            windowMs: limiter.windowMs,
+            totalHits: info.totalHits
+        });
+    });
 });
 
 // Database status endpoint
