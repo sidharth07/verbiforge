@@ -1521,33 +1521,44 @@ async function startServer() {
     try {
         console.log('🚀 Starting VerbiForge server...');
         
-        // Force database to be in the correct location
-        console.log('🔧 Ensuring database is in correct location...');
+        // AGGRESSIVE DATABASE ENFORCEMENT
+        console.log('🔧 AGGRESSIVELY ENFORCING DATABASE LOCATION...');
         const path = require('path');
         const fs = require('fs');
         
-        // Determine the correct database path
+        // FORCE the correct database path in production
         let dbDir;
         if (process.env.NODE_ENV === 'production') {
-            if (process.env.DATABASE_PATH) {
-                dbDir = process.env.DATABASE_PATH;
-            } else {
-                dbDir = '/opt/render/project/src/data';
-            }
+            // ALWAYS use Render persistent disk, no fallbacks
+            dbDir = '/opt/render/project/src/data';
+            console.log('🌐 PRODUCTION: FORCING Render persistent disk path:', dbDir);
         } else {
             dbDir = path.join(__dirname, 'data');
+            console.log('🔧 DEVELOPMENT: Using local data directory:', dbDir);
         }
         
         const dbPath = path.join(dbDir, 'verbiforge.db');
-        console.log(`🎯 Target database path: ${dbPath}`);
+        console.log(`🎯 FORCED DATABASE PATH: ${dbPath}`);
         
-        // Ensure directory exists
+        // AGGRESSIVELY ensure directory exists
         if (!fs.existsSync(dbDir)) {
-            console.log(`📁 Creating directory: ${dbDir}`);
+            console.log(`📁 CREATING DIRECTORY: ${dbDir}`);
             fs.mkdirSync(dbDir, { recursive: true, mode: 0o755 });
+            console.log('✅ Directory created successfully');
+        } else {
+            console.log('✅ Directory already exists');
+            // Ensure it's writable
+            try {
+                fs.accessSync(dbDir, fs.constants.W_OK);
+                console.log('✅ Directory is writable');
+            } catch (error) {
+                console.log('⚠️ Fixing directory permissions...');
+                fs.chmodSync(dbDir, 0o755);
+                console.log('✅ Directory permissions fixed');
+            }
         }
         
-        // Check if database exists and is valid
+        // AGGRESSIVELY check database validity
         let dbExists = fs.existsSync(dbPath);
         let dbValid = false;
         
@@ -1558,29 +1569,37 @@ async function startServer() {
                 console.log(`📊 Existing database size: ${sizeInMB.toFixed(2)} MB`);
                 
                 if (sizeInMB > 0.001) {
-                    // Test if database is valid by trying to open it
+                    // Test database validity synchronously
                     const sqlite3 = require('sqlite3').verbose();
-                    const testDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
-                        if (!err) {
-                            testDb.get('SELECT COUNT(*) as count FROM admin_users', (err, result) => {
-                                if (!err && result && result.count > 0) {
-                                    dbValid = true;
-                                    console.log(`✅ Existing database is valid with ${result.count} admin users`);
-                                } else {
-                                    console.log('⚠️ Existing database is invalid or empty');
-                                }
-                                testDb.close();
-                            });
-                        } else {
-                            console.log('⚠️ Cannot open existing database');
-                        }
+                    return new Promise((resolve, reject) => {
+                        const testDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
+                            if (!err) {
+                                testDb.get('SELECT COUNT(*) as count FROM admin_users', (err, result) => {
+                                    if (!err && result && result.count > 0) {
+                                        dbValid = true;
+                                        console.log(`✅ Existing database is valid with ${result.count} admin users`);
+                                        testDb.close();
+                                        resolve();
+                                    } else {
+                                        console.log('⚠️ Existing database is invalid or empty, will reinitialize');
+                                        testDb.close();
+                                        resolve();
+                                    }
+                                });
+                            } else {
+                                console.log('⚠️ Cannot open existing database, will reinitialize');
+                                resolve();
+                            }
+                        });
                     });
                 } else {
-                    console.log('⚠️ Existing database is too small');
+                    console.log('⚠️ Existing database is too small, will reinitialize');
                 }
             } catch (error) {
                 console.log('⚠️ Error checking existing database:', error.message);
             }
+        } else {
+            console.log('⚠️ No database found, will create new one');
         }
         
         // Check database health before initialization
