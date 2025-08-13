@@ -747,21 +747,36 @@ app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
 
 app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('translatedFile'), async (req, res) => {
     try {
+        console.log('📤 Admin upload translated file request for project:', req.params.id);
+        console.log('📤 File data:', req.file ? {
+            originalname: req.file.originalname,
+            size: req.file.size,
+            mimetype: req.file.mimetype,
+            buffer: req.file.buffer ? 'Buffer present' : 'No buffer'
+        } : 'No file');
+        
         if (!req.file) {
+            console.log('❌ No file uploaded');
             return res.status(400).json({ error: 'No file uploaded' });
         }
         
+        console.log('📤 Saving translated file...');
         const fileInfo = await fileManager.saveTranslatedFile(req.file, req.params.id);
+        console.log('📤 File saved successfully:', fileInfo);
         
+        console.log('📤 Updating database...');
         await dbHelpers.run(
             'UPDATE projects SET translated_file_path = ?, translated_file_name = ? WHERE id = ?',
             [fileInfo.filePath, fileInfo.originalName, req.params.id]
         );
+        console.log('📤 Database updated successfully');
         
         res.json({ success: true, fileName: fileInfo.originalName });
+        console.log('✅ Translated file upload completed successfully');
     } catch (error) {
-        console.error('Admin upload translated error:', error);
-        res.status(500).json({ error: 'Failed to upload translated file' });
+        console.error('❌ Admin upload translated error:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
     }
 });
 

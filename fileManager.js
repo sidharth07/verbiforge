@@ -112,14 +112,28 @@ class FileManager {
     // Save translated file
     async saveTranslatedFile(file, projectId) {
         try {
+            console.log('FileManager: Starting translated file save process');
+            
+            // Ensure directories exist
+            await this.initializeDirectories();
+            console.log('FileManager: Directories initialized for translated file');
+            
             const fileName = `translated_${projectId}_${Date.now()}_${file.originalname}`;
             const filePath = path.join(TRANSLATED_DIR, fileName);
+            console.log('FileManager: Translated file path:', filePath);
             
-            // Encrypt file content
-            const encryptedContent = this.encryptFile(file.buffer);
+            // Validate file
+            if (!file || !file.buffer) {
+                console.error('FileManager: Invalid translated file data - file:', !!file, 'buffer:', !!file?.buffer);
+                throw new Error('Invalid file data');
+            }
             
-            // Save encrypted file
-            await fs.writeFile(filePath, encryptedContent);
+            console.log('FileManager: Translated file validation passed, size:', file.buffer.length);
+            
+            // For now, save file without encryption to debug the issue
+            console.log('FileManager: Saving translated file without encryption for debugging');
+            await fs.writeFile(filePath, file.buffer);
+            console.log('FileManager: Translated file written successfully');
             
             return {
                 filePath: fileName, // Store relative path only
@@ -128,8 +142,9 @@ class FileManager {
                 size: file.size
             };
         } catch (error) {
-            console.error('Error saving translated file:', error);
-            throw new Error('Failed to save translated file securely');
+            console.error('FileManager: Error saving translated file:', error);
+            console.error('FileManager: Error stack:', error.stack);
+            throw new Error(`Failed to save translated file securely: ${error.message}`);
         }
     }
 

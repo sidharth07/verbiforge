@@ -567,6 +567,16 @@
                         <span>${lang}</span>
                         <button class="remove-lang-btn" data-language="${lang}" style="background: rgba(255,255,255,0.3); border: none; color: white; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 12px;">×</button>
                     `;
+                    
+                    // Add event listener to the remove button
+                    const removeBtn = tag.querySelector('.remove-lang-btn');
+                    removeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const languageToRemove = removeBtn.getAttribute('data-language');
+                        console.log('🗑️ Removing language:', languageToRemove);
+                        removeLanguage(languageToRemove);
+                    });
+                    
                     tagsContainer.appendChild(tag);
                 });
             }
