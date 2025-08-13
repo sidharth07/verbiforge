@@ -375,12 +375,12 @@
             <div class="loading" id="loading">Signing in...</div>
 
             <!-- Google SSO Button -->
-            <button type="button" class="google-btn" id="googleBtn" onclick="signInWithGoogle()">
+            <button type="button" class="google-btn" id="googleBtn" onclick="signInWithGoogle()" style="display: none;">
                 <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjY0IDE3LjU4MjcgNy45NTI3MyAxNy40NzY0IDcuMzYzNjRIMTlWMTBIMTcuNjRWOS4yMDQ1NVoiIGZpbGw9IiNGQjQwMzEiLz4KPHBhdGggZD0iTTkgMTguMDAwMUMxMS40MyAxOC4wMDAxIDEzLjQ2NzMgMTcuMTk0NSAxNC45NjM2IDE1Ljc4MzZMMTIuNTkyNyAxMy45NzQ1QzExLjg0NzMgMTQuNTY4MiAxMC45NzI3IDE0LjkxODIgOSAxNC45MTgyQzYuNjU0NTUgMTQuOTE4MiA0LjY3MTgyIDEzLjM5NTUgNC4wNzI3MyAxMS4zOTU1SDEuMDYzNjRWMTRuLjA5MDkxQzIuNDI3MjcgMTYuMzYzNiA1LjQ0NTQ1IDE4LjAwMDEgOSAxOC4wMDAxWiIgZmlsbD0iIzM0QTA1MyIvPgo8cGF0aCBkPSJNNC4wNzI3MyAxMS4zOTU1QzQuMDcyNzMgMTAuOTk1NSA0LjA3MjczIDEwLjYxODIgNC4xNDU0NSAxMC4yNTQ1NUgxLjA2MzY0VjEzLjA5MDlIMy4wNzI3M0MzLjA3MjczIDEyLjg5MDkgMy4wNzI3MyAxMi42NzI3IDMuMDcyNzMgMTIuNDM2NEw0LjA3MjczIDExLjM5NTVaIiBmaWxsPSIjRkZDMTA3Ii8+CjxwYXRoIGQ9Ik05IDQuMDgxODJDMTAuMTYzNiA0LjA4MTgyIDExLjE4MTggNC40NzI3MyAxMS45NTQ1IDUuMTQ1NDVMMTMuOTU0NSA0LjE0NTQ1QzEyLjg2MzYgMy4wOTU0NSAxMS4wNzI3IDIuNDU0NTUgOSAyLjQ1NDU1QzUuNDQ1NDUgMi40NTQ1NSAyLjQyNzI3IDQuMDkwOTEgMS4wNjM2NCA2LjM2MzY0SDMuMDcyNzNDMy42NzE4MiA0LjM2MzY0IDUuNjU0NTUgMi44MTgxOCA5IDIuODE4MThDMTEuMDcyNyAyLjgxODE4IDEyLjg0NzMgMy40NTQ1NSAxNC4wNzI3IDQuNjM2MzZMMTYuMDcyNyAyLjYzNjM2QzE0LjQ2MzYgMS4wOTA5MSAxMS45NTQ1IDAgOSAwQzQuMDQ1NDUgMCAwIDQuMDQ1NDUgMCA5QzAgMTMuOTU0NSA0LjA0NTQ1IDE4IDkgMThDMTMuOTU0NSAxOCAxOCAxMy45NTQ1IDE4IDlDMTggOC4wOTA5MSAxNy44MTgyIDcuMjcyNzMgMTcuNDcyNyA2LjU0NTQ1TDE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjY0IDE3LjU4MjcgNy45NTI3MyAxNy40NzY0IDcuMzYzNjRIMTlWMTBIMTcuNjRWOS4yMDQ1NVoiIGZpbGw9IiNFQjQyMzIiLz4KPC9zdmc+" alt="Google">
                 Continue with Google
             </button>
 
-            <div class="divider">
+            <div class="divider" style="display: none;">
                 <span>or</span>
             </div>
 
@@ -417,14 +417,16 @@
                 const response = await fetch('/auth/google/status');
                 const data = await response.json();
                 
-                if (!data.configured) {
-                    document.getElementById('googleBtn').style.display = 'none';
-                    document.querySelector('.divider').style.display = 'none';
+                if (data.configured) {
+                    // Show Google OAuth button when properly configured
+                    const googleBtn = document.getElementById('googleBtn');
+                    const divider = document.querySelector('.divider');
+                    if (googleBtn) googleBtn.style.display = 'flex';
+                    if (divider) divider.style.display = 'block';
                 }
             } catch (error) {
-                console.log('Google OAuth not configured');
-                document.getElementById('googleBtn').style.display = 'none';
-                document.querySelector('.divider').style.display = 'none';
+                console.log('Google OAuth not configured or disabled');
+                // Keep Google OAuth button hidden when OAuth is disabled
             }
         }
 
