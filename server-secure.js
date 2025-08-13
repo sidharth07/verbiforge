@@ -1642,6 +1642,63 @@ async function startServer() {
             throw new Error('Database initialization failed');
         }
         
+        // AUTO-CREATE ADMIN USERS IF THEY DON'T EXIST
+        console.log('\n👤 AUTO-CREATING ADMIN USERS...');
+        try {
+            const bcrypt = require('bcrypt');
+            const { v4: uuidv4 } = require('uuid');
+            
+            // Function to create admin user
+            async function ensureAdminUser(email, name, password, isSuperAdmin = false) {
+                return new Promise((resolve, reject) => {
+                    const role = isSuperAdmin ? 'super_admin' : 'admin';
+                    
+                    // Check if user exists
+                    db.get('SELECT id FROM users WHERE email = ?', [email], async (err, row) => {
+                        if (err) {
+                            console.error(`❌ Error checking user ${email}:`, err);
+                            reject(err);
+                            return;
+                        }
+                        
+                        if (row) {
+                            console.log(`✅ Admin user ${email} already exists`);
+                            resolve();
+                        } else {
+                            // Create new admin user
+                            const userId = uuidv4();
+                            const hashedPassword = await bcrypt.hash(password, 12);
+                            
+                            db.run(`INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at) 
+                                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, 
+                                [userId, email, hashedPassword, name, role], (err) => {
+                                if (err) {
+                                    console.error(`❌ Error creating admin user ${email}:`, err);
+                                    reject(err);
+                                } else {
+                                    console.log(`✅ Created admin user: ${email} (${role})`);
+                                    resolve();
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            
+            // Create admin users
+            await ensureAdminUser('sid@verbiforge.com', 'Super Admin', 'admin123', true);
+            await ensureAdminUser('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', 'admin123', false);
+            
+            console.log('🎉 ADMIN USERS AUTO-CREATED SUCCESSFULLY!');
+            console.log('📋 Login Credentials:');
+            console.log('  Email: sid@verbiforge.com');
+            console.log('  Password: admin123');
+            console.log('  Role: super_admin');
+            
+        } catch (error) {
+            console.error('❌ Error auto-creating admin users:', error);
+        }
+        
         // Get final database info
         const finalDbInfo = {
             path: dbPath,
