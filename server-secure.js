@@ -15,6 +15,7 @@ const session = require('express-session');
 const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup } = require('./database');
 const fileManager = require('./fileManager');
 const authManager = require('./auth');
+const { initializePassport, setupGoogleRoutes } = require('./google-oauth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,9 +28,26 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
-        },
-    },
+            connectSrc: ["'self'", "https://accounts.google.com"],
+            frameSrc: ["'self'", "https://accounts.google.com"]
+        }
+    }
 }));
+
+// Session configuration for Google OAuth
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'verbiforge-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// Initialize Passport for Google OAuth
+initializePassport(app);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -1439,3 +1457,6 @@ app.get('/api/debug/database', async (req, res) => {
         });
     }
 });
+
+// Setup Google OAuth routes
+setupGoogleRoutes(app);

@@ -681,6 +681,10 @@ async function runMigrations() {
             {
                 name: 'add_user_updated_at',
                 sql: 'ALTER TABLE users ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP'
+            },
+            {
+                name: 'add_google_id',
+                sql: 'ALTER TABLE users ADD COLUMN google_id TEXT'
             }
         ];
         

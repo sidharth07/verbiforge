@@ -35,3 +35,9 @@ services:
         value: sid@verbiforge.com
       - key: DEFAULT_SUPER_ADMIN_NAME
         value: Super Admin
+      - key: GOOGLE_CLIENT_ID
+        value: ""  # Add your Google OAuth Client ID here
+      - key: GOOGLE_CLIENT_SECRET
+        value: ""  # Add your Google OAuth Client Secret here
+      - key: GOOGLE_CALLBACK_URL
+        value: https://verbiforge.onrender.com/auth/google/callback

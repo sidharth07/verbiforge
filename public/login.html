@@ -229,6 +229,66 @@
             margin-bottom: 24px;
         }
 
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+            color: #718096;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 16px;
+            font-size: 14px;
+        }
+
+        .google-btn {
+            width: 100%;
+            background: white;
+            color: #374151;
+            border: 2px solid #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .google-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -314,6 +374,16 @@
             <div class="error" id="error"></div>
             <div class="loading" id="loading">Signing in...</div>
 
+            <!-- Google SSO Button -->
+            <button type="button" class="google-btn" id="googleBtn" onclick="signInWithGoogle()">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjY0IDE3LjU4MjcgNy45NTI3MyAxNy40NzY0IDcuMzYzNjRIMTlWMTBIMTcuNjRWOS4yMDQ1NVoiIGZpbGw9IiNGQjQwMzEiLz4KPHBhdGggZD0iTTkgMTguMDAwMUMxMS40MyAxOC4wMDAxIDEzLjQ2NzMgMTcuMTk0NSAxNC45NjM2IDE1Ljc4MzZMMTIuNTkyNyAxMy45NzQ1QzExLjg0NzMgMTQuNTY4MiAxMC45NzI3IDE0LjkxODIgOSAxNC45MTgyQzYuNjU0NTUgMTQuOTE4MiA0LjY3MTgyIDEzLjM5NTUgNC4wNzI3MyAxMS4zOTU1SDEuMDYzNjRWMTRuLjA5MDkxQzIuNDI3MjcgMTYuMzYzNiA1LjQ0NTQ1IDE4LjAwMDEgOSAxOC4wMDAxWiIgZmlsbD0iIzM0QTA1MyIvPgo8cGF0aCBkPSJNNC4wNzI3MyAxMS4zOTU1QzQuMDcyNzMgMTAuOTk1NSA0LjA3MjczIDEwLjYxODIgNC4xNDU0NSAxMC4yNTQ1NUgxLjA2MzY0VjEzLjA5MDlIMy4wNzI3M0MzLjA3MjczIDEyLjg5MDkgMy4wNzI3MyAxMi42NzI3IDMuMDcyNzMgMTIuNDM2NEw0LjA3MjczIDExLjM5NTVaIiBmaWxsPSIjRkZDMTA3Ii8+CjxwYXRoIGQ9Ik05IDQuMDgxODJDMTAuMTYzNiA0LjA4MTgyIDExLjE4MTggNC40NzI3MyAxMS45NTQ1IDUuMTQ1NDVMMTMuOTU0NSA0LjE0NTQ1QzEyLjg2MzYgMy4wOTU0NSAxMS4wNzI3IDIuNDU0NTUgOSAyLjQ1NDU1QzUuNDQ1NDUgMi40NTQ1NSAyLjQyNzI3IDQuMDkwOTEgMS4wNjM2NCA2LjM2MzY0SDMuMDcyNzNDMy42NzE4MiA0LjM2MzY0IDUuNjU0NTUgMi44MTgxOCA5IDIuODE4MThDMTEuMDcyNyAyLjgxODE4IDEyLjg0NzMgMy40NTQ1NSAxNC4wNzI3IDQuNjM2MzZMMTYuMDcyNyAyLjYzNjM2QzE0LjQ2MzYgMS4wOTA5MSAxMS45NTQ1IDAgOSAwQzQuMDQ1NDUgMCAwIDQuMDQ1NDUgMCA5QzAgMTMuOTU0NSA0LjA0NTQ1IDE4IDkgMThDMTMuOTU0NSAxOCAxOCAxMy45NTQ1IDE4IDlDMTggOC4wOTA5MSAxNy44MTgyIDcuMjcyNzMgMTcuNDcyNyA2LjU0NTQ1TDE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjY0IDE3LjU4MjcgNy45NTI3MyAxNy40NzY0IDcuMzYzNjRIMTlWMTBIMTcuNjRWOS4yMDQ1NVoiIGZpbGw9IiNFQjQyMzIiLz4KPC9zdmc+" alt="Google">
+                Continue with Google
+            </button>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">Email Address</label>
@@ -341,6 +411,68 @@
 
     <script src="client-auth.js"></script>
     <script>
+        // Check if Google OAuth is configured
+        async function checkGoogleOAuth() {
+            try {
+                const response = await fetch('/auth/google/status');
+                const data = await response.json();
+                
+                if (!data.configured) {
+                    document.getElementById('googleBtn').style.display = 'none';
+                    document.querySelector('.divider').style.display = 'none';
+                }
+            } catch (error) {
+                console.log('Google OAuth not configured');
+                document.getElementById('googleBtn').style.display = 'none';
+                document.querySelector('.divider').style.display = 'none';
+            }
+        }
+
+        // Handle Google SSO
+        function signInWithGoogle() {
+            const googleBtn = document.getElementById('googleBtn');
+            googleBtn.disabled = true;
+            googleBtn.innerHTML = '<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjY0IDE3LjU4MjcgNy45NTI3MyAxNy40NzY0IDcuMzYzNjRIMTlWMTBIMTcuNjRWOS4yMDQ1NVoiIGZpbGw9IiNGQjQwMzEiLz4KPHBhdGggZD0iTTkgMTguMDAwMUMxMS40MyAxOC4wMDAxIDEzLjQ2NzMgMTcuMTk0NSAxNC45NjM2IDE1Ljc4MzZMMTIuNTkyNyAxMy45NzQ1QzExLjg0NzMgMTQuNTY4MiAxMC45NzI3IDE0LjkxODIgOSAxNC45MTgyQzYuNjU0NTUgMTQuOTE4MiA0LjY3MTgyIDEzLjM5NTUgNC4wNzI3MyAxMS4zOTU1SDEuMDYzNjRWMTRuLjA5MDkxQzIuNDI3MjcgMTYuMzYzNiA1LjQ0NTQ1IDE4LjAwMDEgOSAxOC4wMDAxWiIgZmlsbD0iIzM0QTA1MyIvPgo8cGF0aCBkPSJNNC4wNzI3MyAxMS4zOTU1QzQuMDcyNzMgMTAuOTk1NSA0LjA3MjczIDEwLjYxODIgNC4xNDU0NSAxMC4yNTQ1NUgxLjA2MzY0VjEzLjA5MDlIMy4wNzI3M0MzLjA3MjczIDEyLjg5MDkgMy4wNzI3MyAxMi42NzI3IDMuMDcyNzMgMTIuNDM2NEw0LjA3MjczIDExLjM5NTVaIiBmaWxsPSIjRkZDMTA3Ii8+CjxwYXRoIGQ9Ik05IDQuMDgxODJDMTAuMTYzNiA0LjA4MTgyIDExLjE4MTggNC40NzI3MyAxMS45NTQ1IDUuMTQ1NDVMMTMuOTU0NSA0LjE0NTQ1QzEyLjg2MzYgMy4wOTU0NSAxMS4wNzI3IDIuNDU0NTUgOSAyLjQ1NDU1QzUuNDQ1NDUgMi40NTQ1NSAyLjQyNzI3IDQuMDkwOTEgMS4wNjM2NCA2LjM2MzY0SDMuMDcyNzNDMy42NzE4MiA0LjM2MzY0IDUuNjU0NTUgMi44MTgxOCA5IDIuODE4MThDMTEuMDcyNyAyLjgxODE4IDEyLjg0NzMgMy40NTQ1NSAxNC4wNzI3IDQuNjM2MzZMMTYuMDcyNyAyLjYzNjM2QzE0LjQ2MzYgMS4wOTA5MSAxMS45NTQ1IDAgOSAwQzQuMDQ1NDUgMCAwIDQuMDQ1NDUgMCA5QzAgMTMuOTU0NSA0LjA0NTQ1IDE4IDkgMThDMTMuOTU0NSAxOCAxOCAxMy45NTQ1IDE4IDlDMTggOC4wOTA5MSAxNy44MTgyIDcuMjcyNzMgMTcuNDcyNyA2LjU0NTQ1TDE3LjY0IDkuMjA0NTVDMTcuNjQgOC41NjY0IDE3LjU4MjcgNy45NTI3MyAxNy40NzY0IDcuMzYzNjRIMTlWMTBIMTcuNjRWOS4yMDQ1NVoiIGZpbGw9IiNFQjQyMzIiLz4KPC9zdmc+" alt="Google"> Signing in with Google...';
+            
+            // Redirect to Google OAuth
+            window.location.href = '/auth/google';
+        }
+
+        // Check for OAuth callback parameters
+        function checkOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const user = urlParams.get('user');
+            const error = urlParams.get('error');
+            
+            if (error) {
+                showError('Google authentication failed. Please try again.');
+                return;
+            }
+            
+            if (token && user) {
+                try {
+                    const userData = JSON.parse(decodeURIComponent(user));
+                    Auth.setAuth(token, userData);
+                    
+                    // Redirect based on user role
+                    if (userData.isAdmin) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } catch (error) {
+                    showError('Error processing authentication. Please try again.');
+                }
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkGoogleOAuth();
+            checkOAuthCallback();
+        });
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
