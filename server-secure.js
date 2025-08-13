@@ -362,7 +362,7 @@ app.post('/projects', requireAuth, async (req, res) => {
         
         const { 
             projectName, fileName, wordCount, projectType, multiplier, 
-            breakdown, subtotal, projectManagementCost, total, tempFileId 
+            breakdown, subtotal, projectManagementCost, total, tempFileId, notes 
         } = req.body;
         
         console.log('📋 Project data:', {
@@ -379,12 +379,12 @@ app.post('/projects', requireAuth, async (req, res) => {
             INSERT INTO projects (
                 id, user_id, user_name, user_email, name, file_name, file_path,
                 project_type, multiplier, word_count, breakdown, subtotal,
-                project_management_cost, total, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                project_management_cost, total, status, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `, [
             projectId, user.id, user.name, user.email, projectName, fileName, tempFileId,
             projectType || 'fusion', multiplier || 1, wordCount, JSON.stringify(breakdown),
-            subtotal || '0.00', projectManagementCost || '500.00', total, 'quote_generated'
+            subtotal || '0.00', projectManagementCost || '500.00', total, 'quote_generated', notes || null
         ]);
         
         console.log('✅ Project saved successfully:', { projectId, insertResult });
@@ -608,6 +608,7 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
             submittedAt: project.submitted_at,
             eta: project.eta,
             translatedFileName: project.translated_file_name,
+            notes: project.notes,
             userName: project.userName,
             userEmail: project.userEmail
         }));
@@ -656,6 +657,7 @@ app.get('/admin/projects/:id', requireAuth, async (req, res) => {
             submittedAt: project.submitted_at,
             eta: project.eta,
             translatedFileName: project.translated_file_name,
+            notes: project.notes,
             userName: project.userName,
             userEmail: project.userEmail
         };
@@ -694,6 +696,20 @@ app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Admin ETA update error:', error);
         res.status(500).json({ error: 'Failed to update ETA' });
+    }
+});
+
+app.put('/admin/projects/:id/notes', requireAuth, async (req, res) => {
+    try {
+        const { notes } = req.body;
+        await dbHelpers.run(
+            'UPDATE projects SET notes = ? WHERE id = ?',
+            [notes, req.params.id]
+        );
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Admin notes update error:', error);
+        res.status(500).json({ error: 'Failed to update notes' });
     }
 });
 

@@ -1293,7 +1293,7 @@
                             <span class="status-badge ${statusClass}">${statusText}</span>
                             <div style="font-size: 0.8em; color: #856404; margin-top: 2px;">Awaiting Submission</div>
                         ` : `
-                            <select onchange="updateProjectStatus('${project.id}', this.value)" 
+                            <select class="status-select" data-project-id="${project.id}"
                                     style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
                                 <option value="submitted" ${project.status === 'submitted' ? 'selected' : ''}>Submitted</option>
                                 <option value="in_progress" ${project.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
@@ -1491,6 +1491,15 @@
                         <strong style="color: #28a745;">Total: $${project.total}</strong>
                     </div>
                 </div>
+                
+                ${project.notes ? `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px; color: #333;">📝 User Notes</h4>
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; border-left: 4px solid #2196F3;">
+                        <p style="margin: 0; white-space: pre-wrap; color: #1565C0;">${project.notes}</p>
+                    </div>
+                </div>
+                ` : ''}
                 
                 <div style="display: flex; gap: 10px;">
                     <button class="action-btn download download-original-btn" data-project-id="${project.id}" data-file-name="${project.fileName}" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">
@@ -2450,6 +2459,15 @@
                 const projectId = btn.getAttribute('data-project-id');
                 const fileName = btn.getAttribute('data-file-name');
                 btn.addEventListener('click', () => downloadOriginalFile(projectId, fileName));
+            });
+            
+            // Status dropdown buttons
+            document.querySelectorAll('.status-select').forEach(select => {
+                const projectId = select.getAttribute('data-project-id');
+                select.addEventListener('change', (e) => {
+                    console.log('🔄 Status dropdown changed for project:', projectId, 'to:', e.target.value);
+                    updateProjectStatus(projectId, e.target.value);
+                });
             });
             
             document.querySelectorAll('[onclick*="deleteCustomLanguage"]').forEach(btn => {

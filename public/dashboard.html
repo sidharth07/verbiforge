@@ -1019,6 +1019,14 @@
                     <div>Grand Total</div>
                     <div style="font-size: 2em; font-weight: bold;">$${data.total}</div>
                 </div>
+                
+                <div style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 15px;">📝 Notes for Admin (Optional)</h3>
+                    <textarea id="projectNotes" 
+                              placeholder="Add any special instructions, requirements, or notes for the admin team..."
+                              style="width: 100%; min-height: 100px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; resize: vertical;"
+                    ></textarea>
+                </div>
             `;
 
             document.getElementById('resultsModal').classList.add('show');
@@ -1075,13 +1083,20 @@
                 return;
             }
 
-            console.log('📤 Sending project data to server:', currentAnalysis);
+            // Get notes from the textarea
+            const notes = document.getElementById('projectNotes').value.trim();
+            const projectData = {
+                ...currentAnalysis,
+                notes: notes
+            };
+
+            console.log('📤 Sending project data to server:', projectData);
 
             try {
                 const response = await Auth.authFetch('/projects', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentAnalysis)
+                    body: JSON.stringify(projectData)
                 });
 
                 console.log('📥 Server response:', response);

@@ -106,6 +106,7 @@ function initializeTables() {
                     total REAL NOT NULL,
                     status TEXT DEFAULT 'quote_generated',
                     eta INTEGER,
+                    notes TEXT,
                     submitted_at DATETIME,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users (id)
