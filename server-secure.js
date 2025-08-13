@@ -1229,7 +1229,7 @@ app.get('/admin/users', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
         }
         const users = await dbHelpers.query(`
-            SELECT u.*, 
+            SELECT u.id, u.email, u.name, u.role, u.created_at as createdAt, u.updated_at as updatedAt,
                    COUNT(p.id) as projectCount,
                    COALESCE(SUM(p.total), 0) as totalSpent
             FROM users u

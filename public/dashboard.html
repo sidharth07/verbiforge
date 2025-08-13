@@ -98,7 +98,111 @@
         .custom-modal-buttons {
             display: flex;
             gap: 12px;
-            padding: 0 24px 24px;
+        }
+
+        /* Project Analysis Loading Modal */
+        .analysis-loading-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            backdrop-filter: blur(8px);
+        }
+
+        .analysis-loading-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .analysis-loading-icon {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .analysis-loading-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .analysis-loading-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .analysis-loading-steps {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .analysis-loading-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .analysis-loading-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .analysis-loading-step-icon {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ddd;
+            border-top: 2px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .analysis-loading-step.completed .analysis-loading-step-icon {
+            background: #4facfe;
+            border-color: #4facfe;
+            animation: none;
+        }
+
+        .analysis-loading-step.completed::after {
+            content: '✓';
+            color: #4facfe;
+            font-weight: bold;
+            margin-left: auto;
         }
 
         .custom-modal-btn {
@@ -559,6 +663,37 @@
         </div>
     </div>
 
+    <!-- Analysis Loading Modal -->
+    <div id="analysisLoadingModal" class="analysis-loading-modal">
+        <div class="analysis-loading-content">
+            <div class="analysis-loading-icon"></div>
+            <div class="analysis-loading-title">Calculating Costs</div>
+            <div class="analysis-loading-message">Please wait while we analyze your file and calculate translation costs...</div>
+            <div class="analysis-loading-steps">
+                <div class="analysis-loading-step" id="step1">
+                    <div class="analysis-loading-step-icon"></div>
+                    <span>Reading Excel file...</span>
+                </div>
+                <div class="analysis-loading-step" id="step2">
+                    <div class="analysis-loading-step-icon"></div>
+                    <span>Extracting text content...</span>
+                </div>
+                <div class="analysis-loading-step" id="step3">
+                    <div class="analysis-loading-step-icon"></div>
+                    <span>Counting words...</span>
+                </div>
+                <div class="analysis-loading-step" id="step4">
+                    <div class="analysis-loading-step-icon"></div>
+                    <span>Calculating costs per language...</span>
+                </div>
+                <div class="analysis-loading-step" id="step5">
+                    <div class="analysis-loading-step-icon"></div>
+                    <span>Generating final quote...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentUser = null;
         let selectedLanguages = [];
@@ -926,6 +1061,8 @@
                 return;
             }
 
+            // Show the analysis loading modal
+            showAnalysisLoading();
             showLoading(true);
 
             const formData = new FormData();
@@ -962,6 +1099,8 @@
                 showError('Network error. Please try again.');
             }
 
+            // Hide the analysis loading modal
+            hideAnalysisLoading();
             showLoading(false);
         }
 
@@ -1352,6 +1491,37 @@
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';
             document.getElementById('analyzeBtn').disabled = show;
+        }
+
+        // Analysis Loading Modal Functions
+        function showAnalysisLoading() {
+            const modal = document.getElementById('analysisLoadingModal');
+            modal.style.display = 'flex';
+            
+            // Reset all steps
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('completed');
+            }
+            
+            // Start step animation
+            setTimeout(() => completeStep(1), 500);
+            setTimeout(() => completeStep(2), 1500);
+            setTimeout(() => completeStep(3), 2500);
+            setTimeout(() => completeStep(4), 3500);
+            setTimeout(() => completeStep(5), 4500);
+        }
+
+        function hideAnalysisLoading() {
+            const modal = document.getElementById('analysisLoadingModal');
+            modal.style.display = 'none';
+        }
+
+        function completeStep(stepNumber) {
+            const step = document.getElementById(`step${stepNumber}`);
+            if (step) {
+                step.classList.add('completed');
+            }
         }
 
         function attachProjectButtonListeners() {
