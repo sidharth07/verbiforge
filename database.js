@@ -24,26 +24,39 @@ console.log('🔍 Environment DATABASE_PATH:', process.env.DATABASE_PATH);
 console.log('🔍 Current working directory:', process.cwd());
 console.log('🔍 __dirname:', __dirname);
 
-if (!fs.existsSync(dbDir)) {
-    console.log('📁 Creating database directory:', dbDir);
-    try {
-        fs.mkdirSync(dbDir, { recursive: true });
-        console.log('✅ Database directory created successfully');
-    } catch (error) {
-        console.error('❌ Error creating database directory:', error);
-        throw error;
-    }
-} else {
-    console.log('📁 Database directory already exists:', dbDir);
-    // Check if directory is writable
-    try {
-        fs.accessSync(dbDir, fs.constants.W_OK);
-        console.log('✅ Database directory is writable');
-    } catch (error) {
-        console.error('❌ Database directory is not writable:', error);
-        throw error;
+// Function to ensure database directory exists with proper permissions
+function ensureDatabaseDirectory() {
+    if (!fs.existsSync(dbDir)) {
+        console.log('📁 Creating database directory:', dbDir);
+        try {
+            fs.mkdirSync(dbDir, { recursive: true, mode: 0o755 });
+            console.log('✅ Database directory created successfully');
+        } catch (error) {
+            console.error('❌ Error creating database directory:', error);
+            throw error;
+        }
+    } else {
+        console.log('📁 Database directory already exists:', dbDir);
+        // Check if directory is writable
+        try {
+            fs.accessSync(dbDir, fs.constants.W_OK);
+            console.log('✅ Database directory is writable');
+        } catch (error) {
+            console.error('❌ Database directory is not writable:', error);
+            // Try to fix permissions
+            try {
+                fs.chmodSync(dbDir, 0o755);
+                console.log('✅ Fixed database directory permissions');
+            } catch (chmodError) {
+                console.error('❌ Failed to fix database directory permissions:', chmodError);
+                throw error;
+            }
+        }
     }
 }
+
+// Ensure database directory exists
+ensureDatabaseDirectory();
 
 const dbPath = path.join(dbDir, 'verbiforge.db');
 console.log('🗄️ Database path:', dbPath);
@@ -67,6 +80,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 function initializeTables() {
     return new Promise((resolve, reject) => {
+        console.log('🗄️ Starting database initialization...');
+        
         // Users table
         db.run(`
             CREATE TABLE IF NOT EXISTS users (
@@ -84,6 +99,7 @@ function initializeTables() {
                 reject(err);
                 return;
             }
+            console.log('✅ Users table ready');
             
             // Projects table
             db.run(`
@@ -117,6 +133,7 @@ function initializeTables() {
                     reject(err);
                     return;
                 }
+                console.log('✅ Projects table ready');
                 
                 // Admin users table
                 db.run(`
@@ -134,6 +151,7 @@ function initializeTables() {
                         reject(err);
                         return;
                     }
+                    console.log('✅ Admin users table ready');
                     
                     // Contact submissions table
                     db.run(`
@@ -155,6 +173,7 @@ function initializeTables() {
                             reject(err);
                             return;
                         }
+                        console.log('✅ Contact submissions table ready');
                         
                         // Settings table for dynamic configuration
                         db.run(`
@@ -169,6 +188,7 @@ function initializeTables() {
                                 reject(err);
                                 return;
                             }
+                            console.log('✅ Settings table ready');
                             
                             // Insert default settings
                             const defaultLanguages = {
@@ -309,23 +329,37 @@ function initializeTables() {
                                     reject(err);
                                     return;
                                 }
+                                console.log('✅ Default settings inserted');
                                 
-                                // Insert default super admin
-                                console.log('👤 Inserting default super admin...');
-                                db.run(`
-                                    INSERT OR IGNORE INTO admin_users (email, name, is_super_admin, created_by) 
-                                    VALUES ('sid@verbiforge.com', 'Super Admin', TRUE, 'system')
-                                `, function(err) {
+                                // Check if super admin already exists before inserting
+                                console.log('👤 Checking for existing super admin...');
+                                db.get('SELECT email FROM admin_users WHERE email = ? AND is_super_admin = TRUE', ['sid@verbiforge.com'], (err, existingAdmin) => {
                                     if (err) {
-                                        console.error('❌ Error inserting default admin:', err);
+                                        console.error('❌ Error checking for existing admin:', err);
                                         reject(err);
                                         return;
                                     }
                                     
-                                    if (this.changes > 0) {
-                                        console.log('✅ Default super admin created successfully');
+                                    if (existingAdmin) {
+                                        console.log('ℹ️ Super admin already exists, skipping creation');
                                     } else {
-                                        console.log('ℹ️ Default super admin already exists');
+                                        console.log('👤 Creating default super admin...');
+                                        db.run(`
+                                            INSERT INTO admin_users (email, name, is_super_admin, created_by) 
+                                            VALUES ('sid@verbiforge.com', 'Super Admin', TRUE, 'system')
+                                        `, function(err) {
+                                            if (err) {
+                                                console.error('❌ Error inserting default admin:', err);
+                                                reject(err);
+                                                return;
+                                            }
+                                            
+                                            if (this.changes > 0) {
+                                                console.log('✅ Default super admin created successfully');
+                                            } else {
+                                                console.log('ℹ️ Default super admin creation failed (no changes)');
+                                            }
+                                        });
                                     }
                                     
                                     console.log('✅ Database tables initialized successfully');
@@ -389,6 +423,64 @@ const dbHelpers = {
                 else resolve(row);
             });
         });
+    },
+
+    // Check database health and persistence
+    async checkDatabaseHealth() {
+        try {
+            console.log('🔍 Checking database health...');
+            
+            // Check if database file exists and is accessible
+            if (!fs.existsSync(dbPath)) {
+                console.error('❌ Database file does not exist at:', dbPath);
+                return { healthy: false, error: 'Database file not found' };
+            }
+
+            // Check if database is writable
+            try {
+                fs.accessSync(dbPath, fs.constants.W_OK);
+                console.log('✅ Database file is writable');
+            } catch (error) {
+                console.error('❌ Database file is not writable:', error);
+                return { healthy: false, error: 'Database not writable' };
+            }
+
+            // Test database connection and basic operations
+            const testResult = await this.get('SELECT 1 as test');
+            if (!testResult || testResult.test !== 1) {
+                console.error('❌ Database connection test failed');
+                return { healthy: false, error: 'Database connection failed' };
+            }
+
+            // Check if tables exist
+            const tables = await this.query("SELECT name FROM sqlite_master WHERE type='table'");
+            const expectedTables = ['users', 'projects', 'admin_users', 'contact_submissions', 'settings'];
+            const existingTables = tables.map(t => t.name);
+            
+            console.log('📋 Existing tables:', existingTables);
+            
+            const missingTables = expectedTables.filter(table => !existingTables.includes(table));
+            if (missingTables.length > 0) {
+                console.warn('⚠️ Missing tables:', missingTables);
+                return { healthy: false, error: `Missing tables: ${missingTables.join(', ')}` };
+            }
+
+            // Check data persistence
+            const userCount = await this.get('SELECT COUNT(*) as count FROM users');
+            const adminCount = await this.get('SELECT COUNT(*) as count FROM admin_users');
+            
+            console.log(`👥 Users: ${userCount.count}, Admins: ${adminCount.count}`);
+            
+            return { 
+                healthy: true, 
+                userCount: userCount.count, 
+                adminCount: adminCount.count,
+                tables: existingTables
+            };
+        } catch (error) {
+            console.error('❌ Database health check failed:', error);
+            return { healthy: false, error: error.message };
+        }
     }
 };
 
@@ -425,4 +517,93 @@ async function restoreDatabase() {
     }
 }
 
-module.exports = { db, dbHelpers, initializeTables, backupDatabase, restoreDatabase };
+// Automatic backup before major operations
+async function createAutomaticBackup() {
+    try {
+        if (fs.existsSync(dbPath)) {
+            const stats = fs.statSync(dbPath);
+            const fileSizeInMB = stats.size / (1024 * 1024);
+            
+            // Only backup if database file is not empty
+            if (fileSizeInMB > 0.001) { // More than 1KB
+                console.log('💾 Creating automatic backup before operation...');
+                await backupDatabase();
+                return true;
+            } else {
+                console.log('ℹ️ Database file is empty, skipping backup');
+                return false;
+            }
+        } else {
+            console.log('ℹ️ Database file does not exist, skipping backup');
+            return false;
+        }
+    } catch (error) {
+        console.error('⚠️ Automatic backup failed:', error);
+        return false;
+    }
+}
+
+// Database migration function to handle schema updates
+async function runMigrations() {
+    console.log('🔄 Running database migrations...');
+    
+    try {
+        // Check if migrations table exists
+        const migrationsTable = await dbHelpers.get("SELECT name FROM sqlite_master WHERE type='table' AND name='migrations'");
+        
+        if (!migrationsTable) {
+            console.log('📋 Creating migrations table...');
+            await dbHelpers.run(`
+                CREATE TABLE migrations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    migration_name TEXT UNIQUE NOT NULL,
+                    applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+        }
+        
+        // Get applied migrations
+        const appliedMigrations = await dbHelpers.query('SELECT migration_name FROM migrations');
+        const appliedMigrationNames = appliedMigrations.map(m => m.migration_name);
+        
+        console.log('📋 Applied migrations:', appliedMigrationNames);
+        
+        // Define migrations
+        const migrations = [
+            {
+                name: 'add_user_roles',
+                sql: 'ALTER TABLE users ADD COLUMN role TEXT DEFAULT "user"'
+            },
+            {
+                name: 'add_user_timestamps',
+                sql: 'ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP'
+            },
+            {
+                name: 'add_user_updated_at',
+                sql: 'ALTER TABLE users ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP'
+            }
+        ];
+        
+        // Run pending migrations
+        for (const migration of migrations) {
+            if (!appliedMigrationNames.includes(migration.name)) {
+                console.log(`🔄 Running migration: ${migration.name}`);
+                try {
+                    await dbHelpers.run(migration.sql);
+                    await dbHelpers.run('INSERT INTO migrations (migration_name) VALUES (?)', [migration.name]);
+                    console.log(`✅ Migration ${migration.name} applied successfully`);
+                } catch (error) {
+                    // Some migrations might fail if columns already exist (SQLite limitation)
+                    console.log(`⚠️ Migration ${migration.name} failed (might already be applied):`, error.message);
+                }
+            }
+        }
+        
+        console.log('✅ Database migrations completed');
+    } catch (error) {
+        console.error('❌ Error running migrations:', error);
+        throw error;
+    }
+}
+
+module.exports = { db, dbHelpers, initializeTables, backupDatabase, restoreDatabase, runMigrations, createAutomaticBackup };

@@ -9,9 +9,10 @@ const { body, validationResult } = require('express-validator');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs/promises'); // Added for file decryption
+const session = require('express-session');
 
 // Import our secure modules
-const { dbHelpers, initializeTables } = require('./database');
+const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup } = require('./database');
 const fileManager = require('./fileManager');
 const authManager = require('./auth');
 
@@ -1295,9 +1296,37 @@ app.use((error, req, res, next) => {
 // Initialize database and start server
 async function startServer() {
     try {
+        console.log('🚀 Starting VerbiForge server...');
+        
+        // Check database health before initialization
+        const healthCheck = await dbHelpers.checkDatabaseHealth();
+        console.log('🔍 Database health check result:', healthCheck);
+        
+        if (!healthCheck.healthy) {
+            console.log('⚠️ Database health check failed, attempting to initialize...');
+        }
+        
+        // Create automatic backup before any operations
+        await createAutomaticBackup();
+        
         // Initialize database tables
+        console.log('🗄️ Initializing database tables...');
         await initializeTables();
-        console.log('Database tables initialized');
+        console.log('✅ Database tables initialized');
+        
+        // Run database migrations
+        console.log('🔄 Running database migrations...');
+        await runMigrations();
+        console.log('✅ Database migrations completed');
+        
+        // Perform health check again after initialization
+        const postInitHealthCheck = await dbHelpers.checkDatabaseHealth();
+        console.log('🔍 Post-initialization health check:', postInitHealthCheck);
+        
+        if (!postInitHealthCheck.healthy) {
+            console.error('❌ Database health check failed after initialization');
+            throw new Error('Database initialization failed');
+        }
         
         // Start the server
         app.listen(PORT, '0.0.0.0', () => {
@@ -1311,11 +1340,34 @@ async function startServer() {
             console.log('  - Rate limiting');
             console.log('  - Input validation');
             console.log('  - Security headers');
+            console.log(`📊 Database stats: ${postInitHealthCheck.userCount} users, ${postInitHealthCheck.adminCount} admins`);
         });
     } catch (error) {
-        console.error('Failed to start server:', error);
+        console.error('❌ Failed to start server:', error);
+        console.error('❌ Error stack:', error.stack);
         process.exit(1);
     }
 }
 
 startServer();
+
+// Database health check endpoint (for debugging)
+app.get('/api/health/database', async (req, res) => {
+    try {
+        const healthCheck = await dbHelpers.checkDatabaseHealth();
+        res.json({
+            timestamp: new Date().toISOString(),
+            database: healthCheck,
+            environment: {
+                nodeEnv: process.env.NODE_ENV,
+                databasePath: process.env.DATABASE_PATH,
+                databaseUrl: process.env.DATABASE_URL
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'Database health check failed',
+            message: error.message 
+        });
+    }
+});

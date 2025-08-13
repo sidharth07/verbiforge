@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server-secure.js",
     "dev": "nodemon server-secure.js",
-    "old": "node server.js"
+    "old": "node server.js",
+    "test-db": "node test-database.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
