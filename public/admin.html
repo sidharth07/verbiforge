@@ -1266,6 +1266,15 @@
             }
             
             document.getElementById('projectModal').style.display = 'flex';
+            
+            // Attach event listener to the download button
+            const downloadBtn = document.querySelector('.download-original-btn');
+            if (downloadBtn) {
+                const projectId = downloadBtn.getAttribute('data-project-id');
+                const fileName = downloadBtn.getAttribute('data-file-name');
+                downloadBtn.addEventListener('click', () => downloadOriginalFile(projectId, fileName));
+                console.log('🔗 Download button event listener attached for project:', projectId);
+            }
         }
 
         function closeProjectModal() {
@@ -1277,32 +1286,45 @@
 
         async function downloadOriginalFile(projectId, fileName) {
             console.log('🔍 Downloading original file for project:', projectId);
+            console.log('🔍 File name:', fileName);
             
             try {
+                console.log('🔍 Making authenticated request to download endpoint...');
                 const response = await Auth.authFetch(`/admin/projects/${projectId}/download`);
                 
+                console.log('🔍 Response status:', response.status);
+                console.log('🔍 Response headers:', response.headers);
+                
                 if (response.ok) {
+                    console.log('🔍 Response is OK, getting blob...');
                     // Get the file blob
                     const blob = await response.blob();
+                    console.log('🔍 Blob size:', blob.size);
+                    console.log('🔍 Blob type:', blob.type);
                     
                     // Create a download link
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = fileName || `project_${projectId}.xlsx`;
+                    console.log('🔍 Download filename:', a.download);
+                    
                     document.body.appendChild(a);
+                    console.log('🔍 Triggering download...');
                     a.click();
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
                     
                     console.log('✅ File download initiated successfully');
                 } else {
+                    console.log('❌ Response not OK, getting error details...');
                     const errorData = await response.json();
                     console.error('❌ Download error:', errorData);
                     alert('Error downloading file: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('❌ Network error downloading file:', error);
+                console.error('❌ Error stack:', error.stack);
                 alert('Network error downloading file: ' + error.message);
             }
         }
