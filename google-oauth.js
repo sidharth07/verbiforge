@@ -1,8 +1,3 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const { dbHelpers } = require('./database');
-const authManager = require('./auth');
-
 // Google OAuth configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -17,8 +12,26 @@ console.log('  - Client Secret configured:', !!GOOGLE_CLIENT_SECRET);
 console.log('  - Callback URL:', GOOGLE_CALLBACK_URL);
 console.log('  - OAuth Enabled:', isGoogleOAuthConfigured);
 
-// Only configure Google OAuth strategy if credentials are provided
+let passport = null;
+let GoogleStrategy = null;
+
+// Only load Passport.js if OAuth is configured
 if (isGoogleOAuthConfigured) {
+    try {
+        passport = require('passport');
+        GoogleStrategy = require('passport-google-oauth20').Strategy;
+        console.log('✅ Passport.js loaded successfully');
+    } catch (error) {
+        console.error('❌ Error loading Passport.js:', error.message);
+        console.log('⚠️ Google OAuth will be disabled due to Passport.js loading error');
+    }
+}
+
+// Only configure if both OAuth is configured and Passport.js loaded successfully
+if (isGoogleOAuthConfigured && passport && GoogleStrategy) {
+    const { dbHelpers } = require('./database');
+    const authManager = require('./auth');
+    
     // Configure Google OAuth strategy
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
@@ -80,39 +93,45 @@ if (isGoogleOAuthConfigured) {
             return done(error, null);
         }
     }));
+
+    // Serialize user for session
+    passport.serializeUser((user, done) => {
+        done(null, user.id);
+    });
+
+    // Deserialize user from session
+    passport.deserializeUser(async (id, done) => {
+        try {
+            const { dbHelpers } = require('./database');
+            const user = await dbHelpers.get(
+                'SELECT id, email, name, role, google_id FROM users WHERE id = ?',
+                [id]
+            );
+            done(null, user);
+        } catch (error) {
+            done(error, null);
+        }
+    });
 } else {
-    console.log('⚠️ Google OAuth not configured - skipping strategy setup');
+    console.log('⚠️ Google OAuth not configured or Passport.js not available - skipping strategy setup');
 }
-
-// Serialize user for session
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-// Deserialize user from session
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await dbHelpers.get(
-            'SELECT id, email, name, role, google_id FROM users WHERE id = ?',
-            [id]
-        );
-        done(null, user);
-    } catch (error) {
-        done(error, null);
-    }
-});
 
 // Initialize passport middleware
 function initializePassport(app) {
-    app.use(passport.initialize());
-    app.use(passport.session());
+    if (passport) {
+        app.use(passport.initialize());
+        app.use(passport.session());
+        console.log('✅ Passport middleware initialized');
+    } else {
+        console.log('⚠️ Passport middleware not initialized - OAuth not available');
+    }
 }
 
 // Google OAuth routes
 function setupGoogleRoutes(app) {
-    // Only set up routes if OAuth is configured
-    if (!isGoogleOAuthConfigured) {
-        console.log('⚠️ Google OAuth routes not configured - credentials missing');
+    // Only set up routes if OAuth is configured and Passport is available
+    if (!isGoogleOAuthConfigured || !passport) {
+        console.log('⚠️ Google OAuth routes not configured - credentials missing or Passport not available');
         return;
     }
     
@@ -128,6 +147,7 @@ function setupGoogleRoutes(app) {
     }), async (req, res) => {
         try {
             const user = req.user;
+            const authManager = require('./auth');
             
             // Generate JWT token
             const token = authManager.generateToken(user);
@@ -145,7 +165,7 @@ function setupGoogleRoutes(app) {
     // Check if Google OAuth is configured
     app.get('/auth/google/status', (req, res) => {
         res.json({
-            configured: isGoogleOAuthConfigured,
+            configured: isGoogleOAuthConfigured && !!passport,
             callbackUrl: GOOGLE_CALLBACK_URL
         });
     });
@@ -155,5 +175,5 @@ module.exports = {
     initializePassport,
     setupGoogleRoutes,
     passport,
-    isGoogleOAuthConfigured
+    isGoogleOAuthConfigured: isGoogleOAuthConfigured && !!passport
 };

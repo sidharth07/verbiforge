@@ -14,7 +14,16 @@ const fs = require('fs/promises'); // Added for file decryption
 const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup } = require('./database');
 const fileManager = require('./fileManager');
 const authManager = require('./auth');
-const { initializePassport, setupGoogleRoutes, isGoogleOAuthConfigured } = require('./google-oauth');
+
+// Import Google OAuth with error handling
+let googleOAuth = null;
+try {
+    googleOAuth = require('./google-oauth');
+    console.log('✅ Google OAuth module loaded successfully');
+} catch (error) {
+    console.error('❌ Error loading Google OAuth module:', error.message);
+    console.log('⚠️ Google OAuth will be disabled');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,7 +31,7 @@ const PORT = process.env.PORT || 3000;
 console.log('🚀 Starting VerbiForge server with configuration:');
 console.log('  - Environment:', process.env.NODE_ENV);
 console.log('  - Port:', PORT);
-console.log('  - Google OAuth:', isGoogleOAuthConfigured ? 'Enabled' : 'Disabled');
+console.log('  - Google OAuth:', googleOAuth?.isGoogleOAuthConfigured ? 'Enabled' : 'Disabled');
 
 // Security middleware
 app.use(helmet({
@@ -51,7 +60,11 @@ app.use(session({
 }));
 
 // Initialize Passport for Google OAuth
-initializePassport(app);
+if (googleOAuth) {
+    googleOAuth.initializePassport(app);
+} else {
+    console.log('⚠️ Passport initialization skipped - Google OAuth not available');
+}
 
 // Rate limiting
 const limiter = rateLimit({
@@ -1463,10 +1476,10 @@ app.get('/api/debug/database', async (req, res) => {
 });
 
 // Setup Google OAuth routes
-setupGoogleRoutes(app);
+googleOAuth?.setupGoogleRoutes(app);
 
 // Fallback route for Google OAuth when not configured
-if (!isGoogleOAuthConfigured) {
+if (!googleOAuth?.isGoogleOAuthConfigured) {
     app.get('/auth/google', (req, res) => {
         res.status(503).json({ 
             error: 'Google OAuth not configured',
