@@ -15,6 +15,12 @@ const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup, check
 const fileManager = require('./fileManager');
 const authManager = require('./auth');
 
+// Add error handling for imports
+if (!dbHelpers) {
+    console.error('❌ Failed to import dbHelpers from database.js');
+    process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -1649,12 +1655,12 @@ async function startServer() {
             const { v4: uuidv4 } = require('uuid');
             
             // Function to create admin user
-            async function ensureAdminUser(email, name, password, isSuperAdmin = false) {
+            function createAdminUser(email, name, password, isSuperAdmin = false) {
                 return new Promise((resolve, reject) => {
                     const role = isSuperAdmin ? 'super_admin' : 'admin';
                     
                     // Check if user exists
-                    db.get('SELECT id FROM users WHERE email = ?', [email], async (err, row) => {
+                    dbHelpers.get('SELECT id FROM users WHERE email = ?', [email], async (err, row) => {
                         if (err) {
                             console.error(`❌ Error checking user ${email}:`, err);
                             reject(err);
@@ -1669,7 +1675,7 @@ async function startServer() {
                             const userId = uuidv4();
                             const hashedPassword = await bcrypt.hash(password, 12);
                             
-                            db.run(`INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at) 
+                            dbHelpers.run(`INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at) 
                                     VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`, 
                                 [userId, email, hashedPassword, name, role], (err) => {
                                 if (err) {
@@ -1686,8 +1692,8 @@ async function startServer() {
             }
             
             // Create admin users
-            await ensureAdminUser('sid@verbiforge.com', 'Super Admin', 'admin123', true);
-            await ensureAdminUser('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', 'admin123', false);
+            await createAdminUser('sid@verbiforge.com', 'Super Admin', 'admin123', true);
+            await createAdminUser('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', 'admin123', false);
             
             console.log('🎉 ADMIN USERS AUTO-CREATED SUCCESSFULLY!');
             console.log('📋 Login Credentials:');
