@@ -1359,6 +1359,7 @@
 
         async function updateProjectStatus(projectId, newStatus) {
             try {
+                console.log('🔄 Updating project status:', projectId, 'to:', newStatus);
                 const response = await Auth.authFetch(`/admin/projects/${projectId}/status`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -1366,22 +1367,22 @@
                 });
                 
                 if (response.ok) {
-                    // Update the project in our local array
-                    const project = allProjects.find(p => p.id === projectId);
-                    if (project) {
-                        project.status = newStatus;
-                        updateStats();
-                    }
+                    console.log('✅ Status updated successfully');
+                    CustomModal.success('Project status updated successfully!');
+                    
+                    // Refresh the entire projects list to ensure consistency
+                    await loadProjects();
                 } else {
                     const data = await response.json();
-                    alert('Error updating status: ' + data.error);
+                    console.error('❌ Status update error:', data);
+                    CustomModal.error('Error updating status: ' + data.error);
                     // Reload projects to reset the dropdown
-                    loadProjects();
+                    await loadProjects();
                 }
             } catch (error) {
-                console.error('Error updating project status:', error);
-                alert('Network error updating status');
-                loadProjects();
+                console.error('❌ Network error updating status:', error);
+                CustomModal.error('Network error updating status');
+                await loadProjects();
             }
         }
 
@@ -1390,11 +1391,12 @@
             const eta = parseInt(etaInput.value);
 
             if (!eta || eta < 1) {
-                alert('Please enter a valid ETA in days');
+                CustomModal.warning('Please enter a valid ETA in days');
                 return;
             }
 
             try {
+                console.log('🔄 Updating ETA for project:', projectId, 'to:', eta, 'days');
                 const response = await Auth.authFetch(`/admin/projects/${projectId}/eta`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -1402,16 +1404,18 @@
                 });
 
                 if (response.ok) {
+                    console.log('✅ ETA updated successfully');
+                    CustomModal.success('ETA updated successfully!');
                     // Refresh projects to show updated status
-                    loadProjects();
-                    alert('ETA updated successfully');
+                    await loadProjects();
                 } else {
                     const data = await response.json();
-                    alert('Error updating ETA: ' + data.error);
+                    console.error('❌ ETA update error:', data);
+                    CustomModal.error('Error updating ETA: ' + data.error);
                 }
             } catch (error) {
-                console.error('Error updating ETA:', error);
-                alert('Network error updating ETA');
+                console.error('❌ Network error updating ETA:', error);
+                CustomModal.error('Network error updating ETA');
             }
         }
 
@@ -1438,11 +1442,11 @@
                 } else {
                     const errorData = await response.json();
                     console.error('❌ Project details error:', errorData);
-                    alert('Error loading project details: ' + (errorData.error || 'Unknown error'));
+                    CustomModal.error('Error loading project details: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('❌ Network error loading project:', error);
-                alert('Network error loading project: ' + error.message);
+                CustomModal.error('Network error loading project: ' + error.message);
             }
         }
 
@@ -1566,12 +1570,12 @@
                     console.log('❌ Response not OK, getting error details...');
                     const errorData = await response.json();
                     console.error('❌ Download error:', errorData);
-                    alert('Error downloading file: ' + (errorData.error || 'Unknown error'));
+                    CustomModal.error('Error downloading file: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('❌ Network error downloading file:', error);
                 console.error('❌ Error stack:', error.stack);
-                alert('Network error downloading file: ' + error.message);
+                CustomModal.error('Network error downloading file: ' + error.message);
             }
         }
 
@@ -1582,7 +1586,7 @@
             const file = fileInput.files[0];
             
             if (!file) {
-                alert('Please select a file to upload');
+                CustomModal.warning('Please select a file to upload');
                 return;
             }
             
