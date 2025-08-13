@@ -4,6 +4,10 @@ services:
     env: node
     buildCommand: npm install
     startCommand: npm start
+    disk:
+      name: verbiforge-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -16,9 +20,9 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: DATABASE_PATH
-        value: /tmp
+        value: /opt/render/project/src/data
       - key: DATABASE_URL
-        value: /tmp/verbiforge.db
+        value: /opt/render/project/src/data/verbiforge.db
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS

@@ -7,12 +7,28 @@ const fs = require('fs');
 const dbDir = process.env.DATABASE_PATH || path.join(__dirname, 'data');
 console.log('🔍 Database directory:', dbDir);
 console.log('🔍 Environment DATABASE_PATH:', process.env.DATABASE_PATH);
+console.log('🔍 Current working directory:', process.cwd());
+console.log('🔍 __dirname:', __dirname);
 
 if (!fs.existsSync(dbDir)) {
     console.log('📁 Creating database directory:', dbDir);
-    fs.mkdirSync(dbDir, { recursive: true });
+    try {
+        fs.mkdirSync(dbDir, { recursive: true });
+        console.log('✅ Database directory created successfully');
+    } catch (error) {
+        console.error('❌ Error creating database directory:', error);
+        throw error;
+    }
 } else {
     console.log('📁 Database directory already exists:', dbDir);
+    // Check if directory is writable
+    try {
+        fs.accessSync(dbDir, fs.constants.W_OK);
+        console.log('✅ Database directory is writable');
+    } catch (error) {
+        console.error('❌ Database directory is not writable:', error);
+        throw error;
+    }
 }
 
 const dbPath = path.join(dbDir, 'verbiforge.db');
@@ -20,12 +36,18 @@ console.log('🗄️ Database path:', dbPath);
 console.log('🗄️ Database file exists:', fs.existsSync(dbPath));
 
 // Initialize database
+console.log('🗄️ Attempting to connect to database at:', dbPath);
+console.log('🗄️ Database file exists before connection:', fs.existsSync(dbPath));
+
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('Error opening database:', err);
-        console.error('Database path:', dbPath);
+        console.error('❌ Error opening database:', err);
+        console.error('❌ Database path:', dbPath);
+        console.error('❌ Error details:', err.message);
+        throw err;
     } else {
-        console.log('Connected to SQLite database at:', dbPath);
+        console.log('✅ Connected to SQLite database at:', dbPath);
+        console.log('✅ Database file exists after connection:', fs.existsSync(dbPath));
     }
 });
 
@@ -274,17 +296,43 @@ function initializeTables() {
                                 }
                                 
                                 // Insert default super admin
+                                console.log('👤 Inserting default super admin...');
                                 db.run(`
                                     INSERT OR IGNORE INTO admin_users (email, name, is_super_admin, created_by) 
                                     VALUES ('sid@verbiforge.com', 'Super Admin', TRUE, 'system')
-                                `, (err) => {
+                                `, function(err) {
                                     if (err) {
-                                        console.error('Error inserting default admin:', err);
+                                        console.error('❌ Error inserting default admin:', err);
                                         reject(err);
                                         return;
                                     }
                                     
-                                    console.log('Database tables initialized successfully');
+                                    if (this.changes > 0) {
+                                        console.log('✅ Default super admin created successfully');
+                                    } else {
+                                        console.log('ℹ️ Default super admin already exists');
+                                    }
+                                    
+                                    console.log('✅ Database tables initialized successfully');
+                                    
+                                    // Check if there are any existing users
+                                    db.get('SELECT COUNT(*) as count FROM users', (err, result) => {
+                                        if (err) {
+                                            console.error('❌ Error checking user count:', err);
+                                        } else {
+                                            console.log(`👥 Current user count: ${result.count}`);
+                                        }
+                                    });
+                                    
+                                    // Check if there are any existing admin users
+                                    db.get('SELECT COUNT(*) as count FROM admin_users', (err, result) => {
+                                        if (err) {
+                                            console.error('❌ Error checking admin count:', err);
+                                        } else {
+                                            console.log(`👑 Current admin count: ${result.count}`);
+                                        }
+                                    });
+                                    
                                     resolve();
                                 });
                             });
