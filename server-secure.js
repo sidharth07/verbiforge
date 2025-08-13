@@ -1173,13 +1173,38 @@ app.get('/admin/admins', requireAuth, async (req, res) => {
 app.post('/admin/admins', requireAuth, async (req, res) => {
     try {
         const { email, name, tempPassword } = req.body;
-        await dbHelpers.run(
-            'INSERT INTO admin_users (email, name, temp_password, created_by) VALUES (?, ?, ?, ?)',
-            [email, name, tempPassword, req.user.email]
-        );
+        
+        // Check if user already exists
+        const existingUser = await dbHelpers.get('SELECT id FROM users WHERE email = ?', [email]);
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with this email already exists' });
+        }
+        
+        // Check if admin already exists
+        const existingAdmin = await dbHelpers.get('SELECT email FROM admin_users WHERE email = ?', [email]);
+        if (existingAdmin) {
+            return res.status(400).json({ error: 'Admin with this email already exists' });
+        }
+        
+        // Create user account first
+        const userId = require('uuid').v4();
+        const hashedPassword = await require('bcrypt').hash(tempPassword, 12);
+        
+        await dbHelpers.run(`
+            INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, 'user', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `, [userId, email, hashedPassword, name]);
+        
+        // Create admin record
+        await dbHelpers.run(`
+            INSERT INTO admin_users (email, name, temp_password, created_by, created_at) 
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `, [email, name, tempPassword, req.user.email]);
+        
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to create admin' });
+        console.error('Admin creation error:', error);
+        res.status(500).json({ error: 'Failed to create admin: ' + error.message });
     }
 });
 
