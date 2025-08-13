@@ -385,57 +385,41 @@ function initializeTables() {
                                         return;
                                     }
                                     
-                                    if (existingAdmin) {
-                                        console.log('ℹ️ Super admin already exists, skipping creation');
-                                    } else {
-                                        console.log('👤 Creating default super admin...');
-                                        db.run(`
-                                            INSERT INTO admin_users (email, name, is_super_admin, created_by) 
-                                            VALUES ('sid@verbiforge.com', 'Super Admin', TRUE, 'system')
-                                        `, function(err) {
-                                            if (err) {
-                                                console.error('❌ Error inserting default admin:', err);
-                                                reject(err);
-                                                return;
-                                            }
-                                            
-                                            if (this.changes > 0) {
-                                                console.log('✅ Default super admin created successfully');
-                                            } else {
-                                                console.log('ℹ️ Default super admin creation failed (no changes)');
-                                            }
-                                        });
-                                    }
-                                    
-                                    // Check and add the second super admin (Google SSO user)
-                                    console.log('👤 Checking for second super admin (Google SSO)...');
-                                    db.get('SELECT email FROM admin_users WHERE email = ? AND is_super_admin = TRUE', ['sid.bandewar@gmail.com'], (err, existingGoogleAdmin) => {
+                                    // Always try to create the admin, use INSERT OR IGNORE to handle duplicates
+                                    console.log('👤 Creating default super admin (using INSERT OR IGNORE)...');
+                                    db.run(`
+                                        INSERT OR IGNORE INTO admin_users (email, name, is_super_admin, created_by) 
+                                        VALUES ('sid@verbiforge.com', 'Super Admin', TRUE, 'system')
+                                    `, function(err) {
                                         if (err) {
-                                            console.error('❌ Error checking for existing Google admin:', err);
+                                            console.error('❌ Error inserting default admin:', err);
                                             reject(err);
                                             return;
                                         }
                                         
-                                        if (existingGoogleAdmin) {
-                                            console.log('ℹ️ Google SSO super admin already exists, skipping creation');
+                                        if (this.changes > 0) {
+                                            console.log('✅ Default super admin created successfully');
                                         } else {
-                                            console.log('👤 Creating Google SSO super admin...');
-                                            db.run(`
-                                                INSERT INTO admin_users (email, name, is_super_admin, created_by) 
-                                                VALUES ('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', TRUE, 'system')
-                                            `, function(err) {
-                                                if (err) {
-                                                    console.error('❌ Error inserting Google SSO admin:', err);
-                                                    reject(err);
-                                                    return;
-                                                }
-                                                
-                                                if (this.changes > 0) {
-                                                    console.log('✅ Google SSO super admin created successfully');
-                                                } else {
-                                                    console.log('ℹ️ Google SSO super admin creation failed (no changes)');
-                                                }
-                                            });
+                                            console.log('ℹ️ Default super admin already exists (no changes)');
+                                        }
+                                    });
+                                    
+                                    // Always try to create the Google SSO admin, use INSERT OR IGNORE to handle duplicates
+                                    console.log('👤 Creating Google SSO super admin (using INSERT OR IGNORE)...');
+                                    db.run(`
+                                        INSERT OR IGNORE INTO admin_users (email, name, is_super_admin, created_by) 
+                                        VALUES ('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', TRUE, 'system')
+                                    `, function(err) {
+                                        if (err) {
+                                            console.error('❌ Error inserting Google SSO admin:', err);
+                                            reject(err);
+                                            return;
+                                        }
+                                        
+                                        if (this.changes > 0) {
+                                            console.log('✅ Google SSO super admin created successfully');
+                                        } else {
+                                            console.log('ℹ️ Google SSO super admin already exists (no changes)');
                                         }
                                         
                                         console.log('✅ Database tables initialized successfully');
@@ -747,4 +731,106 @@ async function runMigrations() {
     }
 }
 
-module.exports = { db, dbHelpers, initializeTables, backupDatabase, restoreDatabase, runMigrations, createAutomaticBackup };
+// Comprehensive database health check
+async function checkDatabaseHealth() {
+    console.log('🏥 Performing comprehensive database health check...');
+    
+    try {
+        // Check if database file exists and is accessible
+        if (!fs.existsSync(dbPath)) {
+            console.log('❌ Database file does not exist');
+            return { healthy: false, error: 'Database file not found' };
+        }
+        
+        // Check file permissions
+        try {
+            fs.accessSync(dbPath, fs.constants.R_OK | fs.constants.W_OK);
+            console.log('✅ Database file is readable and writable');
+        } catch (error) {
+            console.log('❌ Database file permission error:', error.message);
+            return { healthy: false, error: 'Database file permission error' };
+        }
+        
+        // Check file size
+        const stats = fs.statSync(dbPath);
+        const fileSizeInMB = stats.size / (1024 * 1024);
+        console.log(`📊 Database file size: ${fileSizeInMB.toFixed(2)} MB`);
+        
+        if (fileSizeInMB < 0.001) {
+            console.log('⚠️ Database file is very small, might be empty');
+        }
+        
+        // Test database connection
+        const testConnection = await new Promise((resolve) => {
+            db.get('SELECT 1 as test', (err, result) => {
+                if (err) {
+                    console.log('❌ Database connection test failed:', err.message);
+                    resolve({ healthy: false, error: 'Database connection failed' });
+                } else {
+                    console.log('✅ Database connection test passed');
+                    resolve({ healthy: true });
+                }
+            });
+        });
+        
+        if (!testConnection.healthy) {
+            return testConnection;
+        }
+        
+        // Check if tables exist
+        const tables = await dbHelpers.query("SELECT name FROM sqlite_master WHERE type='table'");
+        const tableNames = tables.map(t => t.name);
+        console.log('📋 Existing tables:', tableNames);
+        
+        const requiredTables = ['users', 'projects', 'admin_users', 'contact_submissions', 'settings'];
+        const missingTables = requiredTables.filter(table => !tableNames.includes(table));
+        
+        if (missingTables.length > 0) {
+            console.log('❌ Missing required tables:', missingTables);
+            return { healthy: false, error: `Missing tables: ${missingTables.join(', ')}` };
+        }
+        
+        // Check admin users
+        const adminCount = await dbHelpers.get('SELECT COUNT(*) as count FROM admin_users');
+        console.log(`👑 Admin users count: ${adminCount.count}`);
+        
+        if (adminCount.count === 0) {
+            console.log('⚠️ No admin users found');
+        }
+        
+        // Check regular users
+        const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
+        console.log(`👥 Regular users count: ${userCount.count}`);
+        
+        // Check projects
+        const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
+        console.log(`📁 Projects count: ${projectCount.count}`);
+        
+        console.log('✅ Database health check completed successfully');
+        return {
+            healthy: true,
+            stats: {
+                fileSizeMB: fileSizeInMB,
+                tableCount: tableNames.length,
+                adminCount: adminCount.count,
+                userCount: userCount.count,
+                projectCount: projectCount.count
+            }
+        };
+        
+    } catch (error) {
+        console.error('❌ Database health check failed:', error);
+        return { healthy: false, error: error.message };
+    }
+}
+
+module.exports = { 
+    db, 
+    dbHelpers, 
+    initializeTables, 
+    backupDatabase, 
+    restoreDatabase, 
+    runMigrations, 
+    createAutomaticBackup,
+    checkDatabaseHealth
+};

@@ -11,7 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs/promises'); // Added for file decryption
 
 // Import our secure modules
-const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup } = require('./database');
+const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup, checkDatabaseHealth } = require('./database');
 const fileManager = require('./fileManager');
 const authManager = require('./auth');
 
@@ -1548,7 +1548,7 @@ async function startServer() {
         }
         
         // Perform health check again after initialization
-        const postInitHealthCheck = await dbHelpers.checkDatabaseHealth();
+        const postInitHealthCheck = await checkDatabaseHealth();
         console.log('🔍 Post-initialization health check:', postInitHealthCheck);
         
         if (!postInitHealthCheck.healthy) {
@@ -1557,7 +1557,14 @@ async function startServer() {
         }
         
         // Get final database info
-        const finalDbInfo = dbHelpers.getDatabaseInfo();
+        const path = require('path');
+        const fs = require('fs');
+        const dbPath = path.join(process.env.DATABASE_PATH || '/opt/render/project/src/data', 'verbiforge.db');
+        const finalDbInfo = {
+            path: dbPath,
+            exists: fs.existsSync(dbPath),
+            size: fs.existsSync(dbPath) ? fs.statSync(dbPath).size / (1024 * 1024) : 0
+        };
         console.log('🗄️ Final database file info:', finalDbInfo);
         
         // Start the server
@@ -1572,7 +1579,7 @@ async function startServer() {
             console.log('  - Rate limiting');
             console.log('  - Input validation');
             console.log('  - Security headers');
-            console.log(`📊 Database stats: ${postInitHealthCheck.userCount} users, ${postInitHealthCheck.adminCount} admins`);
+            console.log(`📊 Database stats: ${postInitHealthCheck.stats?.userCount || 0} users, ${postInitHealthCheck.stats?.adminCount || 0} admins`);
             console.log(`🗄️ Database location: ${finalDbInfo.path}`);
             console.log(`🗄️ Database size: ${finalDbInfo.size?.toFixed(2)} MB`);
         });
@@ -1588,15 +1595,20 @@ startServer();
 // Database health check endpoint (for debugging)
 app.get('/api/health/database', async (req, res) => {
     try {
-        const healthCheck = await dbHelpers.checkDatabaseHealth();
-        const dbInfo = dbHelpers.getDatabaseInfo();
-        const persistenceVerified = await dbHelpers.verifyPersistence();
+        const healthCheck = await checkDatabaseHealth();
+        const path = require('path');
+        const fs = require('fs');
+        const dbPath = path.join(process.env.DATABASE_PATH || '/opt/render/project/src/data', 'verbiforge.db');
+        const dbInfo = {
+            path: dbPath,
+            exists: fs.existsSync(dbPath),
+            size: fs.existsSync(dbPath) ? fs.statSync(dbPath).size / (1024 * 1024) : 0
+        };
         
         res.json({
             timestamp: new Date().toISOString(),
             database: healthCheck,
             databaseFile: dbInfo,
-            persistenceVerified: persistenceVerified,
             environment: {
                 nodeEnv: process.env.NODE_ENV,
                 databasePath: process.env.DATABASE_PATH,
@@ -1616,8 +1628,15 @@ app.get('/api/health/database', async (req, res) => {
 // Database debugging endpoint (for detailed troubleshooting)
 app.get('/api/debug/database', async (req, res) => {
     try {
-        const dbInfo = dbHelpers.getDatabaseInfo();
-        const healthCheck = await dbHelpers.checkDatabaseHealth();
+        const path = require('path');
+        const fs = require('fs');
+        const dbPath = path.join(process.env.DATABASE_PATH || '/opt/render/project/src/data', 'verbiforge.db');
+        const dbInfo = {
+            path: dbPath,
+            exists: fs.existsSync(dbPath),
+            size: fs.existsSync(dbPath) ? fs.statSync(dbPath).size / (1024 * 1024) : 0
+        };
+        const healthCheck = await checkDatabaseHealth();
         
         // Get all users and admins for debugging
         const users = await dbHelpers.query('SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC LIMIT 10');
