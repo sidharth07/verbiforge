@@ -69,6 +69,34 @@ app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Database status endpoint
+app.get('/db-status', async (req, res) => {
+    try {
+        const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
+        const adminCount = await dbHelpers.get('SELECT COUNT(*) as count FROM admin_users');
+        const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
+        
+        res.json({
+            status: 'OK',
+            database: {
+                userCount: userCount.count,
+                adminCount: adminCount.count,
+                projectCount: projectCount.count,
+                databasePath: process.env.DATABASE_PATH || '/opt/render/project/src/data',
+                environment: process.env.NODE_ENV || 'development'
+            },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Database status error:', error);
+        res.status(500).json({ 
+            status: 'ERROR', 
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Root endpoint to serve index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

@@ -4,7 +4,21 @@ const fs = require('fs');
 
 // Create database directory if it doesn't exist
 // Use environment variable for database path or default to local data directory
-const dbDir = process.env.DATABASE_PATH || path.join(__dirname, 'data');
+let dbDir = process.env.DATABASE_PATH || path.join(__dirname, 'data');
+
+// In production (Render), ensure we're using the persistent disk
+if (process.env.NODE_ENV === 'production') {
+    // If DATABASE_PATH is not set, try to use the Render persistent disk path
+    if (!process.env.DATABASE_PATH) {
+        const renderDataPath = '/opt/render/project/src/data';
+        if (fs.existsSync(renderDataPath)) {
+            dbDir = renderDataPath;
+            console.log('🌐 Production environment detected, using Render persistent disk path');
+        } else {
+            console.log('⚠️ Render persistent disk path not found, using fallback');
+        }
+    }
+}
 console.log('🔍 Database directory:', dbDir);
 console.log('🔍 Environment DATABASE_PATH:', process.env.DATABASE_PATH);
 console.log('🔍 Current working directory:', process.cwd());
@@ -377,4 +391,37 @@ const dbHelpers = {
     }
 };
 
-module.exports = { db, dbHelpers, initializeTables };
+// Database backup and restore functions
+async function backupDatabase() {
+    const backupPath = path.join(dbDir, 'verbiforge_backup.db');
+    try {
+        // Create a backup by copying the database file
+        const fsPromises = require('fs/promises');
+        await fsPromises.copyFile(dbPath, backupPath);
+        console.log('✅ Database backup created at:', backupPath);
+        return backupPath;
+    } catch (error) {
+        console.error('❌ Error creating database backup:', error);
+        throw error;
+    }
+}
+
+async function restoreDatabase() {
+    const backupPath = path.join(dbDir, 'verbiforge_backup.db');
+    try {
+        if (fs.existsSync(backupPath)) {
+            const fsPromises = require('fs/promises');
+            await fsPromises.copyFile(backupPath, dbPath);
+            console.log('✅ Database restored from backup');
+            return true;
+        } else {
+            console.log('ℹ️ No backup file found to restore');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Error restoring database:', error);
+        throw error;
+    }
+}
+
+module.exports = { db, dbHelpers, initializeTables, backupDatabase, restoreDatabase };
