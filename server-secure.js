@@ -15,23 +15,13 @@ const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup } = re
 const fileManager = require('./fileManager');
 const authManager = require('./auth');
 
-// Import Google OAuth with error handling
-let googleOAuth = null;
-try {
-    googleOAuth = require('./google-oauth');
-    console.log('✅ Google OAuth module loaded successfully');
-} catch (error) {
-    console.error('❌ Error loading Google OAuth module:', error.message);
-    console.log('⚠️ Google OAuth will be disabled');
-}
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 console.log('🚀 Starting VerbiForge server with configuration:');
 console.log('  - Environment:', process.env.NODE_ENV);
 console.log('  - Port:', PORT);
-console.log('  - Google OAuth:', googleOAuth?.isGoogleOAuthConfigured ? 'Enabled' : 'Disabled');
+console.log('  - Google OAuth: Disabled (will be enabled later)');
 
 // Security middleware
 app.use(helmet({
@@ -48,23 +38,23 @@ app.use(helmet({
 }));
 
 // Session configuration for Google OAuth
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'verbiforge-session-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-}));
+// app.use(session({
+//     secret: process.env.SESSION_SECRET || 'verbiforge-session-secret',
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//         secure: process.env.NODE_ENV === 'production',
+//         httpOnly: true,
+//         maxAge: 24 * 60 * 60 * 1000 // 24 hours
+//     }
+// }));
 
 // Initialize Passport for Google OAuth
-if (googleOAuth) {
-    googleOAuth.initializePassport(app);
-} else {
-    console.log('⚠️ Passport initialization skipped - Google OAuth not available');
-}
+// if (googleOAuth) {
+//     googleOAuth.initializePassport(app);
+// } else {
+//     console.log('⚠️ Passport initialization skipped - Google OAuth not available');
+// }
 
 // Rate limiting
 const limiter = rateLimit({
@@ -1474,23 +1464,3 @@ app.get('/api/debug/database', async (req, res) => {
         });
     }
 });
-
-// Setup Google OAuth routes
-googleOAuth?.setupGoogleRoutes(app);
-
-// Fallback route for Google OAuth when not configured
-if (!googleOAuth?.isGoogleOAuthConfigured) {
-    app.get('/auth/google', (req, res) => {
-        res.status(503).json({ 
-            error: 'Google OAuth not configured',
-            message: 'Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables'
-        });
-    });
-    
-    app.get('/auth/google/callback', (req, res) => {
-        res.status(503).json({ 
-            error: 'Google OAuth not configured',
-            message: 'Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables'
-        });
-    });
-}
