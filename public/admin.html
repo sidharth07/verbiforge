@@ -1243,9 +1243,9 @@
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
-                    <a href="/admin/projects/${project.id}/download" class="action-btn download" target="_blank">
+                    <button class="action-btn download download-original-btn" data-project-id="${project.id}" data-file-name="${project.fileName}" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">
                         Download Original File
-                    </a>
+                    </button>
                 </div>
             `;
             
@@ -1273,6 +1273,38 @@
             currentProjectId = null;
             document.getElementById('translatedFileInput').value = '';
             document.getElementById('uploadStatus').innerHTML = '';
+        }
+
+        async function downloadOriginalFile(projectId, fileName) {
+            console.log('🔍 Downloading original file for project:', projectId);
+            
+            try {
+                const response = await Auth.authFetch(`/admin/projects/${projectId}/download`);
+                
+                if (response.ok) {
+                    // Get the file blob
+                    const blob = await response.blob();
+                    
+                    // Create a download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName || `project_${projectId}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    console.log('✅ File download initiated successfully');
+                } else {
+                    const errorData = await response.json();
+                    console.error('❌ Download error:', errorData);
+                    alert('Error downloading file: ' + (errorData.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('❌ Network error downloading file:', error);
+                alert('Network error downloading file: ' + error.message);
+            }
         }
 
         async function uploadTranslatedFile() {
@@ -2139,6 +2171,13 @@
                 const projectId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
                 btn.removeAttribute('onclick');
                 btn.addEventListener('click', () => updateETA(projectId));
+            });
+            
+            // Download original file buttons
+            document.querySelectorAll('.download-original-btn').forEach(btn => {
+                const projectId = btn.getAttribute('data-project-id');
+                const fileName = btn.getAttribute('data-file-name');
+                btn.addEventListener('click', () => downloadOriginalFile(projectId, fileName));
             });
             
             document.querySelectorAll('[onclick*="deleteCustomLanguage"]').forEach(btn => {
