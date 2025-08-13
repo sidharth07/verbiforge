@@ -16,8 +16,6 @@ data/
 *.db
 *.sqlite
 *.sqlite3
-# But allow the data directory in the project root for Render deployment
-!data/
 
 # Secure files
 secure-files/
