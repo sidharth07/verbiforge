@@ -1298,6 +1298,10 @@ async function startServer() {
     try {
         console.log('🚀 Starting VerbiForge server...');
         
+        // Get database file information
+        const dbInfo = dbHelpers.getDatabaseInfo();
+        console.log('🗄️ Database file info:', dbInfo);
+        
         // Check database health before initialization
         const healthCheck = await dbHelpers.checkDatabaseHealth();
         console.log('🔍 Database health check result:', healthCheck);
@@ -1319,6 +1323,16 @@ async function startServer() {
         await runMigrations();
         console.log('✅ Database migrations completed');
         
+        // Verify database persistence
+        console.log('🔍 Verifying database persistence...');
+        const persistenceVerified = await dbHelpers.verifyPersistence();
+        if (!persistenceVerified) {
+            console.error('❌ Database persistence verification failed!');
+            console.error('❌ This indicates the database is not being saved to persistent storage');
+        } else {
+            console.log('✅ Database persistence verified successfully');
+        }
+        
         // Perform health check again after initialization
         const postInitHealthCheck = await dbHelpers.checkDatabaseHealth();
         console.log('🔍 Post-initialization health check:', postInitHealthCheck);
@@ -1327,6 +1341,10 @@ async function startServer() {
             console.error('❌ Database health check failed after initialization');
             throw new Error('Database initialization failed');
         }
+        
+        // Get final database info
+        const finalDbInfo = dbHelpers.getDatabaseInfo();
+        console.log('🗄️ Final database file info:', finalDbInfo);
         
         // Start the server
         app.listen(PORT, '0.0.0.0', () => {
@@ -1341,6 +1359,8 @@ async function startServer() {
             console.log('  - Input validation');
             console.log('  - Security headers');
             console.log(`📊 Database stats: ${postInitHealthCheck.userCount} users, ${postInitHealthCheck.adminCount} admins`);
+            console.log(`🗄️ Database location: ${finalDbInfo.path}`);
+            console.log(`🗄️ Database size: ${finalDbInfo.size?.toFixed(2)} MB`);
         });
     } catch (error) {
         console.error('❌ Failed to start server:', error);
@@ -1355,19 +1375,67 @@ startServer();
 app.get('/api/health/database', async (req, res) => {
     try {
         const healthCheck = await dbHelpers.checkDatabaseHealth();
+        const dbInfo = dbHelpers.getDatabaseInfo();
+        const persistenceVerified = await dbHelpers.verifyPersistence();
+        
         res.json({
             timestamp: new Date().toISOString(),
             database: healthCheck,
+            databaseFile: dbInfo,
+            persistenceVerified: persistenceVerified,
             environment: {
                 nodeEnv: process.env.NODE_ENV,
                 databasePath: process.env.DATABASE_PATH,
-                databaseUrl: process.env.DATABASE_URL
+                databaseUrl: process.env.DATABASE_URL,
+                currentWorkingDir: process.cwd(),
+                __dirname: __dirname
             }
         });
     } catch (error) {
         res.status(500).json({ 
             error: 'Database health check failed',
             message: error.message 
+        });
+    }
+});
+
+// Database debugging endpoint (for detailed troubleshooting)
+app.get('/api/debug/database', async (req, res) => {
+    try {
+        const dbInfo = dbHelpers.getDatabaseInfo();
+        const healthCheck = await dbHelpers.checkDatabaseHealth();
+        
+        // Get all users and admins for debugging
+        const users = await dbHelpers.query('SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC LIMIT 10');
+        const admins = await dbHelpers.query('SELECT email, name, is_super_admin, created_at FROM admin_users ORDER BY created_at DESC');
+        
+        // Get table information
+        const tables = await dbHelpers.query("SELECT name, sql FROM sqlite_master WHERE type='table'");
+        
+        // Check for any recent activity
+        const recentProjects = await dbHelpers.query('SELECT id, name, user_email, created_at FROM projects ORDER BY created_at DESC LIMIT 5');
+        
+        res.json({
+            timestamp: new Date().toISOString(),
+            databaseFile: dbInfo,
+            health: healthCheck,
+            users: users,
+            admins: admins,
+            tables: tables,
+            recentProjects: recentProjects,
+            environment: {
+                nodeEnv: process.env.NODE_ENV,
+                databasePath: process.env.DATABASE_PATH,
+                databaseUrl: process.env.DATABASE_URL,
+                currentWorkingDir: process.cwd(),
+                __dirname: __dirname
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'Database debug failed',
+            message: error.message,
+            stack: error.stack
         });
     }
 });

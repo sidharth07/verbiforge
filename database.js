@@ -2,30 +2,45 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-// Create database directory if it doesn't exist
-// Use environment variable for database path or default to local data directory
-let dbDir = process.env.DATABASE_PATH || path.join(__dirname, 'data');
+// Database path configuration
+let dbDir;
 
-// In production (Render), ensure we're using the persistent disk
+// Determine database directory based on environment
 if (process.env.NODE_ENV === 'production') {
-    // If DATABASE_PATH is not set, try to use the Render persistent disk path
-    if (!process.env.DATABASE_PATH) {
+    // In production, prioritize the DATABASE_PATH environment variable
+    if (process.env.DATABASE_PATH) {
+        dbDir = process.env.DATABASE_PATH;
+        console.log('🌐 Production: Using DATABASE_PATH from environment:', dbDir);
+    } else {
+        // Fallback to Render persistent disk path
         const renderDataPath = '/opt/render/project/src/data';
         if (fs.existsSync(renderDataPath)) {
             dbDir = renderDataPath;
-            console.log('🌐 Production environment detected, using Render persistent disk path');
+            console.log('🌐 Production: Using Render persistent disk path:', dbDir);
         } else {
-            console.log('⚠️ Render persistent disk path not found, using fallback');
+            // Last resort fallback
+            dbDir = path.join(__dirname, 'data');
+            console.log('⚠️ Production: Render path not found, using fallback:', dbDir);
         }
     }
+} else {
+    // Development environment
+    dbDir = path.join(__dirname, 'data');
+    console.log('🔧 Development: Using local data directory:', dbDir);
 }
-console.log('🔍 Database directory:', dbDir);
+
+console.log('🔍 Final database directory:', dbDir);
 console.log('🔍 Environment DATABASE_PATH:', process.env.DATABASE_PATH);
+console.log('🔍 Environment NODE_ENV:', process.env.NODE_ENV);
 console.log('🔍 Current working directory:', process.cwd());
 console.log('🔍 __dirname:', __dirname);
 
 // Function to ensure database directory exists with proper permissions
 function ensureDatabaseDirectory() {
+    console.log('📁 Ensuring database directory exists...');
+    console.log('📁 Target directory:', dbDir);
+    console.log('📁 Directory exists:', fs.existsSync(dbDir));
+    
     if (!fs.existsSync(dbDir)) {
         console.log('📁 Creating database directory:', dbDir);
         try {
@@ -53,18 +68,37 @@ function ensureDatabaseDirectory() {
             }
         }
     }
+    
+    // List contents of the directory
+    try {
+        const contents = fs.readdirSync(dbDir);
+        console.log('📁 Directory contents:', contents);
+    } catch (error) {
+        console.error('❌ Error reading directory contents:', error);
+    }
 }
 
 // Ensure database directory exists
 ensureDatabaseDirectory();
 
 const dbPath = path.join(dbDir, 'verbiforge.db');
-console.log('🗄️ Database path:', dbPath);
-console.log('🗄️ Database file exists:', fs.existsSync(dbPath));
+console.log('🗄️ Final database path:', dbPath);
+console.log('🗄️ Database file exists before connection:', fs.existsSync(dbPath));
+
+// Check if database file exists and get its size
+if (fs.existsSync(dbPath)) {
+    try {
+        const stats = fs.statSync(dbPath);
+        const fileSizeInMB = stats.size / (1024 * 1024);
+        console.log(`🗄️ Database file size: ${fileSizeInMB.toFixed(2)} MB`);
+        console.log(`🗄️ Database file last modified: ${stats.mtime}`);
+    } catch (error) {
+        console.error('❌ Error getting database file stats:', error);
+    }
+}
 
 // Initialize database
 console.log('🗄️ Attempting to connect to database at:', dbPath);
-console.log('🗄️ Database file exists before connection:', fs.existsSync(dbPath));
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -75,6 +109,17 @@ const db = new sqlite3.Database(dbPath, (err) => {
     } else {
         console.log('✅ Connected to SQLite database at:', dbPath);
         console.log('✅ Database file exists after connection:', fs.existsSync(dbPath));
+        
+        // Check file size after connection
+        if (fs.existsSync(dbPath)) {
+            try {
+                const stats = fs.statSync(dbPath);
+                const fileSizeInMB = stats.size / (1024 * 1024);
+                console.log(`✅ Database file size after connection: ${fileSizeInMB.toFixed(2)} MB`);
+            } catch (error) {
+                console.error('❌ Error getting database file stats after connection:', error);
+            }
+        }
     }
 });
 
@@ -480,6 +525,61 @@ const dbHelpers = {
         } catch (error) {
             console.error('❌ Database health check failed:', error);
             return { healthy: false, error: error.message };
+        }
+    },
+
+    // Verify database persistence by writing and reading test data
+    async verifyPersistence() {
+        try {
+            console.log('🔍 Verifying database persistence...');
+            
+            // Write test data
+            const testKey = 'persistence_test';
+            const testValue = `test_${Date.now()}`;
+            
+            await this.run(
+                'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
+                [testKey, testValue]
+            );
+            
+            // Read test data back
+            const result = await this.get('SELECT value FROM settings WHERE key = ?', [testKey]);
+            
+            if (result && result.value === testValue) {
+                console.log('✅ Database persistence verified - data written and read successfully');
+                return true;
+            } else {
+                console.error('❌ Database persistence failed - data not persisted correctly');
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ Error verifying database persistence:', error);
+            return false;
+        }
+    },
+
+    // Get database file information
+    getDatabaseInfo() {
+        try {
+            if (!fs.existsSync(dbPath)) {
+                return { exists: false, error: 'Database file not found' };
+            }
+            
+            const stats = fs.statSync(dbPath);
+            const fileSizeInMB = stats.size / (1024 * 1024);
+            
+            return {
+                exists: true,
+                path: dbPath,
+                size: fileSizeInMB,
+                sizeBytes: stats.size,
+                lastModified: stats.mtime,
+                created: stats.birthtime,
+                isFile: stats.isFile(),
+                isDirectory: stats.isDirectory()
+            };
+        } catch (error) {
+            return { exists: false, error: error.message };
         }
     }
 };
