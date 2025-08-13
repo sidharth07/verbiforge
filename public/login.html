@@ -289,6 +289,65 @@
             transform: none;
         }
 
+        /* Remember Me Checkbox Styles */
+        .remember-me {
+            margin-bottom: 24px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4a5568;
+            user-select: none;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            height: 18px;
+            width: 18px;
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            margin-right: 12px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label:hover .checkmark {
+            border-color: #667eea;
+        }
+
+        .checkbox-label input:checked ~ .checkmark {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-label input:checked ~ .checkmark:after {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -395,6 +454,14 @@
                     <input type="password" id="password" required placeholder="Enter your password">
                 </div>
 
+                <div class="form-group remember-me">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkmark"></span>
+                        Remember me for 30 days
+                    </label>
+                </div>
+
                 <button type="submit" class="auth-btn" id="loginBtn">Sign In</button>
             </form>
 
@@ -480,6 +547,7 @@
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
 
             showLoading(true);
             hideError();
@@ -488,7 +556,7 @@
                 const response = await fetch('/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email, password, rememberMe })
                 });
 
                 const data = await response.json();

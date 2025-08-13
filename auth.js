@@ -18,7 +18,7 @@ class AuthManager {
     }
 
     // Generate JWT token
-    generateToken(user) {
+    generateToken(user, expiresIn = JWT_EXPIRES_IN) {
         return jwt.sign(
             { 
                 id: user.id, 
@@ -26,7 +26,7 @@ class AuthManager {
                 role: user.role 
             },
             JWT_SECRET,
-            { expiresIn: JWT_EXPIRES_IN }
+            { expiresIn }
         );
     }
 

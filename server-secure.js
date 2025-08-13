@@ -291,7 +291,7 @@ app.post('/signup', validateSignup, async (req, res) => {
             return res.status(400).json({ error: errors.array()[0].msg });
         }
 
-        const { email, password, name } = req.body;
+        const { email, password, name, rememberMe } = req.body;
         
         // Check if this is an admin signup
         const adminUser = await dbHelpers.get(
@@ -305,7 +305,11 @@ app.post('/signup', validateSignup, async (req, res) => {
         }
 
         const user = await authManager.createUser(email, password, name);
-        const token = authManager.generateToken(user);
+        
+        // Generate token with extended expiration if remember me is checked
+        const token = rememberMe ? 
+            authManager.generateToken(user, '30d') : // 30 days for remember me
+            authManager.generateToken(user, '24h');  // 24 hours for normal signup
 
         res.json({
             success: true,
@@ -326,9 +330,14 @@ app.post('/login', validateLogin, async (req, res) => {
             return res.status(400).json({ error: errors.array()[0].msg });
         }
 
-        const { email, password } = req.body;
+        const { email, password, rememberMe } = req.body;
         const user = await authManager.authenticateUser(email, password);
-        const token = authManager.generateToken(user);
+        
+        // Generate token with extended expiration if remember me is checked
+        const token = rememberMe ? 
+            authManager.generateToken(user, '30d') : // 30 days for remember me
+            authManager.generateToken(user, '24h');  // 24 hours for normal login
+            
         const isAdmin = await authManager.isAdmin(email);
 
         res.json({
