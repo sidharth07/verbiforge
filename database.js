@@ -407,27 +407,59 @@ function initializeTables() {
                                         });
                                     }
                                     
-                                    console.log('✅ Database tables initialized successfully');
-                                    
-                                    // Check if there are any existing users
-                                    db.get('SELECT COUNT(*) as count FROM users', (err, result) => {
+                                    // Check and add the second super admin (Google SSO user)
+                                    console.log('👤 Checking for second super admin (Google SSO)...');
+                                    db.get('SELECT email FROM admin_users WHERE email = ? AND is_super_admin = TRUE', ['sid.bandewar@gmail.com'], (err, existingGoogleAdmin) => {
                                         if (err) {
-                                            console.error('❌ Error checking user count:', err);
-                                        } else {
-                                            console.log(`👥 Current user count: ${result.count}`);
+                                            console.error('❌ Error checking for existing Google admin:', err);
+                                            reject(err);
+                                            return;
                                         }
-                                    });
-                                    
-                                    // Check if there are any existing admin users
-                                    db.get('SELECT COUNT(*) as count FROM admin_users', (err, result) => {
-                                        if (err) {
-                                            console.error('❌ Error checking admin count:', err);
+                                        
+                                        if (existingGoogleAdmin) {
+                                            console.log('ℹ️ Google SSO super admin already exists, skipping creation');
                                         } else {
-                                            console.log(`👑 Current admin count: ${result.count}`);
+                                            console.log('👤 Creating Google SSO super admin...');
+                                            db.run(`
+                                                INSERT INTO admin_users (email, name, is_super_admin, created_by) 
+                                                VALUES ('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', TRUE, 'system')
+                                            `, function(err) {
+                                                if (err) {
+                                                    console.error('❌ Error inserting Google SSO admin:', err);
+                                                    reject(err);
+                                                    return;
+                                                }
+                                                
+                                                if (this.changes > 0) {
+                                                    console.log('✅ Google SSO super admin created successfully');
+                                                } else {
+                                                    console.log('ℹ️ Google SSO super admin creation failed (no changes)');
+                                                }
+                                            });
                                         }
+                                        
+                                        console.log('✅ Database tables initialized successfully');
+                                        
+                                        // Check if there are any existing users
+                                        db.get('SELECT COUNT(*) as count FROM users', (err, result) => {
+                                            if (err) {
+                                                console.error('❌ Error checking user count:', err);
+                                            } else {
+                                                console.log(`👥 Current user count: ${result.count}`);
+                                            }
+                                        });
+                                        
+                                        // Check if there are any existing admin users
+                                        db.get('SELECT COUNT(*) as count FROM admin_users', (err, result) => {
+                                            if (err) {
+                                                console.error('❌ Error checking admin count:', err);
+                                            } else {
+                                                console.log(`👑 Current admin count: ${result.count}`);
+                                            }
+                                        });
+                                        
+                                        resolve();
                                     });
-                                    
-                                    resolve();
                                 });
                             });
                         });
@@ -685,6 +717,11 @@ async function runMigrations() {
             {
                 name: 'add_google_id',
                 sql: 'ALTER TABLE users ADD COLUMN google_id TEXT'
+            },
+            {
+                name: 'add_second_super_admin',
+                sql: `INSERT OR IGNORE INTO admin_users (email, name, is_super_admin, created_by) 
+                      VALUES ('sid.bandewar@gmail.com', 'Sid Bandewar (Google SSO)', TRUE, 'system')`
             }
         ];
         

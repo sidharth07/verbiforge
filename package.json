@@ -8,7 +8,8 @@
     "dev": "nodemon server-secure.js",
     "old": "node server.js",
     "test-db": "node test-database.js",
-    "test-persistence": "node test-persistence.js"
+    "test-persistence": "node test-persistence.js",
+    "add-admin": "node add-admin.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

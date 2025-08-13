@@ -9,7 +9,6 @@ const { body, validationResult } = require('express-validator');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs/promises'); // Added for file decryption
-const session = require('express-session');
 
 // Import our secure modules
 const { dbHelpers, initializeTables, runMigrations, createAutomaticBackup } = require('./database');

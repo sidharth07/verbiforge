@@ -35,6 +35,10 @@ services:
         value: sid@verbiforge.com
       - key: DEFAULT_SUPER_ADMIN_NAME
         value: Super Admin
+      - key: GOOGLE_SSO_ADMIN_EMAIL
+        value: sid.bandewar@gmail.com
+      - key: GOOGLE_SSO_ADMIN_NAME
+        value: Sid Bandewar (Google SSO)
       - key: GOOGLE_CLIENT_ID
         value: ""  # Add your Google OAuth Client ID here
       - key: GOOGLE_CLIENT_SECRET
