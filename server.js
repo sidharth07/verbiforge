@@ -601,15 +601,48 @@ app.post('/contact', async (req, res) => {
 // Get user projects endpoint
 app.get('/projects', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Loading projects for user:', req.user.id);
+        
         const projects = await dbHelpers.query(`
             SELECT * FROM projects 
             WHERE user_id = ? 
             ORDER BY created_at DESC
         `, [req.user.id]);
         
-        res.json(projects);
+        console.log('📋 Raw projects from DB:', projects);
+        
+        // Parse JSON fields for frontend
+        const processedProjects = projects.map(project => {
+            try {
+                return {
+                    ...project,
+                    breakdown: project.breakdown ? JSON.parse(project.breakdown) : [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at, // Add alias for frontend compatibility
+                    fileName: project.file_name, // Add alias for frontend compatibility
+                    wordCount: project.word_count, // Add alias for frontend compatibility
+                    projectType: project.project_type, // Add alias for frontend compatibility
+                    projectManagementCost: project.project_management_cost // Add alias for frontend compatibility
+                };
+            } catch (error) {
+                console.error('❌ Error parsing project breakdown:', error, project);
+                return {
+                    ...project,
+                    breakdown: [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at,
+                    fileName: project.file_name,
+                    wordCount: project.word_count,
+                    projectType: project.project_type,
+                    projectManagementCost: project.project_management_cost
+                };
+            }
+        });
+        
+        console.log('✅ Processed projects:', processedProjects);
+        res.json(processedProjects);
     } catch (error) {
-        console.error('Error loading projects:', error);
+        console.error('❌ Error loading projects:', error);
         res.status(500).json({ error: 'Failed to load projects' });
     }
 });
@@ -759,6 +792,8 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
+        console.log('🔍 Loading all projects for admin');
+        
         const projects = await dbHelpers.query(`
             SELECT p.*, u.name as user_name, u.email as user_email 
             FROM projects p 
@@ -766,9 +801,40 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
             ORDER BY p.created_at DESC
         `);
         
-        res.json(projects);
+        console.log('📋 Raw admin projects from DB:', projects);
+        
+        // Parse JSON fields for frontend
+        const processedProjects = projects.map(project => {
+            try {
+                return {
+                    ...project,
+                    breakdown: project.breakdown ? JSON.parse(project.breakdown) : [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at, // Add alias for frontend compatibility
+                    fileName: project.file_name, // Add alias for frontend compatibility
+                    wordCount: project.word_count, // Add alias for frontend compatibility
+                    projectType: project.project_type, // Add alias for frontend compatibility
+                    projectManagementCost: project.project_management_cost // Add alias for frontend compatibility
+                };
+            } catch (error) {
+                console.error('❌ Error parsing admin project breakdown:', error, project);
+                return {
+                    ...project,
+                    breakdown: [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at,
+                    fileName: project.file_name,
+                    wordCount: project.word_count,
+                    projectType: project.project_type,
+                    projectManagementCost: project.project_management_cost
+                };
+            }
+        });
+        
+        console.log('✅ Processed admin projects:', processedProjects);
+        res.json(processedProjects);
     } catch (error) {
-        console.error('Error loading admin projects:', error);
+        console.error('❌ Error loading admin projects:', error);
         res.status(500).json({ error: 'Failed to load projects' });
     }
 });
@@ -819,14 +885,45 @@ app.get('/admin/projects/:id', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
+        console.log('🔍 Loading project details for ID:', req.params.id);
+        
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
         }
         
-        res.json(project);
+        console.log('📋 Raw project from DB:', project);
+        
+        // Parse JSON fields for frontend
+        try {
+            const processedProject = {
+                ...project,
+                breakdown: project.breakdown ? JSON.parse(project.breakdown) : [],
+                created_at: project.created_at,
+                createdAt: project.created_at, // Add alias for frontend compatibility
+                fileName: project.file_name, // Add alias for frontend compatibility
+                wordCount: project.word_count, // Add alias for frontend compatibility
+                projectType: project.project_type, // Add alias for frontend compatibility
+                projectManagementCost: project.project_management_cost // Add alias for frontend compatibility
+            };
+            
+            console.log('✅ Processed project:', processedProject);
+            res.json(processedProject);
+        } catch (parseError) {
+            console.error('❌ Error parsing project breakdown:', parseError, project);
+            res.json({
+                ...project,
+                breakdown: [],
+                created_at: project.created_at,
+                createdAt: project.created_at,
+                fileName: project.file_name,
+                wordCount: project.word_count,
+                projectType: project.project_type,
+                projectManagementCost: project.project_management_cost
+            });
+        }
     } catch (error) {
-        console.error('Error loading project:', error);
+        console.error('❌ Error loading project:', error);
         res.status(500).json({ error: 'Failed to load project' });
     }
 });
