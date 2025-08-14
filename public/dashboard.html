@@ -382,6 +382,9 @@
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .project-card:hover {
@@ -426,11 +429,14 @@
             background: #f8f9fa;
             border-radius: 6px;
             margin-bottom: 15px;
+            flex-shrink: 0;
         }
 
         .project-actions {
             display: flex;
             gap: 10px;
+            margin-top: auto;
+            flex-shrink: 0;
         }
 
         .delete-btn {
@@ -1416,7 +1422,7 @@
                             ` : ''}
                         </div>
                         
-                        <div style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 15px; flex: 1;">
                             <h4 style="margin-bottom: 10px; font-size: 0.9em; color: #666;">Translation Costs:</h4>
                             ${breakdownHtml}
                             <div class="project-detail" style="border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
@@ -1431,7 +1437,7 @@
                         
                         <div class="project-total">$${project.total}</div>
                         
-                        <div class="project-actions" style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                        <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
                             ${project.status === 'quote_generated' ? `
                                 <button class="submit-project-btn" data-project-id="${project.id}" 
                                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
