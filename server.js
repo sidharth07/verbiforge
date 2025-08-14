@@ -1295,6 +1295,7 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
         
         const { id } = req.params;
         console.log('🔍 Upload translated file for project:', id);
+        console.log('🔍 File info:', req.file);
         
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
@@ -1305,7 +1306,19 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
             return res.status(404).json({ error: 'Project not found' });
         }
         
-        // For now, just acknowledge the upload
+        // Save the translated file information to the database
+        await dbHelpers.run(`
+            UPDATE projects 
+            SET translated_file_name = $1, status = $2 
+            WHERE id = $3
+        `, [req.file.originalname, 'completed', id]);
+        
+        console.log('✅ Translated file uploaded successfully:', {
+            projectId: id,
+            fileName: req.file.originalname,
+            fileSize: req.file.size
+        });
+        
         res.json({ 
             success: true, 
             message: 'Translated file uploaded successfully',
@@ -1315,6 +1328,53 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
         
     } catch (error) {
         console.error('❌ Error uploading translated file:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
+    }
+});
+
+// Upload translated file (user - for their own projects)
+app.post('/projects/:id/upload-translated', requireAuth, upload.single('file'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log('🔍 User upload translated file for project:', id);
+        console.log('🔍 User ID:', req.user.id);
+        console.log('🔍 File info:', req.file);
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        
+        // Check if project exists and belongs to the user
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found or access denied' });
+        }
+        
+        // Save the translated file information to the database
+        await dbHelpers.run(`
+            UPDATE projects 
+            SET translated_file_name = $1, status = $2 
+            WHERE id = $3
+        `, [req.file.originalname, 'completed', id]);
+        
+        console.log('✅ User translated file uploaded successfully:', {
+            projectId: id,
+            userId: req.user.id,
+            fileName: req.file.originalname,
+            fileSize: req.file.size
+        });
+        
+        res.json({ 
+            success: true, 
+            message: 'Translated file uploaded successfully',
+            fileName: req.file.originalname,
+            projectId: id
+        });
+        
+    } catch (error) {
+        console.error('❌ Error uploading user translated file:', error);
+        console.error('❌ Error stack:', error.stack);
         res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
     }
 });
@@ -1613,6 +1673,7 @@ app.use('*', (req, res) => {
     console.error('   - PUT /admin/projects/:id/eta');
     console.error('   - GET /admin/projects/:id/download');
     console.error('   - POST /admin/projects/:id/upload-translated');
+    console.error('   - POST /projects/:id/upload-translated');
     console.error('   - GET /admin/users');
     console.error('   - DELETE /admin/users/:id');
     console.error('   - GET /admin/admins');
@@ -1645,6 +1706,7 @@ app.use('*', (req, res) => {
             'PUT /admin/projects/:id/eta',
             'GET /admin/projects/:id/download',
             'POST /admin/projects/:id/upload-translated',
+            'POST /projects/:id/upload-translated',
             'GET /admin/users',
             'DELETE /admin/users/:id',
             'GET /admin/admins',
