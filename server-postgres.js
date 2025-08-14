@@ -318,6 +318,290 @@ app.get('/health/database', async (req, res) => {
     }
 });
 
+// Login endpoint
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password required' });
+        }
+
+        const user = await dbHelpers.get('SELECT * FROM users WHERE email = $1', [email]);
+        
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        const isValidPassword = await bcrypt.compare(password, user.password_hash);
+        
+        if (!isValidPassword) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        res.json({ 
+            success: true, 
+            token: user.id,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role
+            }
+        });
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// Signup endpoint
+app.post('/signup', async (req, res) => {
+    try {
+        const { email, password, name } = req.body;
+        
+        if (!email || !password || !name) {
+            return res.status(400).json({ error: 'Email, password, and name required' });
+        }
+
+        // Check if user already exists
+        const existingUser = await dbHelpers.get('SELECT id FROM users WHERE email = $1', [email]);
+        
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+
+        const userId = uuidv4();
+        const hashedPassword = await bcrypt.hash(password, 12);
+        
+        await dbHelpers.run(`
+            INSERT INTO users (id, email, password_hash, name, role, created_at) 
+            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+        `, [userId, email, hashedPassword, name, 'user']);
+        
+        res.json({ 
+            success: true, 
+            token: userId,
+            user: {
+                id: userId,
+                email: email,
+                name: name,
+                role: 'user'
+            }
+        });
+        
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ error: 'Signup failed' });
+    }
+});
+
+// Get current user
+app.get('/me', requireAuth, (req, res) => {
+    res.json({ 
+        success: true, 
+        user: {
+            id: req.user.id,
+            email: req.user.email,
+            name: req.user.name,
+            role: req.user.role
+        }
+    });
+});
+
+// Logout endpoint
+app.post('/logout', (req, res) => {
+    res.json({ success: true });
+});
+
+// Get languages
+app.get('/languages', requireAuth, async (req, res) => {
+    try {
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        res.json(languages);
+    } catch (error) {
+        console.error('Error loading languages:', error);
+        res.status(500).json({ error: 'Failed to load languages' });
+    }
+});
+
+// Get multiplier
+app.get('/multiplier', requireAuth, async (req, res) => {
+    try {
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['multiplier']);
+        const multiplier = setting ? parseFloat(setting.value) : 1.3;
+        res.json({ multiplier });
+    } catch (error) {
+        console.error('Error loading multiplier:', error);
+        res.status(500).json({ error: 'Failed to load multiplier' });
+    }
+});
+
+// Get user projects
+app.get('/projects', requireAuth, async (req, res) => {
+    try {
+        console.log('🔍 Loading projects for user:', req.user.id);
+        
+        const projects = await dbHelpers.query(`
+            SELECT * FROM projects 
+            WHERE user_id = $1 
+            ORDER BY created_at DESC
+        `, [req.user.id]);
+        
+        console.log('📋 Raw projects from DB:', projects);
+        
+        // Parse JSON fields for frontend
+        const processedProjects = projects.map(project => {
+            try {
+                return {
+                    ...project,
+                    breakdown: project.breakdown ? JSON.parse(project.breakdown) : [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at, // Add alias for frontend compatibility
+                    fileName: project.file_name, // Add alias for frontend compatibility
+                    wordCount: project.word_count, // Add alias for frontend compatibility
+                    projectType: project.project_type, // Add alias for frontend compatibility
+                    projectManagementCost: project.project_management_cost // Add alias for frontend compatibility
+                };
+            } catch (error) {
+                console.error('❌ Error parsing project breakdown:', error, project);
+                return {
+                    ...project,
+                    breakdown: [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at,
+                    fileName: project.file_name,
+                    wordCount: project.word_count,
+                    projectType: project.project_type,
+                    projectManagementCost: project.project_management_cost
+                };
+            }
+        });
+        
+        console.log('✅ Processed projects:', processedProjects);
+        res.json(processedProjects);
+    } catch (error) {
+        console.error('❌ Error loading projects:', error);
+        res.status(500).json({ error: 'Failed to load projects' });
+    }
+});
+
+// Create project
+app.post('/projects', requireAuth, async (req, res) => {
+    try {
+        console.log('🔍 Project creation request body:', req.body);
+        
+        const { 
+            name, 
+            projectName, // Handle both name and projectName
+            fileName, 
+            wordCount, 
+            projectType, 
+            multiplier, 
+            breakdown, 
+            subtotal, 
+            projectManagementCost, 
+            total,
+            notes,
+            tempFileId 
+        } = req.body;
+        
+        // Use projectName if name is not provided
+        const projectNameToUse = name || projectName;
+        
+        if (!projectNameToUse) {
+            return res.status(400).json({ error: 'Project name is required' });
+        }
+        
+        if (!fileName) {
+            return res.status(400).json({ error: 'File name is required' });
+        }
+        
+        if (!wordCount) {
+            return res.status(400).json({ error: 'Word count is required' });
+        }
+        
+        if (!breakdown || !Array.isArray(breakdown)) {
+            return res.status(400).json({ error: 'Language breakdown is required' });
+        }
+        
+        const projectId = uuidv4();
+        
+        console.log('🔍 Creating project with data:', {
+            projectId,
+            userId: req.user.id,
+            name: projectNameToUse,
+            fileName,
+            wordCount,
+            breakdown: breakdown.length,
+            total,
+            projectType,
+            multiplier
+        });
+        
+        await dbHelpers.run(`
+            INSERT INTO projects (
+                id, user_id, name, file_name, word_count, breakdown, 
+                total, status, project_type, multiplier, notes, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
+        `, [
+            projectId, req.user.id, projectNameToUse, fileName, wordCount, 
+            JSON.stringify(breakdown), total, 'quote_generated', 
+            projectType || 'fusion', multiplier || 1.0, notes || ''
+        ]);
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [projectId]);
+        
+        console.log('✅ Project created successfully:', project);
+        res.json({ success: true, project });
+        
+    } catch (error) {
+        console.error('❌ Error creating project:', error);
+        res.status(500).json({ error: 'Failed to create project: ' + error.message });
+    }
+});
+
+// Admin check endpoint
+app.get('/admin/check', requireAuth, async (req, res) => {
+    try {
+        // Check if user is admin based on role in users table
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        const isSuperAdmin = req.user.role === 'super_admin';
+        
+        res.json({ isAdmin, isSuperAdmin });
+    } catch (error) {
+        console.error('Admin check error:', error);
+        res.status(500).json({ error: 'Failed to check admin status' });
+    }
+});
+
+// Contact form endpoint
+app.post('/contact', async (req, res) => {
+    try {
+        const { name, email, phone, company, subject, message } = req.body;
+        
+        if (!name || !email || !subject || !message) {
+            return res.status(400).json({ error: 'Name, email, subject, and message are required' });
+        }
+        
+        const contactId = uuidv4();
+        
+        await dbHelpers.run(`
+            INSERT INTO contact_submissions (
+                id, name, email, phone, company, subject, message, status, is_read, submitted_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
+        `, [contactId, name, email, phone || null, company || null, subject, message, 'new', false]);
+        
+        res.json({ success: true, message: 'Contact form submitted successfully' });
+        
+    } catch (error) {
+        console.error('Contact form error:', error);
+        res.status(500).json({ error: 'Failed to submit contact form' });
+    }
+});
+
 // Start server
 async function startServer() {
     try {
