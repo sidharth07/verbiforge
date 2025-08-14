@@ -3,7 +3,7 @@ services:
     name: verbiforge
     env: node
     buildCommand: npm install
-    startCommand: node server-postgres.js
+    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
