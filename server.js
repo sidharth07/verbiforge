@@ -521,6 +521,172 @@ app.post('/api/test-password', async (req, res) => {
     }
 });
 
+// Signup endpoint
+app.post('/signup', async (req, res) => {
+    try {
+        const { email, password, name } = req.body;
+        
+        if (!email || !password || !name) {
+            return res.status(400).json({ error: 'Email, password, and name are required' });
+        }
+        
+        // Check if user already exists
+        const existingUser = await dbHelpers.get('SELECT id FROM users WHERE email = ?', [email]);
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+        
+        // Create new user
+        const userId = uuidv4();
+        const hashedPassword = await bcrypt.hash(password, 12);
+        
+        await dbHelpers.run(`
+            INSERT INTO users (id, email, password_hash, name, role, created_at) 
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `, [userId, email, hashedPassword, name, 'user']);
+        
+        res.json({
+            success: true,
+            user: {
+                id: userId,
+                email: email,
+                name: name,
+                role: 'user'
+            },
+            token: userId
+        });
+        
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get user info endpoint
+app.get('/me', requireAuth, (req, res) => {
+    res.json({ user: req.user });
+});
+
+// Logout endpoint
+app.post('/logout', (req, res) => {
+    res.json({ success: true });
+});
+
+// Get languages endpoint
+app.get('/languages', requireAuth, async (req, res) => {
+    try {
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        res.json(languages);
+    } catch (error) {
+        console.error('Error loading languages:', error);
+        res.status(500).json({ error: 'Failed to load languages' });
+    }
+});
+
+// Get user projects endpoint
+app.get('/projects', requireAuth, async (req, res) => {
+    try {
+        const projects = await dbHelpers.query(`
+            SELECT * FROM projects 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC
+        `, [req.user.id]);
+        
+        res.json(projects);
+    } catch (error) {
+        console.error('Error loading projects:', error);
+        res.status(500).json({ error: 'Failed to load projects' });
+    }
+});
+
+// Create project endpoint
+app.post('/projects', requireAuth, async (req, res) => {
+    try {
+        const { 
+            name, 
+            fileName, 
+            wordCount, 
+            projectType, 
+            multiplier, 
+            breakdown, 
+            subtotal, 
+            projectManagementCost, 
+            total,
+            notes 
+        } = req.body;
+        
+        const projectId = uuidv4();
+        
+        await dbHelpers.run(`
+            INSERT INTO projects (
+                id, user_id, name, file_name, word_count, breakdown, 
+                total, status, project_type, multiplier, notes, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `, [
+            projectId, req.user.id, name, fileName, wordCount, 
+            JSON.stringify(breakdown), total, 'quote_generated', 
+            projectType || 'fusion', multiplier || 1.0, notes
+        ]);
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [projectId]);
+        
+        res.json({ success: true, project });
+        
+    } catch (error) {
+        console.error('Error creating project:', error);
+        res.status(500).json({ error: 'Failed to create project' });
+    }
+});
+
+// Delete project endpoint
+app.delete('/projects/:id', requireAuth, async (req, res) => {
+    try {
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+        
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        await dbHelpers.run('DELETE FROM projects WHERE id = ?', [req.params.id]);
+        
+        res.json({ success: true });
+        
+    } catch (error) {
+        console.error('Error deleting project:', error);
+        res.status(500).json({ error: 'Failed to delete project' });
+    }
+});
+
+// Submit project endpoint
+app.put('/projects/:id/submit', requireAuth, async (req, res) => {
+    try {
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+        
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        if (project.status !== 'quote_generated') {
+            return res.status(400).json({ error: 'Project cannot be submitted in current status' });
+        }
+        
+        await dbHelpers.run(`
+            UPDATE projects 
+            SET status = 'submitted', submitted_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        `, [req.params.id]);
+        
+        const updatedProject = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        
+        res.json({ success: true, project: updatedProject });
+        
+    } catch (error) {
+        console.error('Error submitting project:', error);
+        res.status(500).json({ error: 'Failed to submit project' });
+    }
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
     console.log('🎉 SIMPLE VERBIFORGE SERVER STARTED!');
