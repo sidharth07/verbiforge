@@ -569,7 +569,10 @@ app.get('/projects', requireAuth, async (req, res) => {
 // Create project
 app.post('/projects', requireAuth, async (req, res) => {
     try {
-        console.log('🔍 Project creation request body:', req.body);
+        console.log('🔍 Project creation request received');
+        console.log('🔍 Request headers:', req.headers);
+        console.log('🔍 Request body:', req.body);
+        console.log('🔍 User:', req.user);
         
         const { 
             name, 
@@ -1155,6 +1158,64 @@ app.put('/admin/multiplier', requireAuth, async (req, res) => {
         console.error('Error updating multiplier:', error);
         res.status(500).json({ error: 'Failed to update multiplier' });
     }
+});
+
+// Global error handler
+app.use((error, req, res, next) => {
+    console.error('❌ Global error handler caught:', error);
+    console.error('❌ Request URL:', req.url);
+    console.error('❌ Request method:', req.method);
+    
+    res.status(500).json({ 
+        error: 'Internal server error',
+        message: error.message,
+        url: req.url,
+        method: req.method
+    });
+});
+
+// Catch-all route for undefined endpoints
+app.use('*', (req, res) => {
+    console.error('❌ 404 - Route not found:', req.originalUrl);
+    console.error('❌ Available routes:');
+    console.error('   - POST /login');
+    console.error('   - POST /signup');
+    console.error('   - GET /me');
+    console.error('   - POST /logout');
+    console.error('   - GET /languages');
+    console.error('   - GET /multiplier');
+    console.error('   - POST /analyze');
+    console.error('   - POST /projects');
+    console.error('   - GET /projects');
+    console.error('   - GET /admin/check');
+    console.error('   - POST /contact');
+    console.error('   - GET /admin/projects');
+    console.error('   - GET /admin/users');
+    console.error('   - GET /admin/contacts');
+    console.error('   - GET /health');
+    
+    res.status(404).json({ 
+        error: 'Route not found',
+        url: req.originalUrl,
+        method: req.method,
+        availableRoutes: [
+            'POST /login',
+            'POST /signup', 
+            'GET /me',
+            'POST /logout',
+            'GET /languages',
+            'GET /multiplier',
+            'POST /analyze',
+            'POST /projects',
+            'GET /projects',
+            'GET /admin/check',
+            'POST /contact',
+            'GET /admin/projects',
+            'GET /admin/users',
+            'GET /admin/contacts',
+            'GET /health'
+        ]
+    });
 });
 
 // Start server
