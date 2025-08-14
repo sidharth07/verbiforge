@@ -915,16 +915,47 @@
         }
 
         function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            console.log('🔍 Switching to tab:', tab);
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                console.log('🔍 Removed active from tab button:', btn.textContent);
+            });
+            
+            // Remove active class from all tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                console.log('🔍 Removed active from tab content:', content.id);
+            });
 
-            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-            document.getElementById(tab + 'Tab').classList.add('active');
+            // Add active class to selected tab button
+            const selectedTabBtn = document.querySelector(`[data-tab="${tab}"]`);
+            if (selectedTabBtn) {
+                selectedTabBtn.classList.add('active');
+                console.log('✅ Added active to tab button:', selectedTabBtn.textContent);
+            } else {
+                console.log('❌ Tab button not found for:', tab);
+            }
+            
+            // Add active class to selected tab content
+            const selectedTabContent = document.getElementById(tab + 'Tab');
+            if (selectedTabContent) {
+                selectedTabContent.classList.add('active');
+                console.log('✅ Added active to tab content:', selectedTabContent.id);
+            } else {
+                console.log('❌ Tab content not found for:', tab + 'Tab');
+            }
 
+            // Load content based on tab
             if (tab === 'projects') {
+                console.log('🔍 Loading projects...');
                 loadProjects();
             } else if (tab === 'completed') {
+                console.log('🔍 Loading completed projects...');
                 loadCompletedProjects();
+            } else if (tab === 'create') {
+                console.log('🔍 Switched to create tab');
             }
         }
 
@@ -979,6 +1010,20 @@
 
         // Add search functionality
         document.addEventListener('DOMContentLoaded', function () {
+            console.log('🔍 DOM Content Loaded');
+            
+            // Add click event listener to Create Project button
+            const createProjectBtn = document.querySelector('.create-project-btn');
+            if (createProjectBtn) {
+                console.log('✅ Found Create Project button');
+                createProjectBtn.addEventListener('click', function(e) {
+                    console.log('🔍 Create Project button clicked!');
+                    switchTab('create');
+                });
+            } else {
+                console.log('❌ Create Project button not found');
+            }
+            
             setTimeout(() => {
                 const searchInput = document.getElementById('languageSearch');
                 if (searchInput) {
