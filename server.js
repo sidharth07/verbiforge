@@ -161,16 +161,26 @@ async function initializeDatabase() {
         `);
         console.log('✅ Settings table ready');
 
-        // Insert default settings
-        await dbHelpers.run(`
-            INSERT OR IGNORE INTO settings (key, value) VALUES 
-            ('languages', '{"English": 25, "Arabic": 50, "Chinese (Simplified)": 35, "Dutch": 40, "French": 35, "German": 45, "Portuguese (Brazil)": 35, "Portuguese (Portugal)": 35, "Spanish (Latin America)": 35, "Spanish (Spain)": 35}'),
-            ('multiplier', '1.3')
-        `);
-        console.log('✅ Default settings inserted');
+        // Check if database already has data
+        const hasExistingData = await checkExistingData();
+        
+        if (!hasExistingData) {
+            // Only insert default settings and create admin users if database is empty
+            console.log('📝 Database is empty - creating initial data...');
+            
+            // Insert default settings
+            await dbHelpers.run(`
+                INSERT OR IGNORE INTO settings (key, value) VALUES 
+                ('languages', '{"English": 25, "Arabic": 50, "Chinese (Simplified)": 35, "Dutch": 40, "French": 35, "German": 45, "Portuguese (Brazil)": 35, "Portuguese (Portugal)": 35, "Spanish (Latin America)": 35, "Spanish (Spain)": 35}'),
+                ('multiplier', '1.3')
+            `);
+            console.log('✅ Default settings inserted');
 
-        // Create admin users
-        await createAdminUsers();
+            // Create admin users
+            await createAdminUsers();
+        } else {
+            console.log('✅ Preserving existing data - no initial setup needed');
+        }
         
         console.log('🎉 Database initialization completed successfully!');
         
@@ -222,6 +232,27 @@ async function createAdminUsers() {
         
     } catch (error) {
         console.error('❌ Error creating admin users:', error);
+    }
+}
+
+// Check if database already has data
+async function checkExistingData() {
+    try {
+        const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
+        const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
+        
+        console.log(`📊 Existing data found: ${userCount.count} users, ${projectCount.count} projects`);
+        
+        if (userCount.count > 0 || projectCount.count > 0) {
+            console.log('✅ Database has existing data - preserving all data');
+            return true;
+        } else {
+            console.log('📝 Database is empty - will create initial data');
+            return false;
+        }
+    } catch (error) {
+        console.log('📝 Database is new - will create initial data');
+        return false;
     }
 }
 
