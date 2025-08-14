@@ -232,22 +232,25 @@ async function initializeDatabase() {
         // Check if database already has data
         const hasExistingData = await checkExistingData();
         
+        // Always ensure default settings exist (INSERT OR IGNORE will not overwrite existing)
+        console.log('📝 Ensuring default settings exist...');
+        
+        // Insert default settings (will not overwrite if they exist)
+        await dbHelpers.run(`
+            INSERT OR IGNORE INTO settings (key, value) VALUES 
+            ('languages', '{"English": 25, "Arabic": 50, "Chinese (Simplified)": 35, "Dutch": 40, "French": 35, "German": 45, "Portuguese (Brazil)": 35, "Portuguese (Portugal)": 35, "Spanish (Latin America)": 35, "Spanish (Spain)": 35, "Italian": 40, "Japanese": 45, "Korean": 40, "Russian": 35, "Turkish": 35, "Vietnamese": 30, "Thai": 35, "Indonesian": 30, "Malay": 30, "Filipino": 30, "Hindi": 25, "Bengali": 25, "Urdu": 25, "Persian": 35, "Hebrew": 40, "Greek": 40, "Polish": 35, "Czech": 35, "Hungarian": 35, "Romanian": 35, "Bulgarian": 35, "Croatian": 35, "Serbian": 35, "Slovak": 35, "Slovenian": 35, "Estonian": 40, "Latvian": 40, "Lithuanian": 40, "Finnish": 45, "Swedish": 45, "Norwegian": 45, "Danish": 45, "Icelandic": 50, "Catalan": 35, "Basque": 45, "Galician": 35, "Welsh": 45, "Irish": 45, "Scottish Gaelic": 50, "Maltese": 45, "Luxembourgish": 50, "Faroese": 55, "Greenlandic": 60}'),
+            ('multiplier', '1.3')
+        `);
+        console.log('✅ Default settings ensured');
+        
         if (!hasExistingData) {
-            // Only insert default settings and create admin users if database is empty
-            console.log('📝 Database is empty - creating initial data...');
+            // Only create admin users if database is empty
+            console.log('📝 Database is empty - creating admin users...');
             
-            // Insert default settings
-            await dbHelpers.run(`
-                INSERT OR IGNORE INTO settings (key, value) VALUES 
-                ('languages', '{"English": 25, "Arabic": 50, "Chinese (Simplified)": 35, "Dutch": 40, "French": 35, "German": 45, "Portuguese (Brazil)": 35, "Portuguese (Portugal)": 35, "Spanish (Latin America)": 35, "Spanish (Spain)": 35}'),
-                ('multiplier', '1.3')
-            `);
-            console.log('✅ Default settings inserted');
-
             // Create admin users
             await createAdminUsers();
         } else {
-            console.log('✅ Preserving existing data - no initial setup needed');
+            console.log('✅ Preserving existing data - admin users already exist');
         }
         
         console.log('✅ Database initialization completed');
@@ -797,7 +800,50 @@ app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
             "Portuguese (Brazil)": 35,
             "Portuguese (Portugal)": 35,
             "Spanish (Latin America)": 35,
-            "Spanish (Spain)": 35
+            "Spanish (Spain)": 35,
+            "Italian": 40,
+            "Japanese": 45,
+            "Korean": 40,
+            "Russian": 35,
+            "Turkish": 35,
+            "Vietnamese": 30,
+            "Thai": 35,
+            "Indonesian": 30,
+            "Malay": 30,
+            "Filipino": 30,
+            "Hindi": 25,
+            "Bengali": 25,
+            "Urdu": 25,
+            "Persian": 35,
+            "Hebrew": 40,
+            "Greek": 40,
+            "Polish": 35,
+            "Czech": 35,
+            "Hungarian": 35,
+            "Romanian": 35,
+            "Bulgarian": 35,
+            "Croatian": 35,
+            "Serbian": 35,
+            "Slovak": 35,
+            "Slovenian": 35,
+            "Estonian": 40,
+            "Latvian": 40,
+            "Lithuanian": 40,
+            "Finnish": 45,
+            "Swedish": 45,
+            "Norwegian": 45,
+            "Danish": 45,
+            "Icelandic": 50,
+            "Catalan": 35,
+            "Basque": 45,
+            "Galician": 35,
+            "Welsh": 45,
+            "Irish": 45,
+            "Scottish Gaelic": 50,
+            "Maltese": 45,
+            "Luxembourgish": 50,
+            "Faroese": 55,
+            "Greenlandic": 60
         };
         
         res.json(defaultLanguages);
@@ -895,7 +941,50 @@ app.post('/admin/languages/reset', requireAuth, async (req, res) => {
             "Portuguese (Brazil)": 35,
             "Portuguese (Portugal)": 35,
             "Spanish (Latin America)": 35,
-            "Spanish (Spain)": 35
+            "Spanish (Spain)": 35,
+            "Italian": 40,
+            "Japanese": 45,
+            "Korean": 40,
+            "Russian": 35,
+            "Turkish": 35,
+            "Vietnamese": 30,
+            "Thai": 35,
+            "Indonesian": 30,
+            "Malay": 30,
+            "Filipino": 30,
+            "Hindi": 25,
+            "Bengali": 25,
+            "Urdu": 25,
+            "Persian": 35,
+            "Hebrew": 40,
+            "Greek": 40,
+            "Polish": 35,
+            "Czech": 35,
+            "Hungarian": 35,
+            "Romanian": 35,
+            "Bulgarian": 35,
+            "Croatian": 35,
+            "Serbian": 35,
+            "Slovak": 35,
+            "Slovenian": 35,
+            "Estonian": 40,
+            "Latvian": 40,
+            "Lithuanian": 40,
+            "Finnish": 45,
+            "Swedish": 45,
+            "Norwegian": 45,
+            "Danish": 45,
+            "Icelandic": 50,
+            "Catalan": 35,
+            "Basque": 45,
+            "Galician": 35,
+            "Welsh": 45,
+            "Irish": 45,
+            "Scottish Gaelic": 50,
+            "Maltese": 45,
+            "Luxembourgish": 50,
+            "Faroese": 55,
+            "Greenlandic": 60
         };
         
         await dbHelpers.run(`
