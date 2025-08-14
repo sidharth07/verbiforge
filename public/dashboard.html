@@ -325,9 +325,20 @@
 
         .dashboard-tabs {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
             border-bottom: 1px solid #ddd;
+        }
+
+        .tabs-left {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tabs-right {
+            display: flex;
+            align-items: center;
         }
 
         .tab-btn {
@@ -355,19 +366,32 @@
         }
 
         .create-project-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 20px;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            margin-bottom: 30px;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0;
         }
 
         .create-project-btn:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .create-project-btn span {
+            font-size: 18px;
+            font-weight: bold;
         }
 
         .projects-grid {
@@ -541,14 +565,30 @@
         </div>
 
         <div class="dashboard-tabs">
-            <button class="tab-btn active" data-tab="projects">My Projects</button>
-            <button class="tab-btn" data-tab="create">Create Project</button>
+            <div class="tabs-left">
+                <button class="tab-btn active" data-tab="projects">My Projects</button>
+                <button class="tab-btn" data-tab="completed">Completed Projects</button>
+            </div>
+            <div class="tabs-right">
+                <button class="create-project-btn" onclick="switchTab('create')">
+                    <span>+</span>
+                    Create Project
+                </button>
+            </div>
         </div>
 
         <div id="projectsTab" class="tab-content active">
             <div id="projectsList">
                 <div class="empty-state">
                     <h3>Loading projects...</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="completedTab" class="tab-content">
+            <div id="completedProjectsList">
+                <div class="empty-state">
+                    <h3>Loading completed projects...</h3>
                 </div>
             </div>
         </div>
@@ -883,6 +923,8 @@
 
             if (tab === 'projects') {
                 loadProjects();
+            } else if (tab === 'completed') {
+                loadCompletedProjects();
             }
         }
 
@@ -1343,28 +1385,54 @@
         }
 
         async function loadProjects() {
-            console.log('📋 Loading projects...');
+            console.log('📋 Loading active projects...');
             try {
                 const response = await Auth.authFetch('/projects');
                 console.log('📋 Projects response:', response);
-                const projects = await response.json();
-                console.log('📋 Projects data:', projects);
-                renderProjects(projects);
+                const allProjects = await response.json();
+                console.log('📋 All projects data:', allProjects);
+                
+                // Filter out completed projects
+                const activeProjects = allProjects.filter(project => project.status !== 'completed');
+                console.log('📋 Active projects:', activeProjects);
+                
+                renderProjects(activeProjects, 'projectsList');
             } catch (error) {
                 console.error('❌ Error loading projects:', error);
             }
         }
 
-        function renderProjects(projects) {
-            const container = document.getElementById('projectsList');
+        async function loadCompletedProjects() {
+            console.log('📋 Loading completed projects...');
+            try {
+                const response = await Auth.authFetch('/projects');
+                console.log('📋 Projects response:', response);
+                const allProjects = await response.json();
+                console.log('📋 All projects data:', allProjects);
+                
+                // Filter only completed projects
+                const completedProjects = allProjects.filter(project => project.status === 'completed');
+                console.log('📋 Completed projects:', completedProjects);
+                
+                renderProjects(completedProjects, 'completedProjectsList');
+            } catch (error) {
+                console.error('❌ Error loading completed projects:', error);
+            }
+        }
 
-            console.log('Rendering projects:', projects); // Debug log
+        function renderProjects(projects, containerId = 'projectsList') {
+            const container = document.getElementById(containerId);
+
+            console.log('Rendering projects:', projects, 'in container:', containerId); // Debug log
 
             if (projects.length === 0) {
+                const emptyMessage = containerId === 'completedProjectsList' 
+                    ? '<h3>No completed projects yet</h3><p>Completed projects will appear here</p>'
+                    : '<h3>No projects yet</h3><p>Create your first project to get started</p>';
+                
                 container.innerHTML = `
                     <div class="empty-state">
-                        <h3>No projects yet</h3>
-                        <p>Create your first project to get started</p>
+                        ${emptyMessage}
                     </div>
                 `;
                 return;
@@ -1437,26 +1505,37 @@
                         
                         <div class="project-total">$${project.total}</div>
                         
-                        <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
-                            ${project.status === 'quote_generated' ? `
-                                <button class="submit-project-btn" data-project-id="${project.id}" 
-                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
-                                    Submit Project
-                                </button>
-                            ` : ''}
-                            ${project.translatedFileName ? `
-                                <a href="/projects/${project.id}/download-translated" 
-                                   style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block;">
-                                   Download Translated
-                                </a>
-                            ` : ''}
-                            ${project.status === 'quote_generated' ? `
-                                <button class="delete-project-btn" data-project-id="${project.id}" 
-                                        style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
-                                    Delete
-                                </button>
-                            ` : ''}
-                        </div>
+                        ${containerId === 'completedProjectsList' ? `
+                            <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
+                                ${project.translatedFileName ? `
+                                    <a href="/projects/${project.id}/download-translated" 
+                                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block;">
+                                       Download Translated
+                                    </a>
+                                ` : '<span style="color: #666; font-style: italic;">No translated file available</span>'}
+                            </div>
+                        ` : `
+                            <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
+                                ${project.status === 'quote_generated' ? `
+                                    <button class="submit-project-btn" data-project-id="${project.id}" 
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
+                                        Submit Project
+                                    </button>
+                                ` : ''}
+                                ${project.translatedFileName ? `
+                                    <a href="/projects/${project.id}/download-translated" 
+                                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block;">
+                                       Download Translated
+                                    </a>
+                                ` : ''}
+                                ${project.status === 'quote_generated' ? `
+                                    <button class="delete-project-btn" data-project-id="${project.id}" 
+                                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
+                                        Delete
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `}
                     </div>
                 `;
             });
