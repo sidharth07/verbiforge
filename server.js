@@ -953,6 +953,151 @@ app.get('/admin/users', requireAuth, async (req, res) => {
     }
 });
 
+// Delete user (super admin only)
+app.delete('/admin/users/:id', requireAuth, async (req, res) => {
+    try {
+        const isSuperAdmin = req.user.role === 'super_admin';
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Super admin access required' });
+        }
+        
+        const { id } = req.params;
+        console.log('🔍 Delete user request:', { userId: id, adminId: req.user.id });
+        
+        // Check if user exists
+        const user = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [id]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Delete user's projects first
+        await dbHelpers.run('DELETE FROM projects WHERE user_id = $1', [id]);
+        
+        // Delete the user
+        await dbHelpers.run('DELETE FROM users WHERE id = $1', [id]);
+        
+        console.log('✅ User deleted successfully:', id);
+        res.json({ success: true, message: 'User and all their projects deleted successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user: ' + error.message });
+    }
+});
+
+// Get admin users
+app.get('/admin/admins', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        console.log('🔍 Loading admin users');
+        
+        // For now, return admin users from the users table with admin roles
+        const admins = await dbHelpers.query(`
+            SELECT id, email, name, role, created_at, 
+                   CASE WHEN role = 'super_admin' THEN true ELSE false END as is_super_admin,
+                   'System' as created_by
+            FROM users 
+            WHERE role IN ('admin', 'super_admin')
+            ORDER BY created_at DESC
+        `);
+        
+        console.log('✅ Admin users loaded:', admins);
+        res.json(admins);
+    } catch (error) {
+        console.error('❌ Error loading admin users:', error);
+        res.status(500).json({ error: 'Failed to load admin users' });
+    }
+});
+
+// Create admin user
+app.post('/admin/admins', requireAuth, async (req, res) => {
+    try {
+        const isSuperAdmin = req.user.role === 'super_admin';
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Super admin access required' });
+        }
+        
+        const { email, name, tempPassword } = req.body;
+        console.log('🔍 Create admin request:', { email, name, adminId: req.user.id });
+        
+        if (!email || !name || !tempPassword) {
+            return res.status(400).json({ error: 'Email, name, and temporary password are required' });
+        }
+        
+        // Check if user already exists
+        const existingUser = await dbHelpers.get('SELECT * FROM users WHERE email = $1', [email]);
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with this email already exists' });
+        }
+        
+        // Hash the temporary password
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        
+        // Create new admin user
+        const adminId = uuidv4();
+        await dbHelpers.run(`
+            INSERT INTO users (id, email, name, password_hash, role, created_at) 
+            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+        `, [adminId, email, name, hashedPassword, 'admin']);
+        
+        const newAdmin = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [adminId]);
+        
+        console.log('✅ Admin user created successfully:', newAdmin);
+        res.json({ 
+            success: true, 
+            message: 'Admin user created successfully',
+            admin: {
+                id: newAdmin.id,
+                email: newAdmin.email,
+                name: newAdmin.name,
+                role: newAdmin.role
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error creating admin user:', error);
+        res.status(500).json({ error: 'Failed to create admin user: ' + error.message });
+    }
+});
+
+// Delete admin user
+app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
+    try {
+        const isSuperAdmin = req.user.role === 'super_admin';
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Super admin access required' });
+        }
+        
+        const { email } = req.params;
+        const decodedEmail = decodeURIComponent(email);
+        console.log('🔍 Delete admin request:', { email: decodedEmail, adminId: req.user.id });
+        
+        // Check if admin exists and is not super admin
+        const admin = await dbHelpers.get('SELECT * FROM users WHERE email = $1 AND role IN ($2, $3)', [decodedEmail, 'admin', 'super_admin']);
+        if (!admin) {
+            return res.status(404).json({ error: 'Admin user not found' });
+        }
+        
+        if (admin.role === 'super_admin') {
+            return res.status(403).json({ error: 'Cannot delete super admin users' });
+        }
+        
+        // Delete the admin user
+        await dbHelpers.run('DELETE FROM users WHERE email = $1', [decodedEmail]);
+        
+        console.log('✅ Admin user deleted successfully:', decodedEmail);
+        res.json({ success: true, message: 'Admin user deleted successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error deleting admin user:', error);
+        res.status(500).json({ error: 'Failed to delete admin user: ' + error.message });
+    }
+});
+
 // Get individual project details (admin)
 app.get('/admin/projects/:id', requireAuth, async (req, res) => {
     try {
@@ -1430,6 +1575,10 @@ app.use('*', (req, res) => {
     console.error('   - GET /admin/projects/:id/download');
     console.error('   - POST /admin/projects/:id/upload-translated');
     console.error('   - GET /admin/users');
+    console.error('   - DELETE /admin/users/:id');
+    console.error('   - GET /admin/admins');
+    console.error('   - POST /admin/admins');
+    console.error('   - DELETE /admin/admins/:email');
     console.error('   - GET /admin/contacts');
     console.error('   - GET /health');
     
@@ -1458,6 +1607,10 @@ app.use('*', (req, res) => {
             'GET /admin/projects/:id/download',
             'POST /admin/projects/:id/upload-translated',
             'GET /admin/users',
+            'DELETE /admin/users/:id',
+            'GET /admin/admins',
+            'POST /admin/admins',
+            'DELETE /admin/admins/:email',
             'GET /admin/contacts',
             'GET /health'
         ]
