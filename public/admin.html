@@ -1033,7 +1033,7 @@
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                 <h3 style="margin-bottom: 15px;">📤 Upload Translated File</h3>
                 <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
-                    <input type="file" id="translatedFileInput" accept=".xlsx,.xls" style="flex: 1;">
+                    <input type="file" id="translatedFileInput" accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" style="flex: 1;">
                     <button id="uploadTranslatedFileBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
                         Upload
                     </button>
@@ -1589,31 +1589,55 @@
         }
 
         async function uploadTranslatedFile() {
-            if (!currentProjectId) return;
+            console.log('🔍 Upload translated file function called');
+            
+            if (!currentProjectId) {
+                console.log('❌ No current project ID');
+                return;
+            }
             
             const fileInput = document.getElementById('translatedFileInput');
             const file = fileInput.files[0];
             
+            console.log('🔍 File input:', fileInput);
+            console.log('🔍 Selected file:', file);
+            
             if (!file) {
+                console.log('❌ No file selected');
                 CustomModal.warning('Please select a file to upload');
                 return;
             }
             
+            console.log('🔍 File details:', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+            
             const formData = new FormData();
-            formData.append('translatedFile', file);
+            formData.append('file', file);
+            
+            console.log('🔍 FormData created, sending request...');
             
             const statusDiv = document.getElementById('uploadStatus');
             statusDiv.innerHTML = '<div style="color: #007bff;">Uploading...</div>';
             
             try {
+                console.log('🔍 Making request to:', `/admin/projects/${currentProjectId}/upload-translated`);
                 const response = await Auth.authFetch(`/admin/projects/${currentProjectId}/upload-translated`, {
                     method: 'POST',
                     body: formData
                 });
                 
+                console.log('🔍 Response received:', response);
+                console.log('🔍 Response status:', response.status);
+                console.log('🔍 Response ok:', response.ok);
+                
                 const result = await response.json();
+                console.log('🔍 Response data:', result);
                 
                 if (response.ok) {
+                    console.log('✅ Upload successful');
                     statusDiv.innerHTML = '<div style="color: #28a745;">✅ File uploaded successfully!</div>';
                     
                     // Update the current file display
@@ -1629,10 +1653,12 @@
                         closeProjectModal();
                     }, 1500);
                 } else {
+                    console.log('❌ Upload failed:', result.error);
                     statusDiv.innerHTML = `<div style="color: #dc3545;">❌ Error: ${result.error}</div>`;
                 }
             } catch (error) {
-                console.error('Upload error:', error);
+                console.error('❌ Upload error:', error);
+                console.error('❌ Error message:', error.message);
                 statusDiv.innerHTML = '<div style="color: #dc3545;">❌ Network error during upload</div>';
             }
         }
