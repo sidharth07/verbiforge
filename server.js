@@ -617,8 +617,11 @@ app.get('/projects', requireAuth, async (req, res) => {
 // Create project endpoint
 app.post('/projects', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Project creation request body:', req.body);
+        
         const { 
             name, 
+            projectName, // Handle both name and projectName
             fileName, 
             wordCount, 
             projectType, 
@@ -631,7 +634,38 @@ app.post('/projects', requireAuth, async (req, res) => {
             tempFileId 
         } = req.body;
         
+        // Use projectName if name is not provided
+        const projectNameToUse = name || projectName;
+        
+        if (!projectNameToUse) {
+            return res.status(400).json({ error: 'Project name is required' });
+        }
+        
+        if (!fileName) {
+            return res.status(400).json({ error: 'File name is required' });
+        }
+        
+        if (!wordCount) {
+            return res.status(400).json({ error: 'Word count is required' });
+        }
+        
+        if (!breakdown || !Array.isArray(breakdown)) {
+            return res.status(400).json({ error: 'Language breakdown is required' });
+        }
+        
         const projectId = uuidv4();
+        
+        console.log('🔍 Creating project with data:', {
+            projectId,
+            userId: req.user.id,
+            name: projectNameToUse,
+            fileName,
+            wordCount,
+            breakdown: breakdown.length,
+            total,
+            projectType,
+            multiplier
+        });
         
         await dbHelpers.run(`
             INSERT INTO projects (
@@ -639,18 +673,19 @@ app.post('/projects', requireAuth, async (req, res) => {
                 total, status, project_type, multiplier, notes, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `, [
-            projectId, req.user.id, name, fileName, wordCount, 
+            projectId, req.user.id, projectNameToUse, fileName, wordCount, 
             JSON.stringify(breakdown), total, 'quote_generated', 
-            projectType || 'fusion', multiplier || 1.0, notes
+            projectType || 'fusion', multiplier || 1.0, notes || ''
         ]);
         
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [projectId]);
         
+        console.log('✅ Project created successfully:', project);
         res.json({ success: true, project });
         
     } catch (error) {
-        console.error('Error creating project:', error);
-        res.status(500).json({ error: 'Failed to create project' });
+        console.error('❌ Error creating project:', error);
+        res.status(500).json({ error: 'Failed to create project: ' + error.message });
     }
 });
 
@@ -1383,6 +1418,68 @@ app.post('/api/create-admin', async (req, res) => {
         console.error('Error creating admin:', error);
         res.status(500).json({ error: 'Failed to create admin user' });
     }
+});
+
+// Catch-all route for undefined routes
+app.use('*', (req, res) => {
+    console.log(`❌ Route not found: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({ 
+        error: 'Route not found',
+        method: req.method,
+        url: req.originalUrl,
+        availableRoutes: [
+            'GET /health',
+            'POST /login',
+            'POST /signup',
+            'GET /me',
+            'POST /logout',
+            'GET /languages',
+            'POST /analyze',
+            'GET /multiplier',
+            'GET /debug/settings',
+            'POST /contact',
+            'GET /projects',
+            'POST /projects',
+            'DELETE /projects/:id',
+            'PUT /projects/:id/submit',
+            'GET /admin/check',
+            'GET /admin/projects',
+            'PUT /admin/projects/:id/status',
+            'PUT /admin/projects/:id/eta',
+            'GET /admin/projects/:id',
+            'GET /admin/projects/:id/download',
+            'POST /admin/projects/:id/upload-translated',
+            'GET /admin/languages',
+            'GET /admin/languages/defaults',
+            'PUT /admin/languages',
+            'POST /admin/languages/add',
+            'DELETE /admin/languages/:name',
+            'POST /admin/languages/reset',
+            'GET /admin/users',
+            'PUT /admin/users/:id',
+            'GET /admin/admins',
+            'POST /admin/admins',
+            'DELETE /admin/admins/:email',
+            'GET /admin/contacts',
+            'PUT /admin/contacts/:id/read',
+            'PUT /admin/contacts/:id/status',
+            'DELETE /admin/contacts/:id',
+            'GET /admin/multiplier',
+            'PUT /admin/multiplier',
+            'POST /api/test-password',
+            'POST /api/create-admin'
+        ]
+    });
+});
+
+// Global error handler
+app.use((error, req, res, next) => {
+    console.error('❌ Global error handler:', error);
+    res.status(500).json({ 
+        error: 'Internal server error',
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
 });
 
 // Start server
