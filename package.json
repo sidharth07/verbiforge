@@ -4,15 +4,8 @@
   "description": "VerbiForge - Translation management platform with pricing",
   "main": "server.js",
   "scripts": {
-    "start": "node server-secure.js",
-    "dev": "nodemon server-secure.js",
-    "old": "node server.js",
-    "test-db": "node test-database.js",
-    "test-persistence": "node test-persistence.js",
-    "add-admin": "node add-admin.js",
-    "fix-db": "node force-database-fix.js",
-    "debug-db": "node debug-database.js",
-    "create-admin": "node create-admin-user.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
