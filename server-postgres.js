@@ -17,6 +17,46 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// File upload configuration
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        // Allow common document formats
+        const allowedTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/plain',
+            'text/csv',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ];
+        
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type. Only PDF, Word, Excel, and text files are allowed.'), false);
+        }
+    }
+});
+
 // PostgreSQL connection
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -599,6 +639,250 @@ app.post('/contact', async (req, res) => {
     } catch (error) {
         console.error('Contact form error:', error);
         res.status(500).json({ error: 'Failed to submit contact form' });
+    }
+});
+
+// File upload and analysis endpoint
+app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
+    try {
+        console.log('🔍 File analysis request received');
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const { languages, projectType } = req.body;
+        
+        if (!languages || !Array.isArray(languages) || languages.length === 0) {
+            return res.status(400).json({ error: 'No languages selected' });
+        }
+
+        console.log('📁 File info:', {
+            originalname: req.file.originalname,
+            size: req.file.size,
+            languages: languages,
+            projectType: projectType
+        });
+
+        // Get language pricing
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
+        const languagePricing = setting ? JSON.parse(setting.value) : {};
+        
+        // Get multiplier
+        const multiplierSetting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['multiplier']);
+        const globalMultiplier = multiplierSetting ? parseFloat(multiplierSetting.value) : 1.3;
+        
+        console.log('💰 Pricing data:', { languagePricing, globalMultiplier });
+
+        // Calculate word count
+        let wordCount = 0;
+        const fileName = req.file.originalname;
+        
+        if (fileName.toLowerCase().endsWith('.xlsx') || fileName.toLowerCase().endsWith('.xls')) {
+            try {
+                const workbook = XLSX.readFile(req.file.path);
+                wordCount = 0;
+                
+                workbook.SheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    data.forEach(row => {
+                        if (Array.isArray(row)) {
+                            row.forEach(cell => {
+                                if (cell && typeof cell === 'string') {
+                                    wordCount += cell.split(/\s+/).length;
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                console.log('📊 Excel word count calculated:', wordCount);
+            } catch (excelError) {
+                console.error('❌ Excel parsing error, using estimation:', excelError);
+                // Fallback to estimation
+                wordCount = Math.ceil(req.file.size / 100);
+            }
+        } else {
+            // For other file types, estimate word count
+            wordCount = Math.ceil(req.file.size / 100);
+        }
+
+        // Calculate costs for each language
+        const breakdown = [];
+        let subtotal = 0;
+        
+        const effectiveMultiplier = projectType === 'pure' ? globalMultiplier : 1.0;
+        
+        languages.forEach(language => {
+            const basePrice = languagePricing[language] || 25;
+            // Convert cents per word to dollars (divide by 100)
+            const cost = (wordCount * basePrice * effectiveMultiplier) / 100;
+            
+            console.log(`🔍 ${language}: basePrice=${basePrice} cents, wordCount=${wordCount}, cost=${cost.toFixed(2)} dollars`);
+            
+            breakdown.push({
+                language: language,
+                cost: cost.toFixed(2)
+            });
+            
+            subtotal += cost;
+        });
+
+        const projectManagementCost = 500.00;
+        const total = subtotal + projectManagementCost;
+
+        console.log('💰 Final calculation:', {
+            wordCount,
+            subtotal: subtotal.toFixed(2),
+            projectManagementCost,
+            total: total.toFixed(2),
+            multiplier: effectiveMultiplier
+        });
+
+        res.json({
+            success: true,
+            fileName: fileName,
+            wordCount: wordCount,
+            projectType: projectType || 'fusion',
+            multiplier: effectiveMultiplier,
+            breakdown: breakdown,
+            subtotal: subtotal.toFixed(2),
+            projectManagementCost: projectManagementCost.toFixed(2),
+            total: total.toFixed(2),
+            tempFileId: req.file.filename
+        });
+        
+    } catch (error) {
+        console.error('❌ File analysis error:', error);
+        res.status(500).json({ error: 'File analysis failed: ' + error.message });
+    }
+});
+
+// Get all projects (admin)
+app.get('/admin/projects', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        console.log('🔍 Loading all projects for admin');
+        
+        const projects = await dbHelpers.query(`
+            SELECT p.*, u.name as user_name, u.email as user_email 
+            FROM projects p 
+            JOIN users u ON p.user_id = u.id 
+            ORDER BY p.created_at DESC
+        `);
+        
+        console.log('📋 Raw admin projects from DB:', projects);
+        
+        // Parse JSON fields for frontend
+        const processedProjects = projects.map(project => {
+            try {
+                return {
+                    ...project,
+                    breakdown: project.breakdown ? JSON.parse(project.breakdown) : [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at, // Add alias for frontend compatibility
+                    fileName: project.file_name, // Add alias for frontend compatibility
+                    wordCount: project.word_count, // Add alias for frontend compatibility
+                    projectType: project.project_type, // Add alias for frontend compatibility
+                    projectManagementCost: project.project_management_cost // Add alias for frontend compatibility
+                };
+            } catch (error) {
+                console.error('❌ Error parsing admin project breakdown:', error, project);
+                return {
+                    ...project,
+                    breakdown: [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at,
+                    fileName: project.file_name,
+                    wordCount: project.word_count,
+                    projectType: project.project_type,
+                    projectManagementCost: project.project_management_cost
+                };
+            }
+        });
+        
+        console.log('✅ Processed admin projects:', processedProjects);
+        res.json(processedProjects);
+    } catch (error) {
+        console.error('❌ Error loading admin projects:', error);
+        res.status(500).json({ error: 'Failed to load projects' });
+    }
+});
+
+// Get users (admin)
+app.get('/admin/users', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        console.log('🔍 Loading users for admin');
+        
+        const users = await dbHelpers.query(`
+            SELECT 
+                u.id, 
+                u.email, 
+                u.name, 
+                u.role, 
+                u.created_at as "createdAt",
+                COUNT(p.id) as "projectCount",
+                COALESCE(SUM(CAST(p.total AS DECIMAL)), 0) as "totalSpent"
+            FROM users u
+            LEFT JOIN projects p ON u.id = p.user_id
+            GROUP BY u.id, u.email, u.name, u.role, u.created_at
+            ORDER BY u.created_at DESC
+        `);
+        
+        console.log('✅ Users loaded:', users);
+        res.json(users);
+    } catch (error) {
+        console.error('❌ Error loading users:', error);
+        res.status(500).json({ error: 'Failed to load users' });
+    }
+});
+
+// Get contacts (admin)
+app.get('/admin/contacts', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        console.log('🔍 Loading contacts for admin');
+        
+        const contacts = await dbHelpers.query(`
+            SELECT 
+                *,
+                submitted_at as "submittedAt"
+            FROM contact_submissions 
+            ORDER BY submitted_at DESC
+        `);
+        
+        // Count unread contacts
+        const unreadResult = await dbHelpers.get(`
+            SELECT COUNT(*) as "unreadCount" 
+            FROM contact_submissions 
+            WHERE is_read = false OR is_read IS NULL
+        `);
+        
+        const unreadCount = unreadResult ? unreadResult.unreadCount : 0;
+        
+        console.log('✅ Contacts loaded:', { submissions: contacts, unreadCount });
+        res.json({ 
+            submissions: contacts, 
+            unreadCount: unreadCount 
+        });
+    } catch (error) {
+        console.error('❌ Error loading contacts:', error);
+        res.status(500).json({ error: 'Failed to load contacts' });
     }
 });
 
