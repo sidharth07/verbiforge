@@ -6,14 +6,11 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-console.log('🚀 VERBIFORGE SERVER STARTING...');
+console.log('🚀 SIMPLE VERBIFORGE SERVER STARTING...');
 console.log('Port:', PORT);
 console.log('Environment:', process.env.NODE_ENV);
 
@@ -21,28 +18,6 @@ console.log('Environment:', process.env.NODE_ENV);
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
-            connectSrc: ["'self'", "https://accounts.google.com"],
-            frameSrc: ["'self'", "https://accounts.google.com"]
-        }
-    }
-}));
-
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 300, // limit each IP to 300 requests per windowMs
-    message: { error: 'Too many requests from this IP' },
-    skip: (req) => {
-        return req.path.startsWith('/public/') || req.path === '/health';
-    }
-});
-app.use(limiter);
 
 // Database setup
 const dbDir = process.env.NODE_ENV === 'production' ? '/opt/render/project/src/data' : path.join(__dirname, 'data');
@@ -254,7 +229,7 @@ async function createAdminUsers() {
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'ok', 
-        message: 'VerbiForge server is running',
+        message: 'Simple VerbiForge server is running',
         database: dbPath,
         timestamp: new Date().toISOString()
     });
@@ -517,7 +492,7 @@ app.post('/api/test-password', async (req, res) => {
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-    console.log('🎉 VERBIFORGE SERVER STARTED!');
+    console.log('🎉 SIMPLE VERBIFORGE SERVER STARTED!');
     console.log(`Server running on port ${PORT}`);
     console.log('Admin credentials:');
     console.log('  Email: sid@verbiforge.com');
