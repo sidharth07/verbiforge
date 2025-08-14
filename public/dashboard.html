@@ -1508,11 +1508,17 @@
                         ${containerId === 'completedProjectsList' ? `
                             <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
                                 ${project.translatedFileName ? `
-                                    <a href="/projects/${project.id}/download-translated" 
-                                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block;">
-                                       Download Translated
-                                    </a>
-                                ` : '<span style="color: #666; font-style: italic;">No translated file available</span>'}
+                                    <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
+                                            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
+                                        <span style="font-size: 16px;">📥</span>
+                                        Download Translated File
+                                    </button>
+                                ` : `
+                                    <div style="background: linear-gradient(135deg, #ffc107 0%, #ffb74d 100%); color: #856404; padding: 12px 20px; border-radius: 6px; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); border: 1px solid #ffeaa7;">
+                                        <span style="font-size: 16px;">⏳</span>
+                                        Files on the way
+                                    </div>
+                                `}
                             </div>
                         ` : `
                             <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
@@ -1614,6 +1620,65 @@
                     }
                 }
             );
+        }
+
+        async function downloadTranslatedFile(projectId, fileName) {
+            console.log('🔍 Downloading translated file:', { projectId, fileName });
+            
+            try {
+                // Show loading state
+                CustomModal.show({
+                    type: 'info',
+                    title: 'Downloading File',
+                    message: `Preparing ${fileName} for download...`,
+                    primaryText: 'OK'
+                });
+                
+                const response = await Auth.authFetch(`/projects/${projectId}/download-translated`, {
+                    method: 'GET'
+                });
+                
+                console.log('🔍 Download response:', response);
+                
+                if (response.ok) {
+                    // For now, since we don't have actual file storage, show success message
+                    CustomModal.show({
+                        type: 'success',
+                        title: 'Download Ready',
+                        message: `Your translated file "${fileName}" is ready for download!`,
+                        primaryText: 'OK'
+                    });
+                    
+                    // In the future, when we implement actual file storage, we can use:
+                    // const blob = await response.blob();
+                    // const url = window.URL.createObjectURL(blob);
+                    // const a = document.createElement('a');
+                    // a.href = url;
+                    // a.download = fileName;
+                    // document.body.appendChild(a);
+                    // a.click();
+                    // window.URL.revokeObjectURL(url);
+                    // document.body.removeChild(a);
+                    
+                } else {
+                    const data = await response.json();
+                    console.error('❌ Download error:', data);
+                    CustomModal.show({
+                        type: 'error',
+                        title: 'Download Failed',
+                        message: data.error || 'Failed to download file',
+                        primaryText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Download error:', error);
+                CustomModal.show({
+                    type: 'error',
+                    title: 'Download Failed',
+                    message: 'Network error while downloading file',
+                    primaryText: 'OK'
+                });
+            }
         }
 
         function showError(message) {

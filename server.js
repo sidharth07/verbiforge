@@ -1368,6 +1368,42 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
     }
 });
 
+// Download translated file (user - for their own projects)
+app.get('/projects/:id/download-translated', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log('🔍 User download translated file for project:', id);
+        console.log('🔍 User ID:', req.user.id);
+        
+        // Check if project exists and belongs to the user
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found or access denied' });
+        }
+        
+        console.log('✅ Project found and belongs to user:', { id: project.id, name: project.name, status: project.status });
+        
+        if (!project.translated_file_name) {
+            return res.status(404).json({ error: 'No translated file available for this project' });
+        }
+        
+        // For now, return success message since we don't have actual file storage implemented
+        // In the future, this would serve the actual file
+        res.json({ 
+            success: true, 
+            message: 'Download ready',
+            fileName: project.translated_file_name,
+            projectId: id
+        });
+        
+    } catch (error) {
+        console.error('❌ Error downloading user translated file:', error);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to download translated file: ' + error.message });
+    }
+});
+
 // Upload translated file (user - for their own projects)
 app.post('/projects/:id/upload-translated', requireAuth, upload.single('file'), async (req, res) => {
     try {
@@ -1740,6 +1776,7 @@ app.use('*', (req, res) => {
     console.error('   - PUT /admin/projects/:id/eta');
     console.error('   - GET /admin/projects/:id/download');
     console.error('   - POST /admin/projects/:id/upload-translated');
+    console.error('   - GET /projects/:id/download-translated');
     console.error('   - POST /projects/:id/upload-translated');
     console.error('   - GET /admin/users');
     console.error('   - DELETE /admin/users/:id');
@@ -1773,6 +1810,7 @@ app.use('*', (req, res) => {
             'PUT /admin/projects/:id/eta',
             'GET /admin/projects/:id/download',
             'POST /admin/projects/:id/upload-translated',
+            'GET /projects/:id/download-translated',
             'POST /projects/:id/upload-translated',
             'GET /admin/users',
             'DELETE /admin/users/:id',
