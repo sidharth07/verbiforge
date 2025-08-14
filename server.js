@@ -937,11 +937,17 @@ app.get('/admin/users', requireAuth, async (req, res) => {
                 u.name, 
                 u.role, 
                 u.created_at as "createdAt",
-                COUNT(p.id) as "projectCount",
-                COALESCE(SUM(CAST(p.total AS DECIMAL)), 0) as "totalSpent"
+                COALESCE(p.project_count, 0) as "projectCount",
+                COALESCE(p.total_spent, 0) as "totalSpent"
             FROM users u
-            LEFT JOIN projects p ON u.id = p.user_id
-            GROUP BY u.id, u.email, u.name, u.role, u.created_at
+            LEFT JOIN (
+                SELECT 
+                    user_id,
+                    COUNT(*) as project_count,
+                    SUM(total) as total_spent
+                FROM projects 
+                GROUP BY user_id
+            ) p ON u.id = p.user_id
             ORDER BY u.created_at DESC
         `);
         
