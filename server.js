@@ -687,6 +687,460 @@ app.put('/projects/:id/submit', requireAuth, async (req, res) => {
     }
 });
 
+// Admin check endpoint
+app.get('/admin/check', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (adminUser) {
+            res.json({ isAdmin: true, isSuperAdmin: adminUser.role === 'super_admin' });
+        } else {
+            res.json({ isAdmin: false, isSuperAdmin: false });
+        }
+    } catch (error) {
+        console.error('Admin check error:', error);
+        res.status(500).json({ error: 'Failed to check admin status' });
+    }
+});
+
+// Get all projects (admin)
+app.get('/admin/projects', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const projects = await dbHelpers.query(`
+            SELECT p.*, u.name as user_name, u.email as user_email 
+            FROM projects p 
+            JOIN users u ON p.user_id = u.id 
+            ORDER BY p.created_at DESC
+        `);
+        
+        res.json(projects);
+    } catch (error) {
+        console.error('Error loading admin projects:', error);
+        res.status(500).json({ error: 'Failed to load projects' });
+    }
+});
+
+// Update project status (admin)
+app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { status } = req.body;
+        await dbHelpers.run('UPDATE projects SET status = ? WHERE id = ?', [status, req.params.id]);
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        res.json({ success: true, project });
+    } catch (error) {
+        console.error('Error updating project status:', error);
+        res.status(500).json({ error: 'Failed to update project status' });
+    }
+});
+
+// Update project ETA (admin)
+app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { eta } = req.body;
+        await dbHelpers.run('UPDATE projects SET eta = ? WHERE id = ?', [eta, req.params.id]);
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        res.json({ success: true, project });
+    } catch (error) {
+        console.error('Error updating project ETA:', error);
+        res.status(500).json({ error: 'Failed to update project ETA' });
+    }
+});
+
+// Get project details (admin)
+app.get('/admin/projects/:id', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        res.json(project);
+    } catch (error) {
+        console.error('Error loading project:', error);
+        res.status(500).json({ error: 'Failed to load project' });
+    }
+});
+
+// Get languages (admin)
+app.get('/admin/languages', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        res.json(languages);
+    } catch (error) {
+        console.error('Error loading admin languages:', error);
+        res.status(500).json({ error: 'Failed to load languages' });
+    }
+});
+
+// Get default languages (admin)
+app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const defaultLanguages = {
+            "English": 25,
+            "Arabic": 50,
+            "Chinese (Simplified)": 35,
+            "Dutch": 40,
+            "French": 35,
+            "German": 45,
+            "Portuguese (Brazil)": 35,
+            "Portuguese (Portugal)": 35,
+            "Spanish (Latin America)": 35,
+            "Spanish (Spain)": 35
+        };
+        
+        res.json(defaultLanguages);
+    } catch (error) {
+        console.error('Error loading default languages:', error);
+        res.status(500).json({ error: 'Failed to load default languages' });
+    }
+});
+
+// Update languages (admin)
+app.put('/admin/languages', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { languages } = req.body;
+        await dbHelpers.run(`
+            INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)
+        `, ['languages', JSON.stringify(languages)]);
+        
+        res.json({ success: true, languages });
+    } catch (error) {
+        console.error('Error updating languages:', error);
+        res.status(500).json({ error: 'Failed to update languages' });
+    }
+});
+
+// Add new language (admin)
+app.post('/admin/languages/add', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { name, price } = req.body;
+        
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        languages[name] = price;
+        
+        await dbHelpers.run(`
+            INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)
+        `, ['languages', JSON.stringify(languages)]);
+        
+        res.json({ success: true, languages });
+    } catch (error) {
+        console.error('Error adding language:', error);
+        res.status(500).json({ error: 'Failed to add language' });
+    }
+});
+
+// Delete language (admin)
+app.delete('/admin/languages/:name', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const languageName = decodeURIComponent(req.params.name);
+        
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        delete languages[languageName];
+        
+        await dbHelpers.run(`
+            INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)
+        `, ['languages', JSON.stringify(languages)]);
+        
+        res.json({ success: true, languages });
+    } catch (error) {
+        console.error('Error deleting language:', error);
+        res.status(500).json({ error: 'Failed to delete language' });
+    }
+});
+
+// Reset languages (admin)
+app.post('/admin/languages/reset', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const defaultLanguages = {
+            "English": 25,
+            "Arabic": 50,
+            "Chinese (Simplified)": 35,
+            "Dutch": 40,
+            "French": 35,
+            "German": 45,
+            "Portuguese (Brazil)": 35,
+            "Portuguese (Portugal)": 35,
+            "Spanish (Latin America)": 35,
+            "Spanish (Spain)": 35
+        };
+        
+        await dbHelpers.run(`
+            INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)
+        `, ['languages', JSON.stringify(defaultLanguages)]);
+        
+        res.json({ success: true, languages: defaultLanguages });
+    } catch (error) {
+        console.error('Error resetting languages:', error);
+        res.status(500).json({ error: 'Failed to reset languages' });
+    }
+});
+
+// Get users (admin)
+app.get('/admin/users', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const users = await dbHelpers.query(`
+            SELECT id, email, name, role, created_at as createdAt
+            FROM users 
+            ORDER BY created_at DESC
+        `);
+        
+        res.json(users);
+    } catch (error) {
+        console.error('Error loading users:', error);
+        res.status(500).json({ error: 'Failed to load users' });
+    }
+});
+
+// Update user (admin)
+app.put('/admin/users/:id', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { name, role } = req.body;
+        await dbHelpers.run('UPDATE users SET name = ?, role = ? WHERE id = ?', [name, role, req.params.id]);
+        
+        const user = await dbHelpers.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
+        res.json({ success: true, user });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+});
+
+// Get admin users (admin)
+app.get('/admin/admins', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const admins = await dbHelpers.query('SELECT * FROM admin_users ORDER BY created_at DESC');
+        res.json(admins);
+    } catch (error) {
+        console.error('Error loading admins:', error);
+        res.status(500).json({ error: 'Failed to load admins' });
+    }
+});
+
+// Add admin user (admin)
+app.post('/admin/admins', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser || adminUser.role !== 'super_admin') {
+            return res.status(403).json({ error: 'Super admin access required' });
+        }
+        
+        const { email, name, role } = req.body;
+        
+        // Check if admin already exists
+        const existingAdmin = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [email]);
+        if (existingAdmin) {
+            return res.status(400).json({ error: 'Admin already exists' });
+        }
+        
+        await dbHelpers.run(`
+            INSERT INTO admin_users (email, name, role, created_at) 
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        `, [email, name, role || 'admin']);
+        
+        const newAdmin = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [email]);
+        res.json({ success: true, admin: newAdmin });
+    } catch (error) {
+        console.error('Error adding admin:', error);
+        res.status(500).json({ error: 'Failed to add admin' });
+    }
+});
+
+// Delete admin user (admin)
+app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser || adminUser.role !== 'super_admin') {
+            return res.status(403).json({ error: 'Super admin access required' });
+        }
+        
+        const email = decodeURIComponent(req.params.email);
+        
+        // Don't allow deleting self
+        if (email === req.user.email) {
+            return res.status(400).json({ error: 'Cannot delete yourself' });
+        }
+        
+        await dbHelpers.run('DELETE FROM admin_users WHERE email = ?', [email]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting admin:', error);
+        res.status(500).json({ error: 'Failed to delete admin' });
+    }
+});
+
+// Get contacts (admin)
+app.get('/admin/contacts', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const contacts = await dbHelpers.query('SELECT * FROM contact_submissions ORDER BY created_at DESC');
+        res.json(contacts);
+    } catch (error) {
+        console.error('Error loading contacts:', error);
+        res.status(500).json({ error: 'Failed to load contacts' });
+    }
+});
+
+// Mark contact as read (admin)
+app.put('/admin/contacts/:id/read', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        await dbHelpers.run('UPDATE contact_submissions SET is_read = 1 WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error marking contact as read:', error);
+        res.status(500).json({ error: 'Failed to mark contact as read' });
+    }
+});
+
+// Update contact status (admin)
+app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { status } = req.body;
+        await dbHelpers.run('UPDATE contact_submissions SET status = ? WHERE id = ?', [status, req.params.id]);
+        
+        const contact = await dbHelpers.get('SELECT * FROM contact_submissions WHERE id = ?', [req.params.id]);
+        res.json({ success: true, contact });
+    } catch (error) {
+        console.error('Error updating contact status:', error);
+        res.status(500).json({ error: 'Failed to update contact status' });
+    }
+});
+
+// Delete contact (admin)
+app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        await dbHelpers.run('DELETE FROM contact_submissions WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting contact:', error);
+        res.status(500).json({ error: 'Failed to delete contact' });
+    }
+});
+
+// Get multiplier (admin)
+app.get('/admin/multiplier', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['multiplier']);
+        const multiplier = setting ? parseFloat(setting.value) : 1.3;
+        res.json({ multiplier });
+    } catch (error) {
+        console.error('Error loading multiplier:', error);
+        res.status(500).json({ error: 'Failed to load multiplier' });
+    }
+});
+
+// Update multiplier (admin)
+app.put('/admin/multiplier', requireAuth, async (req, res) => {
+    try {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { multiplier } = req.body;
+        await dbHelpers.run(`
+            INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)
+        `, ['multiplier', multiplier.toString()]);
+        
+        res.json({ success: true, multiplier });
+    } catch (error) {
+        console.error('Error updating multiplier:', error);
+        res.status(500).json({ error: 'Failed to update multiplier' });
+    }
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
     console.log('🎉 SIMPLE VERBIFORGE SERVER STARTED!');
