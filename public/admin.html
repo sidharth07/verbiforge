@@ -1764,44 +1764,74 @@
             }
         }
 
-        function applyGlobalPricing() {
+        async function applyGlobalPricing() {
             const globalPrice = document.getElementById('globalPrice').value;
             
             if (!globalPrice || globalPrice < 1 || globalPrice > 999) {
-                alert('Please enter a valid price between 1 and 999 cents');
+                CustomModal.warning('Please enter a valid price between 1 and 999 cents');
                 return;
             }
             
             const price = parseInt(globalPrice);
             
-            if (!confirm(`Are you sure you want to set all languages to ${price} cents per word?`)) {
-                return;
-            }
-            
-            // Update all language inputs
-            const inputs = document.querySelectorAll('.price-input');
-            inputs.forEach(input => {
-                input.value = price;
-            });
-            
-            // Update the allLanguages object
-            Object.keys(allLanguages).forEach(language => {
-                allLanguages[language] = price;
-            });
-            
-            // Show success message
-            const statusDiv = document.getElementById('languageSaveStatus');
-            statusDiv.style.display = 'block';
-            statusDiv.style.background = '#d4edda';
-            statusDiv.style.color = '#155724';
-            statusDiv.textContent = `✅ Global pricing of ${price} cents applied to all languages! Don't forget to save changes.`;
-            
-            setTimeout(() => {
-                statusDiv.style.display = 'none';
-            }, 5000);
-            
-            // Clear the global price input
-            document.getElementById('globalPrice').value = '';
+            CustomModal.confirm(
+                `Are you sure you want to set all languages to ${price} cents per word?`,
+                async () => {
+                    // Show loading status
+                    const statusDiv = document.getElementById('languageSaveStatus');
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = '#d1ecf1';
+                    statusDiv.style.color = '#0c5460';
+                    statusDiv.textContent = 'Applying global pricing to all languages...';
+                    
+                    try {
+                        // Update all languages in the database
+                        const updatedLanguages = {};
+                        Object.keys(allLanguages).forEach(language => {
+                            updatedLanguages[language] = price;
+                        });
+                        
+                        const response = await Auth.authFetch('/admin/languages', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ languages: updatedLanguages })
+                        });
+                        
+                        if (response.ok) {
+                            // Update local data
+                            allLanguages = updatedLanguages;
+                            
+                            // Update all language inputs in the UI
+                            const inputs = document.querySelectorAll('.price-input');
+                            inputs.forEach(input => {
+                                input.value = price;
+                            });
+                            
+                            // Show success message
+                            statusDiv.style.background = '#d4edda';
+                            statusDiv.style.color = '#155724';
+                            statusDiv.textContent = `✅ Global pricing of ${price} cents applied and saved to all languages!`;
+                            
+                            // Clear the global price input
+                            document.getElementById('globalPrice').value = '';
+                            
+                            setTimeout(() => {
+                                statusDiv.style.display = 'none';
+                            }, 5000);
+                        } else {
+                            const data = await response.json();
+                            statusDiv.style.background = '#f8d7da';
+                            statusDiv.style.color = '#721c24';
+                            statusDiv.textContent = '❌ Error: ' + data.error;
+                        }
+                    } catch (error) {
+                        console.error('Error applying global pricing:', error);
+                        statusDiv.style.background = '#f8d7da';
+                        statusDiv.style.color = '#721c24';
+                        statusDiv.textContent = '❌ Network error applying global pricing';
+                    }
+                }
+            );
         }
 
         async function addNewLanguage() {
@@ -1809,12 +1839,12 @@
             const price = parseInt(document.getElementById('newLanguagePrice').value);
             
             if (!languageName) {
-                alert('Please enter a language name');
+                CustomModal.warning('Please enter a language name');
                 return;
             }
             
             if (!price || price < 1 || price > 999) {
-                alert('Please enter a valid price between 1 and 999 cents');
+                CustomModal.warning('Please enter a valid price between 1 and 999 cents');
                 return;
             }
             
@@ -2333,14 +2363,14 @@
                 if (response.ok) {
                     loadContacts();
                     closeContactModal();
-                    alert('Status updated successfully');
+                    CustomModal.success('Contact status updated successfully');
                 } else {
                     const data = await response.json();
-                    alert('Error updating status: ' + data.error);
+                    CustomModal.error('Error updating status: ' + data.error);
                 }
             } catch (error) {
                 console.error('Error updating contact status:', error);
-                alert('Network error updating status');
+                CustomModal.error('Network error updating status');
             }
         }
 
