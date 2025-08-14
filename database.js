@@ -753,21 +753,15 @@ async function checkDatabaseHealth() {
         }
         
         // Test database connection
-        const testConnection = await new Promise((resolve) => {
-            dbHelpers.get('SELECT 1 as test', (err, result) => {
-                if (err) {
-                    console.log('❌ Database connection test failed:', err.message);
-                    resolve({ healthy: false, error: 'Database connection failed' });
-                } else {
-                    console.log('✅ Database connection test passed');
-                    resolve({ healthy: true });
-                }
-            });
-        });
-        
-        if (!testConnection.healthy) {
-            return testConnection;
+        try {
+            const testResult = await dbHelpers.get('SELECT 1 as test');
+            console.log('✅ Database connection test passed');
+        } catch (error) {
+            console.log('❌ Database connection test failed:', error.message);
+            return { healthy: false, error: 'Database connection failed' };
         }
+        
+
         
         // Check if tables exist
         try {
@@ -820,7 +814,7 @@ async function checkDatabaseHealth() {
             healthy: true,
             stats: {
                 fileSizeMB: fileSizeInMB,
-                tableCount: tableNames ? tableNames.length : 0,
+                tableCount: 0, // Will be updated during initialization
                 adminCount: 0, // Will be updated during initialization
                 userCount: 0,  // Will be updated during initialization
                 projectCount: 0 // Will be updated during initialization
