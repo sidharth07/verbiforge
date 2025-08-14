@@ -953,6 +953,188 @@ app.get('/admin/users', requireAuth, async (req, res) => {
     }
 });
 
+// Get individual project details (admin)
+app.get('/admin/projects/:id', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { id } = req.params;
+        console.log('🔍 Loading project details for admin:', id);
+        
+        const project = await dbHelpers.get(`
+            SELECT p.*, u.name as user_name, u.email as user_email 
+            FROM projects p 
+            JOIN users u ON p.user_id = u.id 
+            WHERE p.id = $1
+        `, [id]);
+        
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // Parse JSON fields for frontend
+        const processedProject = {
+            ...project,
+            breakdown: project.breakdown ? JSON.parse(project.breakdown) : [],
+            created_at: project.created_at,
+            createdAt: project.created_at,
+            fileName: project.file_name,
+            wordCount: project.word_count,
+            projectType: project.project_type,
+            projectManagementCost: project.project_management_cost,
+            userName: project.user_name,
+            userEmail: project.user_email
+        };
+        
+        console.log('✅ Project details loaded:', processedProject);
+        res.json(processedProject);
+    } catch (error) {
+        console.error('❌ Error loading project details:', error);
+        res.status(500).json({ error: 'Failed to load project details' });
+    }
+});
+
+// Update project status (admin)
+app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        console.log('🔍 Updating project status:', { projectId: id, status, adminId: req.user.id });
+        
+        if (!status) {
+            return res.status(400).json({ error: 'Status is required' });
+        }
+        
+        // Check if project exists
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // Update project status
+        await dbHelpers.run('UPDATE projects SET status = $1 WHERE id = $2', [status, id]);
+        
+        console.log('✅ Project status updated successfully:', { projectId: id, status });
+        res.json({ success: true, message: 'Project status updated successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error updating project status:', error);
+        res.status(500).json({ error: 'Failed to update project status: ' + error.message });
+    }
+});
+
+// Update project ETA (admin)
+app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { id } = req.params;
+        const { eta } = req.body;
+        
+        console.log('🔍 Updating project ETA:', { projectId: id, eta, adminId: req.user.id });
+        
+        if (!eta || eta < 1) {
+            return res.status(400).json({ error: 'Valid ETA (days) is required' });
+        }
+        
+        // Check if project exists
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // Update project ETA
+        await dbHelpers.run('UPDATE projects SET eta = $1 WHERE id = $2', [eta, id]);
+        
+        console.log('✅ Project ETA updated successfully:', { projectId: id, eta });
+        res.json({ success: true, message: 'Project ETA updated successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error updating project ETA:', error);
+        res.status(500).json({ error: 'Failed to update project ETA: ' + error.message });
+    }
+});
+
+// Download project file (admin)
+app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { id } = req.params;
+        console.log('🔍 Download request for project:', id);
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // For now, return project info since we don't have file storage implemented
+        res.json({ 
+            success: true, 
+            message: 'Download functionality not yet implemented',
+            project: {
+                id: project.id,
+                name: project.name,
+                fileName: project.file_name,
+                status: project.status
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error downloading project:', error);
+        res.status(500).json({ error: 'Failed to download project: ' + error.message });
+    }
+});
+
+// Upload translated file (admin)
+app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('file'), async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { id } = req.params;
+        console.log('🔍 Upload translated file for project:', id);
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // For now, just acknowledge the upload
+        res.json({ 
+            success: true, 
+            message: 'Translated file uploaded successfully',
+            fileName: req.file.originalname,
+            projectId: id
+        });
+        
+    } catch (error) {
+        console.error('❌ Error uploading translated file:', error);
+        res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
+    }
+});
+
 // Get contacts (admin)
 app.get('/admin/contacts', requireAuth, async (req, res) => {
     try {
@@ -1242,6 +1424,11 @@ app.use('*', (req, res) => {
     console.error('   - GET /admin/check');
     console.error('   - POST /contact');
     console.error('   - GET /admin/projects');
+    console.error('   - GET /admin/projects/:id');
+    console.error('   - PUT /admin/projects/:id/status');
+    console.error('   - PUT /admin/projects/:id/eta');
+    console.error('   - GET /admin/projects/:id/download');
+    console.error('   - POST /admin/projects/:id/upload-translated');
     console.error('   - GET /admin/users');
     console.error('   - GET /admin/contacts');
     console.error('   - GET /health');
@@ -1265,6 +1452,11 @@ app.use('*', (req, res) => {
             'GET /admin/check',
             'POST /contact',
             'GET /admin/projects',
+            'GET /admin/projects/:id',
+            'PUT /admin/projects/:id/status',
+            'PUT /admin/projects/:id/eta',
+            'GET /admin/projects/:id/download',
+            'POST /admin/projects/:id/upload-translated',
             'GET /admin/users',
             'GET /admin/contacts',
             'GET /health'
