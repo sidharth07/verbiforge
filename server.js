@@ -502,9 +502,10 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
         
         selectedLanguages.forEach(language => {
             const basePrice = languagePricing[language] || 25;
-            const cost = (wordCount * basePrice * effectiveMultiplier) / 1000; // Price per 1000 words
+            // Convert cents per word to dollars (divide by 100)
+            const cost = (wordCount * basePrice * effectiveMultiplier) / 100;
             
-            console.log(`🔍 ${language}: basePrice=${basePrice}, cost=${cost.toFixed(2)}`);
+            console.log(`🔍 ${language}: basePrice=${basePrice} cents, wordCount=${wordCount}, cost=${cost.toFixed(2)} dollars`);
             
             breakdown.push({
                 language: language,
