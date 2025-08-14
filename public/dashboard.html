@@ -280,6 +280,20 @@
             gap: 15px;
         }
 
+        .nav-user #userName.admin-clickable {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #4facfe;
+            transition: all 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .nav-user #userName.admin-clickable:hover {
+            background: rgba(79, 172, 254, 0.1);
+            transform: translateY(-1px);
+        }
+
         .logout-btn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
@@ -824,18 +838,15 @@
                     currentUser = userData.user;
                     document.getElementById('userName').textContent = currentUser.name;
 
-                    // Check if user is admin and add admin link
+                    // Check if user is admin and make name clickable
                     if (adminResponse.ok) {
                         const adminData = await adminResponse.json();
                         console.log('👑 Admin data:', adminData);
                         if (adminData.isAdmin) {
-                            const navUser = document.querySelector('.nav-user');
-                            const adminLink = document.createElement('a');
-                            adminLink.href = 'admin.html';
-                            adminLink.className = 'logout-btn';
-                            adminLink.textContent = 'Admin Panel';
-                            adminLink.style.marginRight = '10px';
-                            navUser.insertBefore(adminLink, navUser.firstChild);
+                            const userNameElement = document.getElementById('userName');
+                            userNameElement.classList.add('admin-clickable');
+                            userNameElement.title = 'Click to access Admin Panel';
+                            userNameElement.onclick = () => window.location.href = 'admin.html';
                         }
                     }
 
