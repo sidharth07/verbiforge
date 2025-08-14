@@ -1231,15 +1231,27 @@ app.get('/admin/users', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
+        console.log('🔍 Loading users for admin');
+        
         const users = await dbHelpers.query(`
-            SELECT id, email, name, role, created_at as createdAt
-            FROM users 
-            ORDER BY created_at DESC
+            SELECT 
+                u.id, 
+                u.email, 
+                u.name, 
+                u.role, 
+                u.created_at as createdAt,
+                COUNT(p.id) as projectCount,
+                COALESCE(SUM(CAST(p.total AS REAL)), 0) as totalSpent
+            FROM users u
+            LEFT JOIN projects p ON u.id = p.user_id
+            GROUP BY u.id, u.email, u.name, u.role, u.created_at
+            ORDER BY u.created_at DESC
         `);
         
+        console.log('✅ Users loaded:', users);
         res.json(users);
     } catch (error) {
-        console.error('Error loading users:', error);
+        console.error('❌ Error loading users:', error);
         res.status(500).json({ error: 'Failed to load users' });
     }
 });
@@ -1260,6 +1272,31 @@ app.put('/admin/users/:id', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error updating user:', error);
         res.status(500).json({ error: 'Failed to update user' });
+    }
+});
+
+// Delete user (admin)
+app.delete('/admin/users/:id', requireAuth, async (req, res) => {
+    try {
+        const isSuperAdmin = req.user.role === 'super_admin';
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Super admin access required' });
+        }
+        
+        console.log('🔍 Deleting user:', req.params.id);
+        
+        // Delete user's projects first
+        await dbHelpers.run('DELETE FROM projects WHERE user_id = ?', [req.params.id]);
+        console.log('✅ User projects deleted');
+        
+        // Delete the user
+        await dbHelpers.run('DELETE FROM users WHERE id = ?', [req.params.id]);
+        console.log('✅ User deleted');
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('❌ Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
     }
 });
 
@@ -1351,10 +1388,32 @@ app.get('/admin/contacts', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
-        const contacts = await dbHelpers.query('SELECT * FROM contact_submissions ORDER BY created_at DESC');
-        res.json(contacts);
+        console.log('🔍 Loading contacts for admin');
+        
+        const contacts = await dbHelpers.query(`
+            SELECT 
+                *,
+                submitted_at as submittedAt
+            FROM contact_submissions 
+            ORDER BY submitted_at DESC
+        `);
+        
+        // Count unread contacts
+        const unreadResult = await dbHelpers.get(`
+            SELECT COUNT(*) as unreadCount 
+            FROM contact_submissions 
+            WHERE is_read = 0 OR is_read IS NULL
+        `);
+        
+        const unreadCount = unreadResult ? unreadResult.unreadCount : 0;
+        
+        console.log('✅ Contacts loaded:', { submissions: contacts, unreadCount });
+        res.json({ 
+            submissions: contacts, 
+            unreadCount: unreadCount 
+        });
     } catch (error) {
-        console.error('Error loading contacts:', error);
+        console.error('❌ Error loading contacts:', error);
         res.status(500).json({ error: 'Failed to load contacts' });
     }
 });
