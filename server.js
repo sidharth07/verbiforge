@@ -929,7 +929,15 @@ app.get('/admin/users', requireAuth, async (req, res) => {
         }
         
         console.log('🔍 Loading users for admin');
+        console.log('🔍 Admin user:', { id: req.user.id, email: req.user.email, role: req.user.role });
         
+        // First, let's try a simpler query to see if the basic connection works
+        console.log('🔍 Testing basic users query...');
+        const basicUsers = await dbHelpers.query('SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC');
+        console.log('✅ Basic users query successful, found:', basicUsers.length, 'users');
+        
+        // Now try the full query with better error handling
+        console.log('🔍 Executing full users query with project counts...');
         const users = await dbHelpers.query(`
             SELECT 
                 u.id, 
@@ -951,11 +959,23 @@ app.get('/admin/users', requireAuth, async (req, res) => {
             ORDER BY u.created_at DESC
         `);
         
-        console.log('✅ Users loaded:', users);
+        console.log('✅ Full users query successful, processed:', users.length, 'users');
+        console.log('✅ Sample user data:', users[0] || 'No users found');
+        
         res.json(users);
     } catch (error) {
         console.error('❌ Error loading users:', error);
-        res.status(500).json({ error: 'Failed to load users' });
+        console.error('❌ Error stack:', error.stack);
+        console.error('❌ Error message:', error.message);
+        
+        // Try to provide more specific error information
+        if (error.message.includes('relation') && error.message.includes('does not exist')) {
+            res.status(500).json({ error: 'Database table missing. Please check database setup.' });
+        } else if (error.message.includes('syntax error')) {
+            res.status(500).json({ error: 'Database query syntax error. Please check query.' });
+        } else {
+            res.status(500).json({ error: 'Failed to load users: ' + error.message });
+        }
     }
 });
 
