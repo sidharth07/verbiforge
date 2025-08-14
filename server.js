@@ -62,12 +62,39 @@ const dbDir = process.env.NODE_ENV === 'production'
     ? '/opt/render/project/src/data' 
     : path.join(__dirname, 'data');
 
+// Ensure data directory exists
 if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
+    console.log(`📁 Created data directory: ${dbDir}`);
 }
 
 const dbPath = path.join(dbDir, 'verbiforge.db');
-const db = new sqlite3.Database(dbPath);
+
+// Check if database file exists and is accessible
+const dbExists = fs.existsSync(dbPath);
+console.log(`📁 Database path: ${dbPath}`);
+console.log(`📁 Database directory: ${dbDir}`);
+console.log(`📁 Database file exists: ${dbExists}`);
+console.log(`📁 Database file size: ${dbExists ? fs.statSync(dbPath).size : 0} bytes`);
+console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+// Database connection
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('❌ Database connection error:', err);
+    } else {
+        console.log('✅ Connected to SQLite database');
+        
+        // Check database integrity
+        db.get('PRAGMA integrity_check', (err, result) => {
+            if (err) {
+                console.error('❌ Database integrity check failed:', err);
+            } else {
+                console.log('✅ Database integrity check passed:', result);
+            }
+        });
+    }
+});
 
 // Database helpers
 const dbHelpers = {
@@ -100,13 +127,34 @@ const dbHelpers = {
 // Check if database already has data
 async function checkExistingData() {
     try {
+        console.log('🔍 Checking for existing data...');
+        
+        // Check if tables exist first
+        const tables = await dbHelpers.query(`
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name IN ('users', 'projects', 'contact_submissions', 'settings')
+        `);
+        
+        console.log('📋 Existing tables:', tables.map(t => t.name));
+        
+        if (tables.length === 0) {
+            console.log('📝 No tables found - database is completely new');
+            return false;
+        }
+        
         const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
         const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
+        const contactCount = await dbHelpers.get('SELECT COUNT(*) as count FROM contact_submissions');
+        const settingsCount = await dbHelpers.get('SELECT COUNT(*) as count FROM settings');
         
-        console.log(`📊 Existing data found: ${userCount.count} users, ${projectCount.count} projects`);
+        console.log(`📊 Existing data found: ${userCount.count} users, ${projectCount.count} projects, ${contactCount.count} contacts, ${settingsCount.count} settings`);
         
-        if (userCount.count > 0 || projectCount.count > 0) {
+        if (userCount.count > 0 || projectCount.count > 0 || contactCount.count > 0) {
             console.log('✅ Database has existing data - preserving all data');
+            
+            // Create a backup of existing data
+            await createDatabaseBackup();
+            
             return true;
         } else {
             console.log('📝 Database is empty - will create initial data');
@@ -114,7 +162,35 @@ async function checkExistingData() {
         }
     } catch (error) {
         console.log('📝 Database is new - will create initial data');
+        console.error('Error checking existing data:', error);
         return false;
+    }
+}
+
+// Create database backup
+async function createDatabaseBackup() {
+    try {
+        const backupPath = path.join(dbDir, `verbiforge-backup-${Date.now()}.db`);
+        const backupDb = new sqlite3.Database(backupPath);
+        
+        console.log(`💾 Creating database backup: ${backupPath}`);
+        
+        // Copy all data to backup
+        await new Promise((resolve, reject) => {
+            db.backup(backupDb, (err) => {
+                if (err) {
+                    console.error('❌ Backup failed:', err);
+                    reject(err);
+                } else {
+                    console.log('✅ Database backup created successfully');
+                    resolve();
+                }
+            });
+        });
+        
+        backupDb.close();
+    } catch (error) {
+        console.error('❌ Error creating backup:', error);
     }
 }
 
@@ -251,7 +327,10 @@ async function initializeDatabase() {
             // Create admin users
             await createAdminUsers();
         } else {
-            console.log('✅ Preserving existing data - admin users already exist');
+            console.log('✅ Preserving existing data - ensuring admin users exist...');
+            
+            // Always ensure admin users exist (won't overwrite if they already exist)
+            await createAdminUsers();
         }
         
         console.log('✅ Database initialization completed');
@@ -292,6 +371,57 @@ app.get('/health', (req, res) => {
         database: dbPath,
         timestamp: new Date().toISOString()
     });
+});
+
+// Database health check endpoint
+app.get('/health/database', async (req, res) => {
+    try {
+        const dbExists = fs.existsSync(dbPath);
+        const dbSize = dbExists ? fs.statSync(dbPath).size : 0;
+        
+        // Check database integrity
+        const integrityCheck = await dbHelpers.get('PRAGMA integrity_check');
+        
+        // Get table counts
+        const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
+        const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
+        const contactCount = await dbHelpers.get('SELECT COUNT(*) as count FROM contact_submissions');
+        const settingsCount = await dbHelpers.get('SELECT COUNT(*) as count FROM settings');
+        
+        // Check for backups
+        const backupFiles = fs.readdirSync(dbDir).filter(file => file.includes('backup'));
+        
+        res.json({
+            status: 'ok',
+            database: {
+                path: dbPath,
+                exists: dbExists,
+                size: dbSize,
+                integrity: integrityCheck,
+                tables: {
+                    users: userCount.count,
+                    projects: projectCount.count,
+                    contacts: contactCount.count,
+                    settings: settingsCount.count
+                },
+                backups: backupFiles.length,
+                environment: process.env.NODE_ENV || 'development',
+                persistentDisk: dbDir === '/opt/render/project/src/data'
+            },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Database health check error:', error);
+        res.status(500).json({
+            status: 'error',
+            error: error.message,
+            database: {
+                path: dbPath,
+                exists: fs.existsSync(dbPath),
+                environment: process.env.NODE_ENV || 'development'
+            }
+        });
+    }
 });
 
 // Login endpoint
