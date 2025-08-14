@@ -644,6 +644,56 @@ app.post('/projects', requireAuth, async (req, res) => {
     }
 });
 
+// Delete project
+app.delete('/projects/:id', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log('🔍 Delete project request:', { projectId: id, userId: req.user.id });
+        
+        // Check if project exists and belongs to user
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+        
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found or access denied' });
+        }
+        
+        // Delete the project
+        await dbHelpers.run('DELETE FROM projects WHERE id = $1', [id]);
+        
+        console.log('✅ Project deleted successfully:', id);
+        res.json({ success: true, message: 'Project deleted successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error deleting project:', error);
+        res.status(500).json({ error: 'Failed to delete project: ' + error.message });
+    }
+});
+
+// Submit project
+app.put('/projects/:id/submit', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log('🔍 Submit project request:', { projectId: id, userId: req.user.id });
+        
+        // Check if project exists and belongs to user
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+        
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found or access denied' });
+        }
+        
+        // Update project status to submitted
+        await dbHelpers.run('UPDATE projects SET status = $1 WHERE id = $2', ['submitted', id]);
+        
+        console.log('✅ Project submitted successfully:', id);
+        res.json({ success: true, message: 'Project submitted successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error submitting project:', error);
+        res.status(500).json({ error: 'Failed to submit project: ' + error.message });
+    }
+});
+
 // Admin check endpoint
 app.get('/admin/check', requireAuth, async (req, res) => {
     try {
@@ -1187,6 +1237,8 @@ app.use('*', (req, res) => {
     console.error('   - POST /analyze');
     console.error('   - POST /projects');
     console.error('   - GET /projects');
+    console.error('   - DELETE /projects/:id');
+    console.error('   - PUT /projects/:id/submit');
     console.error('   - GET /admin/check');
     console.error('   - POST /contact');
     console.error('   - GET /admin/projects');
@@ -1208,6 +1260,8 @@ app.use('*', (req, res) => {
             'POST /analyze',
             'POST /projects',
             'GET /projects',
+            'DELETE /projects/:id',
+            'PUT /projects/:id/submit',
             'GET /admin/check',
             'POST /contact',
             'GET /admin/projects',
