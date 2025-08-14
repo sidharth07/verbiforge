@@ -691,7 +691,18 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
 
         const { languages, projectType } = req.body;
         
-        if (!languages || !Array.isArray(languages) || languages.length === 0) {
+        // Parse languages if it's a JSON string
+        let selectedLanguages = languages;
+        if (typeof languages === 'string') {
+            try {
+                selectedLanguages = JSON.parse(languages);
+            } catch (error) {
+                console.error('❌ Error parsing languages JSON:', error);
+                return res.status(400).json({ error: 'Invalid languages format' });
+            }
+        }
+        
+        if (!selectedLanguages || !Array.isArray(selectedLanguages) || selectedLanguages.length === 0) {
             return res.status(400).json({ error: 'No languages selected' });
         }
 
@@ -921,6 +932,225 @@ app.get('/admin/contacts', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('❌ Error loading contacts:', error);
         res.status(500).json({ error: 'Failed to load contacts' });
+    }
+});
+
+// Admin language management endpoints
+app.get('/admin/languages', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        res.json(languages);
+    } catch (error) {
+        console.error('Error loading admin languages:', error);
+        res.status(500).json({ error: 'Failed to load languages' });
+    }
+});
+
+app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const defaultLanguages = {
+            "English": 25,
+            "Arabic": 50,
+            "Chinese (Simplified)": 35,
+            "Dutch": 40,
+            "French": 35,
+            "German": 45,
+            "Portuguese (Brazil)": 35,
+            "Portuguese (Portugal)": 35,
+            "Spanish (Latin America)": 35,
+            "Spanish (Spain)": 35,
+            "Italian": 40,
+            "Japanese": 45,
+            "Korean": 40,
+            "Russian": 35,
+            "Turkish": 35,
+            "Vietnamese": 30,
+            "Thai": 35,
+            "Indonesian": 30,
+            "Malay": 30,
+            "Filipino": 30,
+            "Hindi": 25,
+            "Bengali": 25,
+            "Urdu": 25,
+            "Persian": 35,
+            "Hebrew": 40,
+            "Greek": 40,
+            "Polish": 35,
+            "Czech": 35,
+            "Hungarian": 35,
+            "Romanian": 35,
+            "Bulgarian": 35,
+            "Croatian": 35,
+            "Serbian": 35,
+            "Slovak": 35,
+            "Slovenian": 35,
+            "Estonian": 40,
+            "Latvian": 40,
+            "Lithuanian": 40,
+            "Finnish": 45,
+            "Swedish": 45,
+            "Norwegian": 45,
+            "Danish": 45,
+            "Icelandic": 50,
+            "Catalan": 35,
+            "Basque": 45,
+            "Galician": 35,
+            "Welsh": 45,
+            "Irish": 45,
+            "Scottish Gaelic": 50,
+            "Maltese": 45,
+            "Luxembourgish": 50,
+            "Faroese": 55,
+            "Greenlandic": 60
+        };
+        
+        res.json(defaultLanguages);
+    } catch (error) {
+        console.error('Error loading default languages:', error);
+        res.status(500).json({ error: 'Failed to load default languages' });
+    }
+});
+
+app.put('/admin/languages', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { languages } = req.body;
+        await dbHelpers.run(`
+            INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+            ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
+        `, ['languages', JSON.stringify(languages)]);
+        
+        res.json({ success: true, languages });
+    } catch (error) {
+        console.error('Error updating languages:', error);
+        res.status(500).json({ error: 'Failed to update languages' });
+    }
+});
+
+app.post('/admin/languages/reset', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const defaultLanguages = {
+            "English": 25,
+            "Arabic": 50,
+            "Chinese (Simplified)": 35,
+            "Dutch": 40,
+            "French": 35,
+            "German": 45,
+            "Portuguese (Brazil)": 35,
+            "Portuguese (Portugal)": 35,
+            "Spanish (Latin America)": 35,
+            "Spanish (Spain)": 35,
+            "Italian": 40,
+            "Japanese": 45,
+            "Korean": 40,
+            "Russian": 35,
+            "Turkish": 35,
+            "Vietnamese": 30,
+            "Thai": 35,
+            "Indonesian": 30,
+            "Malay": 30,
+            "Filipino": 30,
+            "Hindi": 25,
+            "Bengali": 25,
+            "Urdu": 25,
+            "Persian": 35,
+            "Hebrew": 40,
+            "Greek": 40,
+            "Polish": 35,
+            "Czech": 35,
+            "Hungarian": 35,
+            "Romanian": 35,
+            "Bulgarian": 35,
+            "Croatian": 35,
+            "Serbian": 35,
+            "Slovak": 35,
+            "Slovenian": 35,
+            "Estonian": 40,
+            "Latvian": 40,
+            "Lithuanian": 40,
+            "Finnish": 45,
+            "Swedish": 45,
+            "Norwegian": 45,
+            "Danish": 45,
+            "Icelandic": 50,
+            "Catalan": 35,
+            "Basque": 45,
+            "Galician": 35,
+            "Welsh": 45,
+            "Irish": 45,
+            "Scottish Gaelic": 50,
+            "Maltese": 45,
+            "Luxembourgish": 50,
+            "Faroese": 55,
+            "Greenlandic": 60
+        };
+        
+        await dbHelpers.run(`
+            INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+            ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
+        `, ['languages', JSON.stringify(defaultLanguages)]);
+        
+        res.json({ success: true, languages: defaultLanguages });
+    } catch (error) {
+        console.error('Error resetting languages:', error);
+        res.status(500).json({ error: 'Failed to reset languages' });
+    }
+});
+
+// Admin multiplier management
+app.get('/admin/multiplier', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['multiplier']);
+        const multiplier = setting ? parseFloat(setting.value) : 1.3;
+        res.json({ multiplier });
+    } catch (error) {
+        console.error('Error loading multiplier:', error);
+        res.status(500).json({ error: 'Failed to load multiplier' });
+    }
+});
+
+app.put('/admin/multiplier', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { multiplier } = req.body;
+        await dbHelpers.run(`
+            INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+            ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
+        `, ['multiplier', multiplier.toString()]);
+        
+        res.json({ success: true, multiplier });
+    } catch (error) {
+        console.error('Error updating multiplier:', error);
+        res.status(500).json({ error: 'Failed to update multiplier' });
     }
 });
 
