@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,46 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+
+// File upload configuration
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(dbDir, 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        // Allow common document formats
+        const allowedTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/plain',
+            'text/csv',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ];
+        
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type. Only PDF, Word, Excel, and text files are allowed.'), false);
+        }
+    }
+});
 
 // Database setup
 const dbDir = process.env.NODE_ENV === 'production' 
@@ -350,6 +391,79 @@ app.get('/languages', requireAuth, async (req, res) => {
     }
 });
 
+// File upload and analysis endpoint
+app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const { projectType = 'fusion', selectedLanguages } = req.body;
+        
+        if (!selectedLanguages) {
+            return res.status(400).json({ error: 'No languages selected' });
+        }
+
+        const languages = JSON.parse(selectedLanguages);
+        
+        // Get language pricing
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
+        const languagePricing = setting ? JSON.parse(setting.value) : {};
+        
+        // Get multiplier
+        const multiplierSetting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['multiplier']);
+        const multiplier = multiplierSetting ? parseFloat(multiplierSetting.value) : 1.3;
+
+        // Simulate word count (in real app, you'd analyze the file)
+        const wordCount = Math.floor(Math.random() * 5000) + 1000; // Random between 1000-6000 words
+        
+        // Calculate costs
+        let subtotal = 0;
+        const breakdown = [];
+        
+        languages.forEach(language => {
+            const basePrice = languagePricing[language] || 25;
+            const cost = (wordCount * basePrice * multiplier) / 1000; // Price per 1000 words
+            breakdown.push({
+                language: language,
+                cost: cost.toFixed(2)
+            });
+            subtotal += cost;
+        });
+
+        const projectManagementCost = 500;
+        const total = subtotal + projectManagementCost;
+
+        res.json({
+            fileName: req.file.originalname,
+            wordCount: wordCount,
+            projectType: projectType,
+            multiplier: multiplier,
+            breakdown: breakdown,
+            subtotal: subtotal.toFixed(2),
+            projectManagementCost: projectManagementCost.toFixed(2),
+            total: total.toFixed(2),
+            tempFileId: req.file.filename
+        });
+
+    } catch (error) {
+        console.error('Error analyzing file:', error);
+        res.status(500).json({ error: 'Failed to analyze file' });
+    }
+});
+
+// Get multiplier endpoint
+app.get('/multiplier', requireAuth, async (req, res) => {
+    try {
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['multiplier']);
+        const multiplier = setting ? parseFloat(setting.value) : 1.3;
+        res.json({ multiplier });
+    } catch (error) {
+        console.error('Error loading multiplier:', error);
+        res.status(500).json({ error: 'Failed to load multiplier' });
+    }
+});
+
 // Get user projects endpoint
 app.get('/projects', requireAuth, async (req, res) => {
     try {
@@ -379,7 +493,8 @@ app.post('/projects', requireAuth, async (req, res) => {
             subtotal, 
             projectManagementCost, 
             total,
-            notes 
+            notes,
+            tempFileId 
         } = req.body;
         
         const projectId = uuidv4();
