@@ -398,13 +398,22 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        const { projectType = 'fusion', selectedLanguages } = req.body;
+        const { projectType = 'fusion', languages } = req.body;
         
-        if (!selectedLanguages) {
+        if (!languages) {
             return res.status(400).json({ error: 'No languages selected' });
         }
 
-        const languages = JSON.parse(selectedLanguages);
+        let selectedLanguages;
+        try {
+            selectedLanguages = JSON.parse(languages);
+        } catch (e) {
+            return res.status(400).json({ error: 'Invalid languages format' });
+        }
+
+        if (!Array.isArray(selectedLanguages) || selectedLanguages.length === 0) {
+            return res.status(400).json({ error: 'No languages selected' });
+        }
         
         // Get language pricing
         const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
@@ -421,7 +430,7 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
         let subtotal = 0;
         const breakdown = [];
         
-        languages.forEach(language => {
+        selectedLanguages.forEach(language => {
             const basePrice = languagePricing[language] || 25;
             const cost = (wordCount * basePrice * multiplier) / 1000; // Price per 1000 words
             breakdown.push({
@@ -461,6 +470,35 @@ app.get('/multiplier', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading multiplier:', error);
         res.status(500).json({ error: 'Failed to load multiplier' });
+    }
+});
+
+// Contact submission endpoint
+app.post('/contact', async (req, res) => {
+    try {
+        const { name, email, phone, company, subject, message } = req.body;
+        
+        if (!name || !email || !subject || !message) {
+            return res.status(400).json({ error: 'Name, email, subject, and message are required' });
+        }
+        
+        const contactId = uuidv4();
+        
+        await dbHelpers.run(`
+            INSERT INTO contact_submissions (
+                id, name, email, phone, company, subject, message, 
+                status, is_read, submitted_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `, [contactId, name, email, phone || null, company || null, subject, message, 'new', false]);
+        
+        res.json({ 
+            success: true, 
+            message: 'Contact form submitted successfully' 
+        });
+        
+    } catch (error) {
+        console.error('Error submitting contact form:', error);
+        res.status(500).json({ error: 'Failed to submit contact form' });
     }
 });
 
@@ -659,6 +697,68 @@ app.get('/admin/projects/:id', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading project:', error);
         res.status(500).json({ error: 'Failed to load project' });
+    }
+});
+
+// Download project file (admin)
+app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // For now, just return the file info
+        // In a real app, you'd serve the actual file
+        res.json({
+            fileName: project.file_name,
+            message: 'File download functionality would be implemented here'
+        });
+    } catch (error) {
+        console.error('Error downloading project file:', error);
+        res.status(500).json({ error: 'Failed to download project file' });
+    }
+});
+
+// Upload translated file (admin)
+app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('file'), async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // Update project with translated file
+        await dbHelpers.run(`
+            UPDATE projects 
+            SET translated_file_name = ?, status = 'completed' 
+            WHERE id = ?
+        `, [req.file.originalname, req.params.id]);
+        
+        const updatedProject = await dbHelpers.get('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        
+        res.json({ 
+            success: true, 
+            project: updatedProject,
+            message: 'Translated file uploaded successfully' 
+        });
+    } catch (error) {
+        console.error('Error uploading translated file:', error);
+        res.status(500).json({ error: 'Failed to upload translated file' });
     }
 });
 
