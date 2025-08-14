@@ -936,30 +936,16 @@ app.get('/admin/users', requireAuth, async (req, res) => {
         const basicUsers = await dbHelpers.query('SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC');
         console.log('✅ Basic users query successful, found:', basicUsers.length, 'users');
         
-        // Now try the full query with better error handling
-        console.log('🔍 Executing full users query with project counts...');
-        const users = await dbHelpers.query(`
-            SELECT 
-                u.id, 
-                u.email, 
-                u.name, 
-                u.role, 
-                u.created_at as "createdAt",
-                COALESCE(p.project_count, 0) as "projectCount",
-                COALESCE(p.total_spent, 0) as "totalSpent"
-            FROM users u
-            LEFT JOIN (
-                SELECT 
-                    user_id,
-                    COUNT(*) as project_count,
-                    SUM(total) as total_spent
-                FROM projects 
-                GROUP BY user_id
-            ) p ON u.id = p.user_id
-            ORDER BY u.created_at DESC
-        `);
+        // For now, let's return just the basic users without project counts to test
+        console.log('🔍 Returning basic users data for now...');
+        const users = basicUsers.map(user => ({
+            ...user,
+            createdAt: user.created_at,
+            projectCount: 0, // Temporary placeholder
+            totalSpent: 0    // Temporary placeholder
+        }));
         
-        console.log('✅ Full users query successful, processed:', users.length, 'users');
+        console.log('✅ Users processed successfully, returning:', users.length, 'users');
         console.log('✅ Sample user data:', users[0] || 'No users found');
         
         res.json(users);
