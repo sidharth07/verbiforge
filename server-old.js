@@ -3,31 +3,57 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
-const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+console.log('🚀 SIMPLE VERBIFORGE SERVER STARTING...');
+console.log('Port:', PORT);
+console.log('Environment:', process.env.NODE_ENV);
+
+// Basic middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
 // Database setup
-const dbDir = process.env.NODE_ENV === 'production' 
-    ? '/opt/render/project/src/data' 
-    : path.join(__dirname, 'data');
+const dbDir = process.env.NODE_ENV === 'production' ? '/opt/render/project/src/data' : path.join(__dirname, 'data');
+const dbPath = path.join(dbDir, 'verbiforge.db');
 
+console.log('Database path:', dbPath);
+
+// Create directory if it doesn't exist
 if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+    try {
+        fs.mkdirSync(dbDir, { recursive: true });
+        console.log('Created directory:', dbDir);
+    } catch (error) {
+        console.error('Error creating directory:', error);
+    }
 }
 
-const dbPath = path.join(dbDir, 'verbiforge.db');
-const db = new sqlite3.Database(dbPath);
+// Connect to database
+let db;
+try {
+    db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+            console.error('Database connection error:', err);
+            process.exit(1);
+        }
+        console.log('Connected to database');
+        
+        // Initialize database
+        initializeDatabase();
+    });
+} catch (error) {
+    console.error('Database initialization error:', error);
+    process.exit(1);
+}
 
-// Database helpers
+// Database helper functions
 const dbHelpers = {
     query: (sql, params = []) => {
         return new Promise((resolve, reject) => {
@@ -54,72 +80,6 @@ const dbHelpers = {
         });
     }
 };
-
-// Check if database already has data
-async function checkExistingData() {
-    try {
-        const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
-        const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
-        
-        console.log(`📊 Existing data found: ${userCount.count} users, ${projectCount.count} projects`);
-        
-        if (userCount.count > 0 || projectCount.count > 0) {
-            console.log('✅ Database has existing data - preserving all data');
-            return true;
-        } else {
-            console.log('📝 Database is empty - will create initial data');
-            return false;
-        }
-    } catch (error) {
-        console.log('📝 Database is new - will create initial data');
-        return false;
-    }
-}
-
-async function createAdminUsers() {
-    try {
-        console.log('🔧 Creating admin users...');
-        
-        const adminUsers = [
-            {
-                email: 'sid@verbiforge.com',
-                password: 'admin123',
-                name: 'Super Admin',
-                role: 'super_admin'
-            },
-            {
-                email: 'sid.bandewar@gmail.com',
-                password: 'admin123',
-                name: 'Super Admin',
-                role: 'super_admin'
-            }
-        ];
-
-        for (const admin of adminUsers) {
-            // Check if user exists
-            const existingUser = await dbHelpers.get('SELECT id FROM users WHERE email = ?', [admin.email]);
-            
-            if (!existingUser) {
-                const userId = uuidv4();
-                const hashedPassword = await bcrypt.hash(admin.password, 12);
-                
-                await dbHelpers.run(`
-                    INSERT INTO users (id, email, password_hash, name, role, created_at) 
-                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                `, [userId, admin.email, hashedPassword, admin.name, admin.role]);
-                
-                console.log(`✅ Admin user created: ${admin.email}`);
-            } else {
-                console.log(`ℹ️ Admin user already exists: ${admin.email}`);
-            }
-        }
-        
-        console.log('✅ Admin users setup completed');
-        
-    } catch (error) {
-        console.error('❌ Error creating admin users:', error);
-    }
-}
 
 async function initializeDatabase() {
     console.log('🔧 Initializing database...');
@@ -160,6 +120,19 @@ async function initializeDatabase() {
             )
         `);
         console.log('✅ Projects table ready');
+
+        // Create admin_users table
+        await dbHelpers.run(`
+            CREATE TABLE IF NOT EXISTS admin_users (
+                id TEXT PRIMARY KEY,
+                email TEXT UNIQUE NOT NULL,
+                name TEXT NOT NULL,
+                is_super_admin BOOLEAN DEFAULT FALSE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_by TEXT
+            )
+        `);
+        console.log('✅ Admin users table ready');
 
         // Create contact_submissions table
         await dbHelpers.run(`
@@ -209,13 +182,89 @@ async function initializeDatabase() {
             console.log('✅ Preserving existing data - no initial setup needed');
         }
         
-        console.log('✅ Database initialization completed');
+        console.log('🎉 Database initialization completed successfully!');
         
     } catch (error) {
-        console.error('❌ Database initialization error:', error);
-        throw error;
+        console.error('❌ Database initialization failed:', error);
+        process.exit(1);
     }
 }
+
+async function createAdminUsers() {
+    console.log('👑 Creating admin users...');
+    
+    try {
+        const adminUsers = [
+            {
+                email: 'sid@verbiforge.com',
+                password: 'admin123',
+                name: 'Super Admin',
+                role: 'super_admin'
+            },
+            {
+                email: 'sid.bandewar@gmail.com',
+                password: 'admin123',
+                name: 'Super Admin',
+                role: 'super_admin'
+            }
+        ];
+
+        for (const admin of adminUsers) {
+            // Check if user exists
+            const existingUser = await dbHelpers.get('SELECT id FROM users WHERE email = ?', [admin.email]);
+            
+            if (!existingUser) {
+                const userId = uuidv4();
+                const hashedPassword = await bcrypt.hash(admin.password, 12);
+                
+                await dbHelpers.run(`
+                    INSERT INTO users (id, email, password_hash, name, role, created_at) 
+                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                `, [userId, admin.email, hashedPassword, admin.name, admin.role]);
+                
+                console.log(`✅ Admin user created: ${admin.email}`);
+            } else {
+                console.log(`ℹ️ Admin user already exists: ${admin.email}`);
+            }
+        }
+        
+        console.log('✅ Admin users setup completed');
+        
+    } catch (error) {
+        console.error('❌ Error creating admin users:', error);
+    }
+}
+
+// Check if database already has data
+async function checkExistingData() {
+    try {
+        const userCount = await dbHelpers.get('SELECT COUNT(*) as count FROM users');
+        const projectCount = await dbHelpers.get('SELECT COUNT(*) as count FROM projects');
+        
+        console.log(`📊 Existing data found: ${userCount.count} users, ${projectCount.count} projects`);
+        
+        if (userCount.count > 0 || projectCount.count > 0) {
+            console.log('✅ Database has existing data - preserving all data');
+            return true;
+        } else {
+            console.log('📝 Database is empty - will create initial data');
+            return false;
+        }
+    } catch (error) {
+        console.log('📝 Database is new - will create initial data');
+        return false;
+    }
+}
+
+// Health endpoint
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        message: 'Simple VerbiForge server is running',
+        database: dbPath,
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Authentication middleware
 const requireAuth = async (req, res, next) => {
@@ -239,15 +288,23 @@ const requireAuth = async (req, res, next) => {
     }
 };
 
-// Health endpoint
-app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
-        message: 'Fixed VerbiForge server is running',
-        database: dbPath,
-        timestamp: new Date().toISOString()
-    });
-});
+const requireAdmin = async (req, res, next) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Authentication required' });
+        }
+
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        next();
+    } catch (error) {
+        console.error('Admin check error:', error);
+        res.status(500).json({ error: 'Authorization error' });
+    }
+};
 
 // Login endpoint
 app.post('/login', async (req, res) => {
@@ -264,9 +321,9 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
-        const isValid = await bcrypt.compare(password, user.password_hash);
+        const isValidPassword = await bcrypt.compare(password, user.password_hash);
         
-        if (!isValid) {
+        if (!isValidPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
@@ -278,12 +335,189 @@ app.post('/login', async (req, res) => {
                 name: user.name,
                 role: user.role
             },
-            token: user.id
+            token: user.id // Simplified token
         });
         
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Admin check endpoint
+app.get('/admin/check', requireAuth, requireAdmin, (req, res) => {
+    res.json({
+        isAdmin: true,
+        isSuperAdmin: req.user.role === 'super_admin'
+    });
+});
+
+// Admin projects endpoint
+app.get('/admin/projects', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const projects = await dbHelpers.query(`
+            SELECT p.*, u.name as userName, u.email as userEmail
+            FROM projects p
+            JOIN users u ON p.user_id = u.id
+            ORDER BY p.created_at DESC
+        `);
+        
+        res.json(projects);
+    } catch (error) {
+        console.error('Error loading projects:', error);
+        res.status(500).json({ error: 'Failed to load projects' });
+    }
+});
+
+// Admin languages endpoint
+app.get('/admin/languages', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        res.json(languages);
+    } catch (error) {
+        console.error('Error loading languages:', error);
+        res.status(500).json({ error: 'Failed to load languages' });
+    }
+});
+
+// Update languages endpoint
+app.put('/admin/languages', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const { languages } = req.body;
+        await dbHelpers.run(
+            'INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
+            ['languages', JSON.stringify(languages)]
+        );
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating languages:', error);
+        res.status(500).json({ error: 'Failed to update languages' });
+    }
+});
+
+// Admin users endpoint
+app.get('/admin/users', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const users = await dbHelpers.query(`
+            SELECT u.*, 
+                   COUNT(p.id) as projectCount,
+                   COALESCE(SUM(p.total), 0) as totalSpent
+            FROM users u
+            LEFT JOIN projects p ON u.id = p.user_id
+            WHERE u.role = 'user'
+            GROUP BY u.id
+            ORDER BY u.created_at DESC
+        `);
+        
+        res.json(users);
+    } catch (error) {
+        console.error('Error loading users:', error);
+        res.status(500).json({ error: 'Failed to load users' });
+    }
+});
+
+// Admin contacts endpoint
+app.get('/admin/contacts', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const submissions = await dbHelpers.query(`
+            SELECT * FROM contact_submissions 
+            ORDER BY submitted_at DESC
+        `);
+        
+        const unreadCount = submissions.filter(s => !s.is_read).length;
+        
+        res.json({
+            submissions,
+            unreadCount
+        });
+    } catch (error) {
+        console.error('Error loading contacts:', error);
+        res.status(500).json({ error: 'Failed to load contacts' });
+    }
+});
+
+// Admin multiplier endpoint
+app.get('/admin/multiplier', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['multiplier']);
+        const multiplier = setting ? parseFloat(setting.value) : 1.3;
+        res.json({ multiplier });
+    } catch (error) {
+        console.error('Error loading multiplier:', error);
+        res.status(500).json({ error: 'Failed to load multiplier' });
+    }
+});
+
+// Update multiplier endpoint
+app.put('/admin/multiplier', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const { multiplier } = req.body;
+        await dbHelpers.run(
+            'INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
+            ['multiplier', multiplier.toString()]
+        );
+        res.json({ multiplier });
+    } catch (error) {
+        console.error('Error updating multiplier:', error);
+        res.status(500).json({ error: 'Failed to update multiplier' });
+    }
+});
+
+// Create admin endpoint
+app.post('/api/create-admin', async (req, res) => {
+    try {
+        await createAdminUsers();
+        res.json({ 
+            success: true, 
+            message: 'Admin users created',
+            credentials: {
+                email: 'sid@verbiforge.com',
+                password: 'admin123',
+                role: 'super_admin'
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// List users endpoint
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await dbHelpers.query('SELECT email, name, role FROM users');
+        res.json({ users });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Test password endpoint
+app.post('/api/test-password', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password required' });
+        }
+        
+        const user = await dbHelpers.get('SELECT password_hash FROM users WHERE email = ?', [email]);
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        const isValid = await bcrypt.compare(password, user.password_hash);
+        
+        res.json({
+            email: email,
+            password_provided: password,
+            password_hash: user.password_hash,
+            is_valid: isValid
+        });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -492,8 +726,8 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
 // Update project status (admin)
 app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -511,8 +745,8 @@ app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
 // Update project ETA (admin)
 app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -530,8 +764,8 @@ app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
 // Get project details (admin)
 app.get('/admin/projects/:id', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -550,8 +784,8 @@ app.get('/admin/projects/:id', requireAuth, async (req, res) => {
 // Get languages (admin)
 app.get('/admin/languages', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -567,8 +801,8 @@ app.get('/admin/languages', requireAuth, async (req, res) => {
 // Get default languages (admin)
 app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -595,8 +829,8 @@ app.get('/admin/languages/defaults', requireAuth, async (req, res) => {
 // Update languages (admin)
 app.put('/admin/languages', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -615,8 +849,8 @@ app.put('/admin/languages', requireAuth, async (req, res) => {
 // Add new language (admin)
 app.post('/admin/languages/add', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -640,8 +874,8 @@ app.post('/admin/languages/add', requireAuth, async (req, res) => {
 // Delete language (admin)
 app.delete('/admin/languages/:name', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -665,8 +899,8 @@ app.delete('/admin/languages/:name', requireAuth, async (req, res) => {
 // Reset languages (admin)
 app.post('/admin/languages/reset', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -697,8 +931,8 @@ app.post('/admin/languages/reset', requireAuth, async (req, res) => {
 // Get users (admin)
 app.get('/admin/users', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -718,8 +952,8 @@ app.get('/admin/users', requireAuth, async (req, res) => {
 // Update user (admin)
 app.put('/admin/users/:id', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -737,17 +971,12 @@ app.put('/admin/users/:id', requireAuth, async (req, res) => {
 // Get admin users (admin)
 app.get('/admin/admins', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
-        const admins = await dbHelpers.query(`
-            SELECT id, email, name, role, created_at
-            FROM users 
-            WHERE role = 'admin' OR role = 'super_admin'
-            ORDER BY created_at DESC
-        `);
+        const admins = await dbHelpers.query('SELECT * FROM admin_users ORDER BY created_at DESC');
         res.json(admins);
     } catch (error) {
         console.error('Error loading admins:', error);
@@ -758,33 +987,26 @@ app.get('/admin/admins', requireAuth, async (req, res) => {
 // Add admin user (admin)
 app.post('/admin/admins', requireAuth, async (req, res) => {
     try {
-        const isSuperAdmin = req.user.role === 'super_admin';
-        if (!isSuperAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser || adminUser.role !== 'super_admin') {
             return res.status(403).json({ error: 'Super admin access required' });
         }
         
         const { email, name, role } = req.body;
         
-        // Check if user already exists
-        const existingUser = await dbHelpers.get('SELECT * FROM users WHERE email = ?', [email]);
-        if (existingUser) {
-            // Update existing user to admin
-            await dbHelpers.run('UPDATE users SET role = ? WHERE email = ?', [role || 'admin', email]);
-            const updatedUser = await dbHelpers.get('SELECT * FROM users WHERE email = ?', [email]);
-            res.json({ success: true, admin: updatedUser });
-        } else {
-            // Create new admin user
-            const userId = uuidv4();
-            const hashedPassword = await bcrypt.hash('admin123', 12);
-            
-            await dbHelpers.run(`
-                INSERT INTO users (id, email, password_hash, name, role, created_at) 
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            `, [userId, email, hashedPassword, name, role || 'admin']);
-            
-            const newAdmin = await dbHelpers.get('SELECT * FROM users WHERE email = ?', [email]);
-            res.json({ success: true, admin: newAdmin });
+        // Check if admin already exists
+        const existingAdmin = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [email]);
+        if (existingAdmin) {
+            return res.status(400).json({ error: 'Admin already exists' });
         }
+        
+        await dbHelpers.run(`
+            INSERT INTO admin_users (email, name, role, created_at) 
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        `, [email, name, role || 'admin']);
+        
+        const newAdmin = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [email]);
+        res.json({ success: true, admin: newAdmin });
     } catch (error) {
         console.error('Error adding admin:', error);
         res.status(500).json({ error: 'Failed to add admin' });
@@ -794,8 +1016,8 @@ app.post('/admin/admins', requireAuth, async (req, res) => {
 // Delete admin user (admin)
 app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
     try {
-        const isSuperAdmin = req.user.role === 'super_admin';
-        if (!isSuperAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser || adminUser.role !== 'super_admin') {
             return res.status(403).json({ error: 'Super admin access required' });
         }
         
@@ -806,7 +1028,7 @@ app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Cannot delete yourself' });
         }
         
-        await dbHelpers.run('UPDATE users SET role = ? WHERE email = ?', ['user', email]);
+        await dbHelpers.run('DELETE FROM admin_users WHERE email = ?', [email]);
         res.json({ success: true });
     } catch (error) {
         console.error('Error deleting admin:', error);
@@ -817,8 +1039,8 @@ app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
 // Get contacts (admin)
 app.get('/admin/contacts', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -833,8 +1055,8 @@ app.get('/admin/contacts', requireAuth, async (req, res) => {
 // Mark contact as read (admin)
 app.put('/admin/contacts/:id/read', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -849,8 +1071,8 @@ app.put('/admin/contacts/:id/read', requireAuth, async (req, res) => {
 // Update contact status (admin)
 app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -868,8 +1090,8 @@ app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
 // Delete contact (admin)
 app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -884,8 +1106,8 @@ app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
 // Get multiplier (admin)
 app.get('/admin/multiplier', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -901,8 +1123,8 @@ app.get('/admin/multiplier', requireAuth, async (req, res) => {
 // Update multiplier (admin)
 app.put('/admin/multiplier', requireAuth, async (req, res) => {
     try {
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
+        const adminUser = await dbHelpers.get('SELECT * FROM admin_users WHERE email = ?', [req.user.email]);
+        if (!adminUser) {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
@@ -918,93 +1140,23 @@ app.put('/admin/multiplier', requireAuth, async (req, res) => {
     }
 });
 
-// Test password endpoint
-app.post('/api/test-password', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password required' });
-        }
-        
-        const user = await dbHelpers.get('SELECT password_hash FROM users WHERE email = ?', [email]);
-        
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        
-        const isValid = await bcrypt.compare(password, user.password_hash);
-        
-        res.json({
-            email: email,
-            password_provided: password,
-            password_hash: user.password_hash,
-            is_valid: isValid
-        });
-        
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Emergency admin creation endpoint
-app.post('/api/create-admin', async (req, res) => {
-    try {
-        const { email, password, name } = req.body;
-        
-        if (!email || !password || !name) {
-            return res.status(400).json({ error: 'Email, password, and name required' });
-        }
-        
-        // Check if user already exists
-        const existingUser = await dbHelpers.get('SELECT id FROM users WHERE email = ?', [email]);
-        if (existingUser) {
-            return res.status(400).json({ error: 'User already exists' });
-        }
-        
-        // Create admin user
-        const userId = uuidv4();
-        const hashedPassword = await bcrypt.hash(password, 12);
-        
-        await dbHelpers.run(`
-            INSERT INTO users (id, email, password_hash, name, role, created_at) 
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `, [userId, email, hashedPassword, name, 'super_admin']);
-        
-        res.json({
-            success: true,
-            message: 'Admin user created successfully',
-            user: {
-                id: userId,
-                email: email,
-                name: name,
-                role: 'super_admin'
-            }
-        });
-        
-    } catch (error) {
-        console.error('Error creating admin:', error);
-        res.status(500).json({ error: 'Failed to create admin user' });
-    }
-});
-
 // Start server
-async function startServer() {
-    try {
-        console.log('🚀 Starting VerbiForge server...');
-        console.log(`📁 Database path: ${dbPath}`);
-        
-        await initializeDatabase();
-        
-        app.listen(PORT, () => {
-            console.log(`✅ Server running on port ${PORT}`);
-            console.log(`🌐 Health check: http://localhost:${PORT}/health`);
-        });
-        
-    } catch (error) {
-        console.error('❌ Failed to start server:', error);
-        process.exit(1);
-    }
-}
-
-startServer();
+app.listen(PORT, '0.0.0.0', () => {
+    console.log('🎉 SIMPLE VERBIFORGE SERVER STARTED!');
+    console.log(`Server running on port ${PORT}`);
+    console.log('Admin credentials:');
+    console.log('  Email: sid@verbiforge.com');
+    console.log('  Password: admin123');
+    console.log('  Role: super_admin');
+    console.log('');
+    console.log('Test endpoints:');
+    console.log('  GET /health');
+    console.log('  POST /api/create-admin');
+    console.log('  POST /login');
+    console.log('  GET /api/users');
+    console.log('  POST /api/test-password');
+    console.log('  GET /admin/projects');
+    console.log('  GET /admin/languages');
+    console.log('  GET /admin/users');
+    console.log('  GET /admin/contacts');
+});
