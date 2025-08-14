@@ -936,19 +936,46 @@ app.get('/admin/users', requireAuth, async (req, res) => {
         const basicUsers = await dbHelpers.query('SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC');
         console.log('✅ Basic users query successful, found:', basicUsers.length, 'users');
         
-        // For now, let's return just the basic users without project counts to test
-        console.log('🔍 Returning basic users data for now...');
-        const users = basicUsers.map(user => ({
-            ...user,
-            createdAt: user.created_at,
-            projectCount: 0, // Temporary placeholder
-            totalSpent: 0    // Temporary placeholder
+        // Now let's get project counts and totals for each user
+        console.log('🔍 Getting project counts and totals for each user...');
+        
+        const usersWithProjects = await Promise.all(basicUsers.map(async (user) => {
+            try {
+                // Get project count for this user
+                const projectCountResult = await dbHelpers.get(
+                    'SELECT COUNT(*) as count FROM projects WHERE user_id = $1', 
+                    [user.id]
+                );
+                const projectCount = projectCountResult ? projectCountResult.count : 0;
+                
+                // Get total spent for this user
+                const totalSpentResult = await dbHelpers.get(
+                    'SELECT COALESCE(SUM(total), 0) as total FROM projects WHERE user_id = $1', 
+                    [user.id]
+                );
+                const totalSpent = totalSpentResult ? parseFloat(totalSpentResult.total) : 0;
+                
+                return {
+                    ...user,
+                    createdAt: user.created_at,
+                    projectCount: projectCount,
+                    totalSpent: totalSpent
+                };
+            } catch (error) {
+                console.error(`❌ Error getting projects for user ${user.id}:`, error);
+                return {
+                    ...user,
+                    createdAt: user.created_at,
+                    projectCount: 0,
+                    totalSpent: 0
+                };
+            }
         }));
         
-        console.log('✅ Users processed successfully, returning:', users.length, 'users');
-        console.log('✅ Sample user data:', users[0] || 'No users found');
+        console.log('✅ Users with projects processed successfully, returning:', usersWithProjects.length, 'users');
+        console.log('✅ Sample user data:', usersWithProjects[0] || 'No users found');
         
-        res.json(users);
+        res.json(usersWithProjects);
     } catch (error) {
         console.error('❌ Error loading users:', error);
         console.error('❌ Error stack:', error.stack);
