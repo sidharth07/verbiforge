@@ -1288,30 +1288,53 @@ app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
 // Upload translated file (admin)
 app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('file'), async (req, res) => {
     try {
+        console.log('🔍 Admin upload translated file request received');
+        console.log('🔍 Request params:', req.params);
+        console.log('🔍 Request body:', req.body);
+        console.log('🔍 Request file:', req.file);
+        console.log('🔍 User:', { id: req.user.id, email: req.user.email, role: req.user.role });
+        
         const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
         if (!isAdmin) {
+            console.log('❌ Access denied - not admin');
             return res.status(403).json({ error: 'Admin access required' });
         }
         
         const { id } = req.params;
         console.log('🔍 Upload translated file for project:', id);
-        console.log('🔍 File info:', req.file);
         
         if (!req.file) {
+            console.log('❌ No file uploaded');
             return res.status(400).json({ error: 'No file uploaded' });
         }
         
+        console.log('🔍 File details:', {
+            originalname: req.file.originalname,
+            filename: req.file.filename,
+            size: req.file.size,
+            mimetype: req.file.mimetype,
+            path: req.file.path
+        });
+        
+        // Check if project exists
+        console.log('🔍 Checking if project exists...');
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [id]);
         if (!project) {
+            console.log('❌ Project not found:', id);
             return res.status(404).json({ error: 'Project not found' });
         }
         
+        console.log('✅ Project found:', { id: project.id, name: project.name, status: project.status });
+        
         // Save the translated file information to the database
+        console.log('🔍 Updating database with file information...');
         await dbHelpers.run(`
             UPDATE projects 
             SET translated_file_name = $1, status = $2 
             WHERE id = $3
         `, [req.file.originalname, 'completed', id]);
+        
+        console.log('✅ Database updated successfully');
         
         console.log('✅ Translated file uploaded successfully:', {
             projectId: id,
@@ -1328,35 +1351,67 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
         
     } catch (error) {
         console.error('❌ Error uploading translated file:', error);
+        console.error('❌ Error message:', error.message);
         console.error('❌ Error stack:', error.stack);
-        res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
+        console.error('❌ Error code:', error.code);
+        
+        // Provide more specific error information
+        if (error.code === 'ENOENT') {
+            res.status(500).json({ error: 'File system error - upload directory not found' });
+        } else if (error.code === 'LIMIT_FILE_SIZE') {
+            res.status(400).json({ error: 'File too large - maximum size is 10MB' });
+        } else if (error.message.includes('permission')) {
+            res.status(500).json({ error: 'Permission error - cannot write file' });
+        } else {
+            res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
+        }
     }
 });
 
 // Upload translated file (user - for their own projects)
 app.post('/projects/:id/upload-translated', requireAuth, upload.single('file'), async (req, res) => {
     try {
+        console.log('🔍 User upload translated file request received');
+        console.log('🔍 Request params:', req.params);
+        console.log('🔍 Request body:', req.body);
+        console.log('🔍 Request file:', req.file);
+        console.log('🔍 User:', { id: req.user.id, email: req.user.email, role: req.user.role });
+        
         const { id } = req.params;
         console.log('🔍 User upload translated file for project:', id);
-        console.log('🔍 User ID:', req.user.id);
-        console.log('🔍 File info:', req.file);
         
         if (!req.file) {
+            console.log('❌ No file uploaded');
             return res.status(400).json({ error: 'No file uploaded' });
         }
         
+        console.log('🔍 File details:', {
+            originalname: req.file.originalname,
+            filename: req.file.filename,
+            size: req.file.size,
+            mimetype: req.file.mimetype,
+            path: req.file.path
+        });
+        
         // Check if project exists and belongs to the user
+        console.log('🔍 Checking if project exists and belongs to user...');
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, req.user.id]);
         if (!project) {
+            console.log('❌ Project not found or access denied:', { projectId: id, userId: req.user.id });
             return res.status(404).json({ error: 'Project not found or access denied' });
         }
         
+        console.log('✅ Project found and belongs to user:', { id: project.id, name: project.name, status: project.status });
+        
         // Save the translated file information to the database
+        console.log('🔍 Updating database with file information...');
         await dbHelpers.run(`
             UPDATE projects 
             SET translated_file_name = $1, status = $2 
             WHERE id = $3
         `, [req.file.originalname, 'completed', id]);
+        
+        console.log('✅ Database updated successfully');
         
         console.log('✅ User translated file uploaded successfully:', {
             projectId: id,
@@ -1374,8 +1429,20 @@ app.post('/projects/:id/upload-translated', requireAuth, upload.single('file'), 
         
     } catch (error) {
         console.error('❌ Error uploading user translated file:', error);
+        console.error('❌ Error message:', error.message);
         console.error('❌ Error stack:', error.stack);
-        res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
+        console.error('❌ Error code:', error.code);
+        
+        // Provide more specific error information
+        if (error.code === 'ENOENT') {
+            res.status(500).json({ error: 'File system error - upload directory not found' });
+        } else if (error.code === 'LIMIT_FILE_SIZE') {
+            res.status(400).json({ error: 'File too large - maximum size is 10MB' });
+        } else if (error.message.includes('permission')) {
+            res.status(500).json({ error: 'Permission error - cannot write file' });
+        } else {
+            res.status(500).json({ error: 'Failed to upload translated file: ' + error.message });
+        }
     }
 });
 
