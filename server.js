@@ -58,41 +58,79 @@ const upload = multer({
 });
 
 // PostgreSQL connection
+console.log('🔗 Setting up PostgreSQL connection...');
+console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`🔗 DATABASE_URL: ${process.env.DATABASE_URL ? 'SET' : 'NOT SET'}`);
+
+if (!process.env.DATABASE_URL) {
+    if (process.env.NODE_ENV === 'production') {
+        console.error('❌ DATABASE_URL environment variable is not set!');
+        console.error('❌ This is required for PostgreSQL connection in production.');
+        process.exit(1);
+    } else {
+        console.warn('⚠️ DATABASE_URL not set - using development fallback');
+        console.warn('⚠️ For production, ensure DATABASE_URL is set in Render environment variables');
+        // For development, you can set a local PostgreSQL URL here
+        process.env.DATABASE_URL = 'postgresql://localhost:5432/verbiforge_dev';
+    }
+}
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-console.log('🔗 Connecting to PostgreSQL database...');
-console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+// Test the connection
+pool.on('connect', () => {
+    console.log('✅ Connected to PostgreSQL database');
+});
+
+pool.on('error', (err) => {
+    console.error('❌ PostgreSQL connection error:', err);
+});
 
 // Database helpers
 const dbHelpers = {
     query: async (sql, params = []) => {
-        const client = await pool.connect();
         try {
-            const result = await client.query(sql, params);
-            return result.rows;
-        } finally {
-            client.release();
+            const client = await pool.connect();
+            try {
+                const result = await client.query(sql, params);
+                return result.rows;
+            } finally {
+                client.release();
+            }
+        } catch (error) {
+            console.error('❌ Database query error:', error);
+            throw error;
         }
     },
     get: async (sql, params = []) => {
-        const client = await pool.connect();
         try {
-            const result = await client.query(sql, params);
-            return result.rows[0];
-        } finally {
-            client.release();
+            const client = await pool.connect();
+            try {
+                const result = await client.query(sql, params);
+                return result.rows[0];
+            } finally {
+                client.release();
+            }
+        } catch (error) {
+            console.error('❌ Database get error:', error);
+            throw error;
         }
     },
     run: async (sql, params = []) => {
-        const client = await pool.connect();
         try {
-            const result = await client.query(sql, params);
-            return { id: result.rows[0]?.id, changes: result.rowCount };
-        } finally {
-            client.release();
+            const client = await pool.connect();
+            try {
+                const result = await client.query(sql, params);
+                return { id: result.rows[0]?.id, changes: result.rowCount };
+            } finally {
+                client.release();
+            }
+        } catch (error) {
+            console.error('❌ Database run error:', error);
+            throw error;
         }
     }
 };
