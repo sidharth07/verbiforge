@@ -3,11 +3,7 @@ services:
     name: verbiforge
     env: node
     buildCommand: npm install
-    startCommand: node server.js
-    disk:
-      name: verbiforge-data
-      mountPath: /opt/render/project/src/data
-      sizeGB: 1
+    startCommand: node server-postgres.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -19,10 +15,6 @@ services:
         generateValue: true
       - key: SESSION_SECRET
         generateValue: true
-      - key: DATABASE_PATH
-        value: /opt/render/project/src/data
-      - key: DATABASE_URL
-        value: /opt/render/project/src/data/verbiforge.db
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS
@@ -45,3 +37,8 @@ services:
         value: ""  # Add your Google OAuth Client Secret here
       - key: GOOGLE_CALLBACK_URL
         value: https://verbiforge.onrender.com/auth/google/callback
+
+databases:
+  - name: verbiforge-db
+    databaseName: verbiforge
+    user: verbiforge_user
