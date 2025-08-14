@@ -710,6 +710,9 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
             originalname: req.file.originalname,
             size: req.file.size,
             languages: languages,
+            languagesType: typeof languages,
+            selectedLanguages: selectedLanguages,
+            selectedLanguagesType: typeof selectedLanguages,
             projectType: projectType
         });
 
@@ -764,7 +767,7 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
         
         const effectiveMultiplier = projectType === 'pure' ? globalMultiplier : 1.0;
         
-        languages.forEach(language => {
+        selectedLanguages.forEach(language => {
             const basePrice = languagePricing[language] || 25;
             // Convert cents per word to dollars (divide by 100)
             const cost = (wordCount * basePrice * effectiveMultiplier) / 100;
