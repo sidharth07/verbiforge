@@ -423,9 +423,15 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
         const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
         const languagePricing = setting ? JSON.parse(setting.value) : {};
         
+        console.log('🔍 Language pricing from DB:', languagePricing);
+        console.log('🔍 Selected languages:', selectedLanguages);
+        
         // Get multiplier
         const multiplierSetting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['multiplier']);
         const multiplier = multiplierSetting ? parseFloat(multiplierSetting.value) : 1.3;
+        
+        console.log('🔍 Multiplier from DB:', multiplier);
+        console.log('🔍 Project type:', projectType);
 
         // Calculate actual word count from file
         let wordCount = 0;
@@ -434,29 +440,38 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
             if (req.file.mimetype.includes('excel') || req.file.mimetype.includes('spreadsheet') || 
                 req.file.originalname.endsWith('.xlsx') || req.file.originalname.endsWith('.xls')) {
                 
-                // Parse Excel file properly
-                const workbook = XLSX.readFile(req.file.path);
-                let totalWords = 0;
-                
-                // Iterate through all sheets
-                workbook.SheetNames.forEach(sheetName => {
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                try {
+                    // Parse Excel file properly
+                    const workbook = XLSX.readFile(req.file.path);
+                    let totalWords = 0;
                     
-                    // Count words in each cell
-                    jsonData.forEach(row => {
-                        if (Array.isArray(row)) {
-                            row.forEach(cell => {
-                                if (cell && typeof cell === 'string') {
-                                    const words = cell.split(/\s+/).filter(word => word.length > 0);
-                                    totalWords += words.length;
-                                }
-                            });
-                        }
+                    // Iterate through all sheets
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        // Count words in each cell
+                        jsonData.forEach(row => {
+                            if (Array.isArray(row)) {
+                                row.forEach(cell => {
+                                    if (cell && typeof cell === 'string') {
+                                        const words = cell.split(/\s+/).filter(word => word.length > 0);
+                                        totalWords += words.length;
+                                    }
+                                });
+                            }
+                        });
                     });
-                });
-                
-                wordCount = totalWords;
+                    
+                    wordCount = totalWords;
+                    console.log('🔍 Excel file parsed, word count:', wordCount);
+                } catch (excelError) {
+                    console.error('Error parsing Excel file:', excelError);
+                    // Fallback to file size estimation
+                    const fileSizeKB = req.file.size / 1024;
+                    wordCount = Math.floor(fileSizeKB * 15);
+                    console.log('🔍 Using file size estimation, word count:', wordCount);
+                }
                 
             } else {
                 // For text-based files, count actual words
@@ -482,15 +497,23 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
         // Apply multiplier only for 'pure' project type
         const effectiveMultiplier = projectType === 'pure' ? multiplier : 1.0;
         
+        console.log('🔍 Word count:', wordCount);
+        console.log('🔍 Effective multiplier:', effectiveMultiplier);
+        
         selectedLanguages.forEach(language => {
             const basePrice = languagePricing[language] || 25;
             const cost = (wordCount * basePrice * effectiveMultiplier) / 1000; // Price per 1000 words
+            
+            console.log(`🔍 ${language}: basePrice=${basePrice}, cost=${cost.toFixed(2)}`);
+            
             breakdown.push({
                 language: language,
                 cost: cost.toFixed(2)
             });
             subtotal += cost;
         });
+        
+        console.log('🔍 Total subtotal:', subtotal);
 
         const projectManagementCost = 500;
         const total = subtotal + projectManagementCost;
@@ -522,6 +545,26 @@ app.get('/multiplier', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading multiplier:', error);
         res.status(500).json({ error: 'Failed to load multiplier' });
+    }
+});
+
+// Debug endpoint to check current settings
+app.get('/debug/settings', requireAuth, async (req, res) => {
+    try {
+        const languageSetting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['languages']);
+        const multiplierSetting = await dbHelpers.get('SELECT value FROM settings WHERE key = ?', ['multiplier']);
+        
+        const languages = languageSetting ? JSON.parse(languageSetting.value) : {};
+        const multiplier = multiplierSetting ? parseFloat(multiplierSetting.value) : 1.3;
+        
+        res.json({
+            languages: languages,
+            multiplier: multiplier,
+            languageCount: Object.keys(languages).length
+        });
+    } catch (error) {
+        console.error('Error loading debug settings:', error);
+        res.status(500).json({ error: 'Failed to load debug settings' });
     }
 });
 
