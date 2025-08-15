@@ -1753,6 +1753,77 @@ app.use((error, req, res, next) => {
     });
 });
 
+// Update contact status
+app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        console.log('🔍 Updating contact status:', { id, status });
+        
+        // Check if user is admin
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        // Validate status
+        const validStatuses = ['new', 'in_progress', 'resolved', 'closed'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: 'Invalid status. Must be one of: new, in_progress, resolved, closed' });
+        }
+        
+        // Update contact status
+        const result = await dbHelpers.run(
+            'UPDATE contacts SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+            [status, id]
+        );
+        
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Contact message not found' });
+        }
+        
+        console.log('✅ Contact status updated successfully');
+        res.json({ success: true, message: 'Contact status updated successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error updating contact status:', error);
+        res.status(500).json({ error: 'Failed to update contact status: ' + error.message });
+    }
+});
+
+// Delete contact message
+app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('🔍 Deleting contact message:', id);
+        
+        // Check if user is admin
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        // Delete contact message
+        const result = await dbHelpers.run(
+            'DELETE FROM contacts WHERE id = $1',
+            [id]
+        );
+        
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Contact message not found' });
+        }
+        
+        console.log('✅ Contact message deleted successfully');
+        res.json({ success: true, message: 'Contact message deleted successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error deleting contact message:', error);
+        res.status(500).json({ error: 'Failed to delete contact message: ' + error.message });
+    }
+});
+
 // Catch-all route for undefined endpoints
 app.use('*', (req, res) => {
     console.error('❌ 404 - Route not found:', req.originalUrl);
@@ -1784,6 +1855,8 @@ app.use('*', (req, res) => {
     console.error('   - POST /admin/admins');
     console.error('   - DELETE /admin/admins/:email');
     console.error('   - GET /admin/contacts');
+    console.error('   - PUT /admin/contacts/:id/status');
+    console.error('   - DELETE /admin/contacts/:id');
     console.error('   - GET /health');
     
     res.status(404).json({ 
@@ -1818,6 +1891,8 @@ app.use('*', (req, res) => {
             'POST /admin/admins',
             'DELETE /admin/admins/:email',
             'GET /admin/contacts',
+            'PUT /admin/contacts/:id/status',
+            'DELETE /admin/contacts/:id',
             'GET /health'
         ]
     });
