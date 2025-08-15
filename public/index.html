@@ -151,6 +151,19 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            z-index: -1;
         }
 
         .logo-container {
@@ -628,29 +641,44 @@
                 margin: 0;
                 border-radius: 8px;
                 max-width: 100%;
+                min-height: auto;
             }
             
             .header {
                 padding: 20px 15px;
+                min-height: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
             }
             
             .logo-container {
                 margin-bottom: 8px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
             
             .logo-container svg {
                 width: 50px;
                 height: 50px;
+                display: block;
             }
             
             .header h1 {
                 font-size: 1.8em;
                 margin-bottom: 6px;
+                text-align: center;
+                display: block;
             }
             
             .header p {
                 font-size: 0.9em;
                 line-height: 1.4;
+                text-align: center;
+                display: block;
+                margin: 0;
             }
             
             .form-section {
@@ -768,28 +796,43 @@
             
             .container {
                 border-radius: 6px;
+                margin: 0;
             }
             
             .header {
                 padding: 15px 10px;
+                min-height: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
             }
             
             .logo-container {
                 margin-bottom: 6px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
             
             .logo-container svg {
                 width: 45px;
                 height: 45px;
+                display: block;
             }
             
             .header h1 {
                 font-size: 1.5em;
                 margin-bottom: 4px;
+                text-align: center;
+                display: block;
             }
             
             .header p {
                 font-size: 0.85em;
+                text-align: center;
+                display: block;
+                margin: 0;
             }
             
             .form-section {
@@ -875,6 +918,30 @@
             #loading {
                 padding: 12px;
                 font-size: 13px;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 360px) {
+            body {
+                padding: 2px;
+            }
+            
+            .header {
+                padding: 12px 8px;
+            }
+            
+            .logo-container svg {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .header p {
+                font-size: 0.8em;
             }
         }
     </script>
