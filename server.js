@@ -1775,7 +1775,7 @@ app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
         
         // Update contact status
         const result = await dbHelpers.run(
-            'UPDATE contacts SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+            'UPDATE contact_submissions SET status = $1 WHERE id = $2',
             [status, id]
         );
         
@@ -1807,7 +1807,7 @@ app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
         
         // Delete contact message
         const result = await dbHelpers.run(
-            'DELETE FROM contacts WHERE id = $1',
+            'DELETE FROM contact_submissions WHERE id = $1',
             [id]
         );
         
