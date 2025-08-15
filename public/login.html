@@ -355,117 +355,184 @@
             display: block;
         }
 
+        /* Mobile Design - Completely Different Layout */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
             }
 
             .left-section {
-                flex: 0 0 35vh;
-                min-height: 300px;
+                flex: 0 0 auto;
+                min-height: 200px;
+                background: transparent;
+                position: relative;
+            }
+
+            .hero-image {
+                display: none;
+            }
+
+            .hero-overlay {
+                background: transparent;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            .hero-content h1 svg {
+                width: 45px;
+                height: 45px;
+                margin-right: 0;
+            }
+
+            .hero-content p {
+                font-size: 1.1em;
+                margin-bottom: 25px;
+                opacity: 0.95;
+            }
+
+            .features-list {
+                display: none;
             }
 
             .right-section {
                 flex: 1;
-                padding: 20px;
+                padding: 0;
+                background: white;
+                border-radius: 25px 25px 0 0;
+                margin-top: -20px;
+                position: relative;
+                z-index: 10;
             }
 
+            .auth-container {
+                padding: 30px 20px;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .auth-header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .auth-header h2 {
+                font-size: 2em;
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+            .auth-header p {
+                font-size: 1.1em;
+                color: #666;
+            }
+
+            .google-btn {
+                width: 100%;
+                padding: 15px;
+                font-size: 1rem;
+                margin-bottom: 25px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+
+            .form-group input {
+                padding: 15px;
+                font-size: 1rem;
+                border-radius: 12px;
+            }
+
+            .checkbox-container {
+                margin: 20px 0;
+            }
+
+            .checkbox-label {
+                font-size: 1rem;
+            }
+
+            .login-btn {
+                width: 100%;
+                padding: 15px;
+                font-size: 1.1rem;
+                border-radius: 12px;
+                margin-top: 10px;
+            }
+
+            .signup-link {
+                text-align: center;
+                margin-top: 25px;
+                font-size: 1rem;
+            }
+
+            .error {
+                padding: 12px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }
+
+            .loading {
+                padding: 15px;
+                border-radius: 8px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
             .hero-content h1 {
                 font-size: 2.2em;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 10px;
             }
 
             .hero-content h1 svg {
                 width: 40px;
                 height: 40px;
-                margin-right: 0;
             }
 
             .hero-content p {
                 font-size: 1em;
-                margin-bottom: 20px;
-            }
-
-            .features-list {
-                grid-template-columns: 1fr;
-                gap: 12px;
-                margin-top: 20px;
-            }
-
-            .feature-item {
-                padding: 12px;
-                min-height: 50px;
-            }
-
-            .feature-text {
-                font-size: 0.9em;
-            }
-
-            .auth-container {
-                padding: 20px;
-            }
-
-            .auth-header h2 {
-                font-size: 1.8em;
-            }
-
-            .auth-header p {
-                font-size: 1em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .left-section {
-                flex: 0 0 30vh;
-                min-height: 250px;
-            }
-
-            .hero-content h1 {
-                font-size: 1.8em;
-            }
-
-            .hero-content h1 svg {
-                width: 35px;
-                height: 35px;
-            }
-
-            .hero-content p {
-                font-size: 0.9em;
-                margin-bottom: 15px;
-            }
-
-            .features-list {
-                gap: 10px;
-                margin-top: 15px;
-            }
-
-            .feature-item {
-                padding: 10px;
-                min-height: 45px;
-            }
-
-            .feature-text {
-                font-size: 0.8em;
             }
 
             .right-section {
-                padding: 15px;
+                border-radius: 20px 20px 0 0;
+                margin-top: -15px;
             }
 
             .auth-container {
-                padding: 15px;
+                padding: 25px 15px;
             }
 
             .auth-header h2 {
-                font-size: 1.6em;
+                font-size: 1.8em;
             }
 
             .auth-header p {
-                font-size: 0.9em;
+                font-size: 1em;
+            }
+
+            .form-group input {
+                padding: 12px;
+            }
+
+            .login-btn {
+                padding: 12px;
+                font-size: 1rem;
             }
         }
     </style>
