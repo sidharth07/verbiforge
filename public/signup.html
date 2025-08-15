@@ -356,7 +356,8 @@
             }
             
             .left-section {
-                flex: 0 0 40vh;
+                flex: 0 0 35vh;
+                min-height: 300px;
             }
             
             .right-section {
@@ -365,16 +366,101 @@
             }
             
             .hero-content h1 {
-                font-size: 2.5em;
+                font-size: 2.2em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .hero-content h1 svg {
+                width: 40px;
+                height: 40px;
+                margin-right: 0;
             }
             
             .hero-content p {
-                font-size: 1.1em;
+                font-size: 1em;
+                margin-bottom: 20px;
             }
             
             .features-list {
                 grid-template-columns: 1fr;
-                gap: 15px;
+                gap: 12px;
+                margin-top: 20px;
+            }
+            
+            .feature-item {
+                padding: 12px;
+                min-height: 50px;
+            }
+            
+            .feature-text {
+                font-size: 0.9em;
+            }
+            
+            .auth-container {
+                padding: 20px;
+            }
+            
+            .auth-header h2 {
+                font-size: 1.8em;
+            }
+            
+            .auth-header p {
+                font-size: 1em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .left-section {
+                flex: 0 0 30vh;
+                min-height: 250px;
+            }
+            
+            .hero-content h1 {
+                font-size: 1.8em;
+            }
+            
+            .hero-content h1 svg {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .hero-content p {
+                font-size: 0.9em;
+                margin-bottom: 15px;
+            }
+            
+            .features-list {
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            .feature-item {
+                padding: 10px;
+                min-height: 45px;
+            }
+            
+            .feature-text {
+                font-size: 0.8em;
+            }
+            
+            .right-section {
+                padding: 15px;
+            }
+            
+            .auth-container {
+                padding: 15px;
+            }
+            
+            .auth-header h2 {
+                font-size: 1.6em;
+            }
+            
+            .auth-header p {
+                font-size: 0.9em;
             }
         }
     </style>
