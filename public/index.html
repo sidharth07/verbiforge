@@ -7,37 +7,105 @@
     <title>VerbiForge</title>
     <script src="client-auth.js"></script>
     <script>
-        // Check authentication on page load with delay to ensure content displays
+        let currentUser = null;
+        let isAdmin = false;
+
+        // Check authentication on page load
         document.addEventListener('DOMContentLoaded', function() {
             // Show the content immediately
             document.body.style.display = 'block';
             
-            // Check authentication after a short delay
-            setTimeout(() => {
-                Auth.authFetch('/me').then(async response => {
-                    if (!response.ok) {
-                        window.location.href = 'login.html';
-                    } else {
-                        // Check if user is admin
-                        try {
-                            const adminResponse = await Auth.authFetch('/admin/check');
-                            if (adminResponse.ok) {
-                                const adminData = await adminResponse.json();
-                                if (adminData.isAdmin) {
-                                    window.location.href = 'admin.html';
-                                    return;
-                                }
-                            }
-                        } catch (error) {
-                            // If admin check fails, continue to dashboard
-                        }
-                        window.location.href = 'dashboard.html';
-                    }
-                }).catch(() => {
-                    window.location.href = 'login.html';
-                });
-            }, 1000); // 1 second delay
+            // Check authentication and update UI accordingly
+            checkAuthAndUpdateUI();
         });
+
+        async function checkAuthAndUpdateUI() {
+            try {
+                const response = await Auth.authFetch('/me');
+                if (response.ok) {
+                    currentUser = await response.json();
+                    
+                    // Check if user is admin
+                    try {
+                        const adminResponse = await Auth.authFetch('/admin/check');
+                        if (adminResponse.ok) {
+                            const adminData = await adminResponse.json();
+                            isAdmin = adminData.isAdmin;
+                        }
+                    } catch (error) {
+                        // If admin check fails, user is not admin
+                        isAdmin = false;
+                    }
+                    
+                    // Update UI for authenticated user
+                    updateUIForAuthenticatedUser();
+                } else {
+                    // Update UI for non-authenticated user
+                    updateUIForNonAuthenticatedUser();
+                }
+            } catch (error) {
+                // Update UI for non-authenticated user
+                updateUIForNonAuthenticatedUser();
+            }
+        }
+
+        function updateUIForAuthenticatedUser() {
+            const header = document.querySelector('.header');
+            
+            // Add user info and navigation buttons
+            const userNav = document.createElement('div');
+            userNav.className = 'user-navigation';
+            userNav.innerHTML = `
+                <div class="user-info">
+                    <span>Welcome, ${currentUser.name || currentUser.email}</span>
+                </div>
+                <div class="nav-buttons">
+                    <button onclick="window.location.href='dashboard.html'" class="nav-btn dashboard-btn">
+                        📊 Dashboard
+                    </button>
+                    ${isAdmin ? `<button onclick="window.location.href='admin.html'" class="nav-btn admin-btn">⚙️ Admin Panel</button>` : ''}
+                    <button onclick="logout()" class="nav-btn logout-btn">
+                        🚪 Logout
+                    </button>
+                </div>
+            `;
+            
+            // Insert after the header content
+            const headerContent = header.querySelector('p');
+            headerContent.insertAdjacentElement('afterend', userNav);
+        }
+
+        function updateUIForNonAuthenticatedUser() {
+            const header = document.querySelector('.header');
+            
+            // Add authentication buttons
+            const authButtons = document.createElement('div');
+            authButtons.className = 'auth-buttons';
+            authButtons.innerHTML = `
+                <div class="auth-buttons-container">
+                    <button onclick="window.location.href='login.html'" class="auth-btn login-btn">
+                        🔐 Login
+                    </button>
+                    <button onclick="window.location.href='signup.html'" class="auth-btn signup-btn">
+                        ✨ Sign Up
+                    </button>
+                </div>
+            `;
+            
+            // Insert after the header content
+            const headerContent = header.querySelector('p');
+            headerContent.insertAdjacentElement('afterend', authButtons);
+        }
+
+        async function logout() {
+            try {
+                await Auth.authFetch('/logout', { method: 'POST' });
+                window.location.reload();
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.reload();
+            }
+        }
     </script>
 </head>
 <body>
@@ -190,6 +258,104 @@
             font-size: 18px;
             font-weight: bold;
             letter-spacing: 1px;
+        }
+
+        /* User Navigation Styles */
+        .user-navigation {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .user-info {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .dashboard-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-color: #28a745;
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+            border-color: #6f42c1;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            border-color: #dc3545;
+        }
+
+        /* Auth Buttons Styles */
+        .auth-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .auth-buttons-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .auth-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .auth-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-color: #007bff;
+        }
+
+        .signup-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-color: #28a745;
         }
 
         .header h1 {
@@ -698,6 +864,30 @@
                 margin: 0;
             }
             
+            .user-navigation,
+            .auth-buttons {
+                margin-top: 15px;
+            }
+            
+            .nav-buttons,
+            .auth-buttons-container {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .nav-btn,
+            .auth-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .user-info {
+                font-size: 1em;
+                margin-bottom: 10px;
+            }
+            
             .form-section {
                 padding: 20px 15px;
             }
@@ -853,6 +1043,30 @@
                 text-align: center;
                 display: block;
                 margin: 0;
+            }
+            
+            .user-navigation,
+            .auth-buttons {
+                margin-top: 12px;
+            }
+            
+            .nav-buttons,
+            .auth-buttons-container {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .nav-btn,
+            .auth-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                width: 100%;
+                max-width: 180px;
+            }
+            
+            .user-info {
+                font-size: 0.9em;
+                margin-bottom: 8px;
             }
             
             .form-section {
