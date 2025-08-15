@@ -10,13 +10,10 @@
         let currentUser = null;
         let isAdmin = false;
 
-        // Check authentication on page load
+        // Redirect to login page immediately
         document.addEventListener('DOMContentLoaded', function() {
-            // Show the content immediately
-            document.body.style.display = 'block';
-            
-            // Check authentication and update UI accordingly
-            checkAuthAndUpdateUI();
+            // Redirect to login page
+            window.location.href = 'login.html';
         });
 
         async function checkAuthAndUpdateUI() {
