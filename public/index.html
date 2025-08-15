@@ -21,13 +21,20 @@
 
         async function checkAuthAndUpdateUI() {
             try {
-                const response = await Auth.authFetch('/me');
+                // Use direct fetch instead of authFetch to avoid automatic redirects
+                const token = Auth.getToken();
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                const response = await fetch('/me', { headers });
                 if (response.ok) {
                     currentUser = await response.json();
                     
                     // Check if user is admin
                     try {
-                        const adminResponse = await Auth.authFetch('/admin/check');
+                        const adminResponse = await fetch('/admin/check', { headers });
                         if (adminResponse.ok) {
                             const adminData = await adminResponse.json();
                             isAdmin = adminData.isAdmin;
@@ -99,10 +106,24 @@
 
         async function logout() {
             try {
-                await Auth.authFetch('/logout', { method: 'POST' });
+                const token = Auth.getToken();
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                await fetch('/logout', { 
+                    method: 'POST',
+                    headers
+                });
+                
+                // Clear auth and reload
+                Auth.clearAuth();
                 window.location.reload();
             } catch (error) {
                 console.error('Logout error:', error);
+                // Clear auth and reload even if request fails
+                Auth.clearAuth();
                 window.location.reload();
             }
         }
