@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const XLSX = require('xlsx');
+const EmailService = require('./email-service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -88,6 +89,10 @@ pool.on('connect', () => {
 pool.on('error', (err) => {
     console.error('❌ PostgreSQL connection error:', err);
 });
+
+// Initialize Email Service
+const emailService = new EmailService();
+console.log('📧 Email service initialized');
 
 // Database helpers
 const dbHelpers = {
@@ -458,6 +463,15 @@ app.post('/signup', async (req, res) => {
             VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
         `, [userId, email, hashedPassword, name, 'user']);
         
+        // Send welcome email
+        try {
+            await emailService.sendWelcomeEmail(email, name);
+            console.log('✅ Welcome email sent to:', email);
+        } catch (emailError) {
+            console.error('❌ Failed to send welcome email:', emailError);
+            // Don't fail the signup if email fails
+        }
+        
         res.json({ 
             success: true, 
             token: userId,
@@ -502,6 +516,26 @@ app.get('/languages', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error loading languages:', error);
         res.status(500).json({ error: 'Failed to load languages' });
+    }
+});
+
+// Test email service (admin only)
+app.post('/test-email', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const result = await emailService.testEmailService();
+        if (result.success) {
+            res.json({ success: true, message: 'Test email sent successfully', messageId: result.messageId });
+        } else {
+            res.status(500).json({ error: 'Failed to send test email: ' + result.error });
+        }
+    } catch (error) {
+        console.error('❌ Error testing email service:', error);
+        res.status(500).json({ error: 'Email service test failed: ' + error.message });
     }
 });
 
@@ -634,6 +668,24 @@ app.post('/projects', requireAuth, async (req, res) => {
         ]);
         
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [projectId]);
+        
+        // Send project creation email
+        try {
+            const user = await dbHelpers.get('SELECT email, name FROM users WHERE id = $1', [req.user.id]);
+            if (user) {
+                await emailService.sendProjectCreatedEmail(user.email, user.name, {
+                    name: projectNameToUse,
+                    fileName,
+                    wordCount: parseInt(wordCount),
+                    projectType: projectType || 'fusion',
+                    total: parseFloat(total)
+                });
+                console.log('✅ Project creation email sent to:', user.email);
+            }
+        } catch (emailError) {
+            console.error('❌ Failed to send project creation email:', emailError);
+            // Don't fail the project creation if email fails
+        }
         
         console.log('✅ Project created successfully:', project);
         res.json({ success: true, project });
@@ -1335,6 +1387,24 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
         `, [req.file.originalname, 'completed', id]);
         
         console.log('✅ Database updated successfully');
+        
+        // Send project completion email to user
+        try {
+            const user = await dbHelpers.get('SELECT email, name FROM users WHERE id = $1', [project.user_id]);
+            if (user) {
+                await emailService.sendProjectCompletedEmail(user.email, user.name, {
+                    name: project.name,
+                    fileName: project.file_name,
+                    translatedFileName: req.file.originalname,
+                    wordCount: parseInt(project.word_count),
+                    projectType: project.project_type
+                });
+                console.log('✅ Project completion email sent to:', user.email);
+            }
+        } catch (emailError) {
+            console.error('❌ Failed to send project completion email:', emailError);
+            // Don't fail the upload if email fails
+        }
         
         console.log('✅ Translated file uploaded successfully:', {
             projectId: id,

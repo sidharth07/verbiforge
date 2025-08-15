@@ -37,6 +37,16 @@ services:
         value: ""  # Add your Google OAuth Client Secret here
       - key: GOOGLE_CALLBACK_URL
         value: https://verbiforge.onrender.com/auth/google/callback
+      - key: MAILGUN_API_KEY
+        value: ""  # Add your Mailgun API key here
+      - key: MAILGUN_DOMAIN
+        value: ""  # Add your Mailgun domain here (e.g., mg.yourdomain.com)
+      - key: FROM_EMAIL
+        value: "noreply@verbiforge.com"  # Update with your domain
+      - key: APP_URL
+        value: "https://verbiforge.onrender.com"
+      - key: TEST_EMAIL
+        value: ""  # Add your test email address here
 
 databases:
   - name: verbiforge-db
