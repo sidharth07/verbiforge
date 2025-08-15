@@ -1753,6 +1753,38 @@ app.use((error, req, res, next) => {
     });
 });
 
+// Mark contact as read
+app.put('/admin/contacts/:id/read', requireAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('🔍 Marking contact as read:', id);
+        
+        // Check if user is admin
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        // Mark contact as read
+        const result = await dbHelpers.run(
+            'UPDATE contact_submissions SET is_read = TRUE WHERE id = $1',
+            [id]
+        );
+        
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Contact message not found' });
+        }
+        
+        console.log('✅ Contact marked as read successfully');
+        res.json({ success: true, message: 'Contact marked as read' });
+        
+    } catch (error) {
+        console.error('❌ Error marking contact as read:', error);
+        res.status(500).json({ error: 'Failed to mark contact as read: ' + error.message });
+    }
+});
+
 // Update contact status
 app.put('/admin/contacts/:id/status', requireAuth, async (req, res) => {
     try {
@@ -1855,6 +1887,7 @@ app.use('*', (req, res) => {
     console.error('   - POST /admin/admins');
     console.error('   - DELETE /admin/admins/:email');
     console.error('   - GET /admin/contacts');
+    console.error('   - PUT /admin/contacts/:id/read');
     console.error('   - PUT /admin/contacts/:id/status');
     console.error('   - DELETE /admin/contacts/:id');
     console.error('   - GET /health');
@@ -1891,6 +1924,7 @@ app.use('*', (req, res) => {
             'POST /admin/admins',
             'DELETE /admin/admins/:email',
             'GET /admin/contacts',
+            'PUT /admin/contacts/:id/read',
             'PUT /admin/contacts/:id/status',
             'DELETE /admin/contacts/:id',
             'GET /health'
