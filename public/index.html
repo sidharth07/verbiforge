@@ -5,16 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerbiForge</title>
-    <script src="client-auth.js"></script>
     <script>
-        let currentUser = null;
-        let isAdmin = false;
-
-        // Redirect to login page immediately
-        document.addEventListener('DOMContentLoaded', function() {
-            // Redirect to login page
-            window.location.href = 'login.html';
-        });
+        // Redirect immediately before any content loads
+        window.location.href = 'login.html';
+    </script>
+    <script src="client-auth.js"></script>
 
         async function checkAuthAndUpdateUI() {
             try {
