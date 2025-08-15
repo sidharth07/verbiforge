@@ -7,41 +7,8 @@
     <title>VerbiForge</title>
     <script src="client-auth.js"></script>
     <script>
-        // Show loading state immediately
+        // Check authentication on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Hide the main content and show loading
-            document.body.innerHTML = `
-                <div style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                ">
-                    <div style="text-align: center;">
-                        <div style="
-                            border: 3px solid #f3f3f3;
-                            border-top: 3px solid #4facfe;
-                            border-radius: 50%;
-                            width: 40px;
-                            height: 40px;
-                            animation: spin 1s linear infinite;
-                            margin: 0 auto 20px;
-                        "></div>
-                        <h2>VerbiForge</h2>
-                        <p>Loading...</p>
-                    </div>
-                </div>
-                <style>
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                </style>
-            `;
-            
             // Check authentication
             Auth.authFetch('/me').then(async response => {
                 if (!response.ok) {
@@ -67,6 +34,82 @@
             });
         });
     </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>VerbiForge</h1>
+            <p>Professional Translation Services with Instant Pricing</p>
+        </div>
+        
+        <div class="form-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls">
+                <label for="fileInput" class="file-label">📁 Choose Excel File</label>
+                <p id="fileName" style="margin-top: 10px; color: #666;"></p>
+            </div>
+            
+            <div class="language-section">
+                <h3>🌍 Select Languages</h3>
+                <div class="language-grid" id="languageGrid">
+                    <!-- Languages will be loaded here -->
+                </div>
+            </div>
+            
+            <button id="analyzeBtn" class="analyze-btn">Analyze Document</button>
+            
+            <div id="error" class="error" style="display: none;"></div>
+            <div id="loading" style="text-align: center; padding: 20px; display: none;">
+                <div style="
+                    border: 3px solid #f3f3f3;
+                    border-top: 3px solid #4facfe;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 10px;
+                "></div>
+                Analyzing document...
+            </div>
+        </div>
+        
+        <div id="results" class="results">
+            <div class="result-header">
+                <h2>Analysis Results</h2>
+            </div>
+            
+            <div class="basic-info">
+                <div class="info-row">
+                    <span>File:</span>
+                    <span id="resultFileName"></span>
+                </div>
+                <div class="info-row">
+                    <span>Word Count:</span>
+                    <span id="resultWordCount"></span>
+                </div>
+            </div>
+            
+            <div class="breakdown">
+                <h3>Language Breakdown</h3>
+                <div id="breakdownList"></div>
+            </div>
+            
+            <div class="total-section">
+                <div>Total Cost</div>
+                <div class="total-amount" id="totalAmount"></div>
+            </div>
+            
+            <button id="resetBtn" class="reset-btn">Start New Analysis</button>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
     <style>
         * {
             margin: 0;
@@ -553,11 +596,13 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
+                font-size: 14px;
             }
             
             .container {
                 margin: 0;
                 border-radius: 8px;
+                max-width: 100%;
             }
             
             .header {
@@ -571,6 +616,7 @@
             
             .header p {
                 font-size: 0.9em;
+                line-height: 1.4;
             }
             
             .form-section {
@@ -580,11 +626,14 @@
             .upload-area {
                 padding: 20px 15px;
                 margin-bottom: 20px;
+                border-width: 2px;
             }
             
             .file-label {
-                padding: 10px 20px;
+                padding: 12px 20px;
                 font-size: 14px;
+                display: block;
+                text-align: center;
             }
             
             .language-section {
@@ -603,19 +652,23 @@
             
             .language-item {
                 padding: 12px 10px;
+                min-height: 50px;
             }
             
             .language-name {
                 font-size: 14px;
+                font-weight: 600;
             }
             
             .language-price {
                 font-size: 12px;
+                margin-top: 2px;
             }
             
             .analyze-btn {
-                padding: 12px 20px;
-                font-size: 1em;
+                padding: 15px 20px;
+                font-size: 16px;
+                font-weight: 600;
             }
             
             .results {
@@ -633,6 +686,7 @@
             .info-row {
                 flex-direction: column;
                 gap: 5px;
+                align-items: flex-start;
             }
             
             .breakdown-item {
@@ -654,11 +708,32 @@
                 padding: 12px 20px;
                 font-size: 14px;
             }
+            
+            #fileName {
+                font-size: 13px;
+                word-break: break-word;
+            }
+            
+            .error {
+                padding: 12px;
+                font-size: 13px;
+                margin: 10px 0;
+            }
+            
+            #loading {
+                padding: 15px;
+                font-size: 14px;
+            }
         }
         
         @media (max-width: 480px) {
             body {
                 padding: 5px;
+                font-size: 13px;
+            }
+            
+            .container {
+                border-radius: 6px;
             }
             
             .header {
@@ -667,6 +742,11 @@
             
             .header h1 {
                 font-size: 1.5em;
+                margin-bottom: 4px;
+            }
+            
+            .header p {
+                font-size: 0.85em;
             }
             
             .form-section {
@@ -675,6 +755,17 @@
             
             .upload-area {
                 padding: 15px 10px;
+                margin-bottom: 15px;
+            }
+            
+            .file-label {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .language-section h3 {
+                font-size: 1em;
+                margin-bottom: 10px;
             }
             
             .language-grid {
@@ -683,10 +774,28 @@
             
             .language-item {
                 padding: 10px 8px;
+                min-height: 45px;
+            }
+            
+            .language-name {
+                font-size: 13px;
+            }
+            
+            .language-price {
+                font-size: 11px;
+            }
+            
+            .analyze-btn {
+                padding: 12px 15px;
+                font-size: 15px;
             }
             
             .results {
                 padding: 15px 10px;
+            }
+            
+            .result-header h2 {
+                font-size: 1.2em;
             }
             
             .basic-info {
@@ -695,6 +804,7 @@
             
             .breakdown-item {
                 padding: 8px;
+                font-size: 12px;
             }
             
             .total-section {
@@ -704,6 +814,183 @@
             .total-amount {
                 font-size: 1.3em;
             }
+            
+            .reset-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            #fileName {
+                font-size: 12px;
+            }
+            
+            .error {
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            #loading {
+                padding: 12px;
+                font-size: 13px;
+            }
+        }
+    </script>
+    
+    <script>
+        let availableLanguages = {};
+        let selectedLanguages = [];
+
+        // Load languages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLanguages();
+            setupEventListeners();
+        });
+
+        async function loadLanguages() {
+            try {
+                const response = await fetch('/languages');
+                const data = await response.json();
+                availableLanguages = data;
+                renderLanguages();
+            } catch (error) {
+                console.error('Error loading languages:', error);
+            }
+        }
+
+        function renderLanguages() {
+            const grid = document.getElementById('languageGrid');
+            grid.innerHTML = '';
+
+            Object.entries(availableLanguages).forEach(([name, price]) => {
+                const item = document.createElement('div');
+                item.className = 'language-item';
+                item.onclick = () => toggleLanguage(name);
+                
+                item.innerHTML = `
+                    <input type="checkbox" class="language-checkbox" ${selectedLanguages.includes(name) ? 'checked' : ''}>
+                    <div class="language-info">
+                        <div class="language-name">${name}</div>
+                        <div class="language-price">${price} cents/word</div>
+                    </div>
+                `;
+                
+                if (selectedLanguages.includes(name)) {
+                    item.classList.add('selected');
+                }
+                
+                grid.appendChild(item);
+            });
+        }
+
+        function toggleLanguage(language) {
+            const index = selectedLanguages.indexOf(language);
+            if (index > -1) {
+                selectedLanguages.splice(index, 1);
+            } else {
+                selectedLanguages.push(language);
+            }
+            renderLanguages();
+        }
+
+        function setupEventListeners() {
+            // File input change
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('fileName').textContent = file.name;
+                }
+            });
+
+            // Analyze button
+            document.getElementById('analyzeBtn').addEventListener('click', analyzeDocument);
+
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                document.getElementById('results').classList.remove('show');
+                document.getElementById('fileInput').value = '';
+                document.getElementById('fileName').textContent = '';
+                selectedLanguages = [];
+                renderLanguages();
+                hideError();
+            });
+        }
+
+        async function analyzeDocument() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showError('Please select a file.');
+                return;
+            }
+
+            if (selectedLanguages.length === 0) {
+                showError('Please select at least one language.');
+                return;
+            }
+
+            showLoading(true);
+            hideError();
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('languages', JSON.stringify(selectedLanguages));
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResults(data);
+                } else {
+                    showError(data.error || 'Analysis failed.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Network error. Please try again.');
+            }
+
+            showLoading(false);
+        }
+
+        function showResults(data) {
+            document.getElementById('resultFileName').textContent = data.fileName;
+            document.getElementById('resultWordCount').textContent = data.wordCount.toLocaleString();
+
+            const breakdownList = document.getElementById('breakdownList');
+            breakdownList.innerHTML = '';
+
+            data.breakdown.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'breakdown-item';
+                div.innerHTML = `
+                    <span>${item.language} (${item.rate} cents/word)</span>
+                    <span>$${item.cost}</span>
+                `;
+                breakdownList.appendChild(div);
+            });
+
+            document.getElementById('totalAmount').textContent = `$${data.total}`;
+            document.getElementById('results').classList.add('show');
+        }
+
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('analyzeBtn').disabled = show;
         }
     </script>
 </body>
