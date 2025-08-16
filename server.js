@@ -625,6 +625,39 @@ app.post('/test-admin-notification', requireAuth, async (req, res) => {
     }
 });
 
+// Debug endpoint to check project data (admin only)
+app.get('/debug/project/:id', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { id } = req.params;
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [id]);
+        
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        res.json({
+            success: true,
+            project: {
+                id: project.id,
+                name: project.name,
+                status: project.status,
+                translated_file_name: project.translated_file_name,
+                translated_file_path: project.translated_file_path,
+                user_id: project.user_id,
+                created_at: project.created_at
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error in debug endpoint:', error);
+        res.status(500).json({ error: 'Debug endpoint failed: ' + error.message });
+    }
+});
+
 // Get multiplier
 app.get('/multiplier', requireAuth, async (req, res) => {
     try {

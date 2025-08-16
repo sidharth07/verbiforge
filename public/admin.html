@@ -1647,6 +1647,23 @@
                         </div>
                     `;
                     
+                    // Refresh the current project data to show the translated file
+                    if (currentProjectId) {
+                        try {
+                            const projectResponse = await Auth.authFetch(`/admin/projects/${currentProjectId}`);
+                            if (projectResponse.ok) {
+                                const updatedProject = await projectResponse.json();
+                                // Update the current project data
+                                const projectIndex = allProjects.findIndex(p => p.id === currentProjectId);
+                                if (projectIndex !== -1) {
+                                    allProjects[projectIndex] = updatedProject;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('❌ Error refreshing project data:', error);
+                        }
+                    }
+                    
                     // Refresh the projects list
                     setTimeout(() => {
                         loadProjects();
