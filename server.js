@@ -2205,6 +2205,25 @@ app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
     }
 });
 
+// Test download endpoint for debugging
+app.get('/admin/test-download', requireAuth, async (req, res) => {
+    try {
+        console.log('🧪 Test download endpoint called');
+        console.log('🧪 User:', req.user.email, 'Role:', req.user.role);
+        console.log('🧪 Headers:', req.headers);
+        
+        res.json({ 
+            success: true, 
+            message: 'Test download endpoint working',
+            user: req.user.email,
+            role: req.user.role
+        });
+    } catch (error) {
+        console.error('❌ Test download error:', error);
+        res.status(500).json({ error: 'Test download failed' });
+    }
+});
+
 // Download project file (admin)
 app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
     try {
@@ -2221,17 +2240,32 @@ app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
             return res.status(404).json({ error: 'Project not found' });
         }
         
-        // For now, return project info since we don't have file storage implemented
-        res.json({ 
-            success: true, 
-            message: 'Download functionality not yet implemented',
-            project: {
-                id: project.id,
-                name: project.name,
-                fileName: project.file_name,
-                status: project.status
-            }
-        });
+        console.log('✅ Project found:', { id: project.id, name: project.name, fileName: project.file_name });
+        
+        // Check if we have an original file path
+        if (!project.original_file_path) {
+            console.log('❌ No original file path found for project');
+            return res.status(404).json({ error: 'Original file not found for this project' });
+        }
+        
+        try {
+            // Get the file content using FileManager
+            console.log('🔍 Retrieving file:', project.original_file_path);
+            const fileContent = await FileManager.getUploadedFile(project.original_file_path);
+            
+            // Set appropriate headers for file download
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', `attachment; filename="${project.file_name}"`);
+            res.setHeader('Content-Length', fileContent.length);
+            
+            // Send the file
+            res.send(fileContent);
+            console.log('✅ File sent successfully, size:', fileContent.length);
+            
+        } catch (fileError) {
+            console.error('❌ Error retrieving file:', fileError);
+            return res.status(404).json({ error: 'File not found or corrupted' });
+        }
         
     } catch (error) {
         console.error('❌ Error downloading project:', error);
