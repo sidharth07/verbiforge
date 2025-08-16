@@ -138,6 +138,80 @@
             box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
         }
         
+        /* Admin Layout */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            width: 250px;
+            background: #4a5568;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: white;
+        }
+
+        .sidebar-btn svg {
+            flex-shrink: 0;
+        }
+
+        /* Main Content */
+        .admin-main {
+            flex: 1;
+            margin-left: 250px;
+            background: #f5f5f5;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #f5f5f5;
@@ -708,23 +782,60 @@
         </div>
     </nav>
     
-    <div class="container">
-        <div class="admin-header">
-            <h1>Admin Panel</h1>
-            <p>Manage projects and language pricing</p>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="sidebar-btn active" data-admin-tab="projects" id="projectsTabBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                    </svg>
+                    Projects
+                </button>
+                <button class="sidebar-btn" data-admin-tab="languages" id="languagesTabBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.01-4.65.83-6.99l2.53 2.53c1.53 1.53 1.53 4.01 0 5.54z"/>
+                        <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.01-4.65.83-6.99l2.53 2.53c1.53 1.53 1.53 4.01 0 5.54z"/>
+                    </svg>
+                    Language Pricing
+                </button>
+                <button class="sidebar-btn" data-admin-tab="users" id="usersTabBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01 1l-1.7 2.26A6.003 6.003 0 0 0 10 16c0 1.1.9 2 2 2s2-.9 2-2c0-.73-.4-1.38-1-1.73V22h3z"/>
+                    </svg>
+                    User Management
+                </button>
+                <button class="sidebar-btn" data-admin-tab="contacts" id="contactsTabBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
+                    </svg>
+                    Contact Messages
+                    <span id="contactsNotification" class="notification-badge" style="display: none;">0</span>
+                </button>
+                <button class="sidebar-btn" data-admin-tab="create-project" id="createProjectTabBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    Create Project
+                </button>
+                <button class="sidebar-btn" data-admin-tab="admins" id="adminsTabBtn" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    Admin Management
+                </button>
+            </nav>
         </div>
         
-        <div style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #ddd; flex-wrap: wrap;">
-            <button class="tab-btn active" data-admin-tab="projects" id="projectsTabBtn">Projects</button>
-            <button class="tab-btn" data-admin-tab="languages" id="languagesTabBtn">Language Pricing</button>
-            <button class="tab-btn" data-admin-tab="users" id="usersTabBtn">User Management</button>
-            <button class="tab-btn" data-admin-tab="contacts" id="contactsTabBtn">
-                Contact Messages
-                <span id="contactsNotification" class="notification-badge" style="display: none;">0</span>
-            </button>
-            <button class="tab-btn" data-admin-tab="create-project" id="createProjectTabBtn">Create Project</button>
-            <button class="tab-btn" data-admin-tab="admins" id="adminsTabBtn" style="display: none;">Admin Management</button>
-        </div>
+        <!-- Main Content -->
+        <div class="admin-main">
+            <div class="admin-header">
+                <h1>Admin Panel</h1>
+                <p>Manage projects and language pricing</p>
+            </div>
         
         <div id="projectsTab" class="tab-content active">
             <div class="stats-grid" id="statsGrid">
@@ -1088,6 +1199,7 @@
                 <div id="createProjectStatus" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;"></div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Contact Details Modal -->
@@ -1782,8 +1894,8 @@
         }
 
         function switchAdminTab(tab) {
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            // Update sidebar buttons
+            document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tab + 'TabBtn').classList.add('active');
             
             // Update tab content
@@ -1799,6 +1911,9 @@
                 loadContacts();
             } else if (tab === 'languages') {
                 loadMultiplier(); // Reload multiplier when switching to languages tab
+            } else if (tab === 'create-project') {
+                // Reset the create project form when switching to this tab
+                resetProjectCreation();
             }
         }
 
@@ -2678,7 +2793,7 @@
             document.getElementById('logoutBtn').addEventListener('click', logout);
 
             // Admin tab switching
-            document.querySelectorAll('.tab-btn').forEach(btn => {
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tab = this.getAttribute('data-admin-tab');
                     switchAdminTab(tab);
