@@ -1624,23 +1624,30 @@
         }
 
         async function submitProject(id) {
+            console.log('🔍 Submitting project with ID:', id);
             CustomModal.confirm(
                 'Are you sure you want to submit this project? Once submitted, you cannot delete it.',
                 async () => {
                     try {
+                        console.log('🔍 Making submit request for project:', id);
                         const response = await Auth.authFetch(`/projects/${id}/submit`, {
                             method: 'PUT'
                         });
+
+                        console.log('🔍 Submit response status:', response.status);
+                        console.log('🔍 Submit response ok:', response.ok);
 
                         if (response.ok) {
                             loadProjects();
                             CustomModal.success('Project submitted successfully!');
                         } else {
                             const data = await response.json();
+                            console.error('❌ Submit error response:', data);
                             CustomModal.error('Error submitting project: ' + data.error);
                         }
                     } catch (error) {
-                        console.error('Error submitting project:', error);
+                        console.error('❌ Submit error:', error);
+                        console.error('❌ Submit error message:', error.message);
                         CustomModal.error('Network error submitting project');
                     }
                 }
@@ -1648,20 +1655,28 @@
         }
 
         async function deleteProject(id) {
+            console.log('🔍 Deleting project with ID:', id);
             CustomModal.confirm(
                 'Are you sure you want to delete this project?',
                 async () => {
                     try {
+                        console.log('🔍 Making delete request for project:', id);
                         const response = await Auth.authFetch(`/projects/${id}`, { method: 'DELETE' });
+                        
+                        console.log('🔍 Delete response status:', response.status);
+                        console.log('🔍 Delete response ok:', response.ok);
+                        
                         if (response.ok) {
                             loadProjects();
                             CustomModal.success('Project deleted successfully!');
                         } else {
                             const data = await response.json();
+                            console.error('❌ Delete error response:', data);
                             CustomModal.error('Error deleting project: ' + data.error);
                         }
                     } catch (error) {
-                        console.error('Error deleting project:', error);
+                        console.error('❌ Delete error:', error);
+                        console.error('❌ Delete error message:', error.message);
                         CustomModal.error('Network error deleting project');
                     }
                 }

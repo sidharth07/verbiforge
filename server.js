@@ -1226,7 +1226,10 @@ app.delete('/projects/:id', requireAuth, async (req, res) => {
         // Check if project exists and belongs to user
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, req.user.id]);
         
+        console.log('🔍 Project lookup result:', project);
+        
         if (!project) {
+            console.log('❌ Project not found or access denied for:', { projectId: id, userId: req.user.id });
             return res.status(404).json({ error: 'Project not found or access denied' });
         }
         
@@ -1251,7 +1254,10 @@ app.put('/projects/:id/submit', requireAuth, async (req, res) => {
         // Check if project exists and belongs to user
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, req.user.id]);
         
+        console.log('🔍 Project lookup result:', project);
+        
         if (!project) {
+            console.log('❌ Project not found or access denied for:', { projectId: id, userId: req.user.id });
             return res.status(404).json({ error: 'Project not found or access denied' });
         }
         
