@@ -25,7 +25,27 @@
   function isAuthenticated() {
     const token = getToken();
     const user = getUser();
-    return token && user;
+    
+    if (!token || !user) {
+      return false;
+    }
+    
+    // Check if token is expired (basic check)
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      
+      if (payload.exp && payload.exp < currentTime) {
+        console.log('🔑 Token expired, clearing auth');
+        clearAuth();
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.log('🔑 Error checking token expiration:', error);
+      return false;
+    }
   }
 
   async function authFetch(input, init) {

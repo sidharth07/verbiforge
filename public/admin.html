@@ -4097,57 +4097,7 @@
                     return;
                 }
 
-                // Verify admin access with server (without auto-redirect)
-                try {
-                    const token = Auth.getToken();
-                    console.log('🔑 Token exists:', !!token);
-                    
-                    if (!token) {
-                        console.log('❌ No token found, redirecting to login');
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                    
-                    const adminCheckUrl = '/admin/check';
-                    console.log('🌐 Calling admin check URL:', adminCheckUrl);
-                    
-                    const adminCheckResponse = await fetch(adminCheckUrl, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-                    console.log('📡 Admin check response status:', adminCheckResponse.status);
-                    
-                    if (adminCheckResponse.status === 401 || adminCheckResponse.status === 403) {
-                        console.log('❌ Token invalid or expired, redirecting to login');
-                        Auth.clearAuth();
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                    
-                    if (!adminCheckResponse.ok) {
-                        console.log('❌ Admin check failed with status:', adminCheckResponse.status);
-                        window.location.href = 'dashboard.html';
-                        return;
-                    }
-                    
-                    const adminData = await adminCheckResponse.json();
-                    console.log('👑 Admin data:', adminData);
-                    
-                    if (!adminData.isAdmin) {
-                        console.log('❌ User is not admin, redirecting to dashboard');
-                        window.location.href = 'dashboard.html';
-                        return;
-                    }
-                } catch (error) {
-                    console.error('❌ Error checking admin status:', error);
-                    // Don't redirect on network errors, just log the error
-                    console.log('⚠️ Network error during admin check, continuing...');
-                }
-
-                // Update user info in header
+                // Update user info in header immediately
                 const userNameElement = document.getElementById('userName');
                 const userRoleElement = document.getElementById('userRole');
                 const userAvatarElement = document.getElementById('userAvatar');
@@ -4156,10 +4106,68 @@
                 if (userRoleElement) userRoleElement.textContent = currentUser.role === 'super_admin' ? 'Super Admin' : 'Administrator';
                 if (userAvatarElement) userAvatarElement.textContent = currentUser.name.charAt(0).toUpperCase();
 
+                // Verify admin access with server (background check)
+                verifyAdminAccess();
+
                 console.log('✅ Admin data loaded successfully');
             } catch (error) {
                 console.error('❌ Error loading admin data:', error);
                 window.location.href = 'login.html';
+            }
+        }
+
+        // Separate function for server verification
+        async function verifyAdminAccess() {
+            try {
+                const token = Auth.getToken();
+                console.log('🔑 Token exists:', !!token);
+                
+                if (!token) {
+                    console.log('❌ No token found, redirecting to login');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const adminCheckUrl = '/admin/check';
+                console.log('🌐 Calling admin check URL:', adminCheckUrl);
+                
+                const adminCheckResponse = await fetch(adminCheckUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('📡 Admin check response status:', adminCheckResponse.status);
+                
+                if (adminCheckResponse.status === 401 || adminCheckResponse.status === 403) {
+                    console.log('❌ Token invalid or expired, redirecting to login');
+                    Auth.clearAuth();
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                if (!adminCheckResponse.ok) {
+                    console.log('❌ Admin check failed with status:', adminCheckResponse.status);
+                    // Don't redirect on server errors, just log
+                    console.log('⚠️ Server error during admin check, continuing...');
+                    return;
+                }
+                
+                const adminData = await adminCheckResponse.json();
+                console.log('👑 Admin data:', adminData);
+                
+                if (!adminData.isAdmin) {
+                    console.log('❌ User is not admin, redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                
+                console.log('✅ Server admin verification successful');
+            } catch (error) {
+                console.error('❌ Error checking admin status:', error);
+                // Don't redirect on network errors, just log the error
+                console.log('⚠️ Network error during admin check, continuing...');
             }
         }
 
@@ -4192,6 +4200,14 @@
                 console.error('❌ Failed to load admin data:', error);
                 // Don't redirect immediately, let the user see the error
             });
+            
+            // Set up periodic token validation
+            setInterval(() => {
+                if (!Auth.isAuthenticated()) {
+                    console.log('🔑 Token validation failed, redirecting to login');
+                    window.location.href = 'login.html';
+                }
+            }, 30000); // Check every 30 seconds
             
             // Initialize sidebar
             initializeSidebar();

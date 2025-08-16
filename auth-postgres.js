@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'verbiforge-jwt-secret-change-in-production';
-const JWT_EXPIRES_IN = '24h';
+const JWT_EXPIRES_IN = '7d'; // Extended to 7 days for better user experience
 const SALT_ROUNDS = 12;
 
 class AuthManager {

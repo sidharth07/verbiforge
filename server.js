@@ -439,25 +439,29 @@ const requireAuth = async (req, res, next) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
         if (!token) {
+            console.log('❌ No token provided for:', req.method, req.path);
             return res.status(401).json({ error: 'No token provided' });
         }
 
         // Verify JWT token
         const decoded = authManager.verifyToken(token);
         if (!decoded) {
+            console.log('❌ Invalid or expired token for:', req.method, req.path);
             return res.status(401).json({ error: 'Invalid or expired token' });
         }
 
         // Get user from database
         const user = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [decoded.id]);
         if (!user) {
+            console.log('❌ User not found for token:', decoded.id);
             return res.status(401).json({ error: 'User not found' });
         }
 
+        console.log('✅ Auth successful for user:', user.email, 'Role:', user.role, 'Path:', req.path);
         req.user = user;
         next();
     } catch (error) {
-        console.error('Auth error:', error);
+        console.error('❌ Auth error:', error);
         res.status(500).json({ error: 'Authentication error' });
     }
 };
@@ -1381,13 +1385,17 @@ app.put('/projects/:id/submit', requireAuth, async (req, res) => {
 // Admin check endpoint
 app.get('/admin/check', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Admin check request from user:', req.user.email, 'Role:', req.user.role);
+        
         // Check if user is admin based on role in users table
         const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
         const isSuperAdmin = req.user.role === 'super_admin';
         
+        console.log('👑 Admin check result:', { isAdmin, isSuperAdmin });
+        
         res.json({ isAdmin, isSuperAdmin });
     } catch (error) {
-        console.error('Admin check error:', error);
+        console.error('❌ Admin check error:', error);
         res.status(500).json({ error: 'Failed to check admin status' });
     }
 });
