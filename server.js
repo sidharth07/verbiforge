@@ -91,6 +91,12 @@ pool.on('error', (err) => {
     console.error('❌ PostgreSQL connection error:', err);
 });
 
+// Fallback initialization in case connection event doesn't fire
+setTimeout(() => {
+    console.log('🔧 Running fallback database initialization...');
+    initializeDatabase();
+}, 5000); // Run after 5 seconds as fallback
+
 // Initialize Email Service
 const emailService = new EmailService();
 console.log('📧 Email service initialized');
@@ -207,8 +213,14 @@ async function initializeDatabase() {
     }
 }
 
-// Initialize database schema
-initializeDatabase();
+// Initialize database schema after connection is established
+pool.on('connect', () => {
+    console.log('✅ Connected to PostgreSQL database');
+    // Run database initialization after connection is established
+    setTimeout(() => {
+        initializeDatabase();
+    }, 2000); // Wait 2 seconds to ensure connection is stable
+});
 
 // Database helpers
 const dbHelpers = {
@@ -776,16 +788,43 @@ app.post('/projects', requireAuth, async (req, res) => {
             multiplier
         });
         
-        await dbHelpers.run(`
-            INSERT INTO projects (
-                id, user_id, name, file_name, word_count, breakdown, 
-                subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
-        `, [
-            projectId, req.user.id, projectNameToUse, fileName, wordCount, 
-            JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
-            projectType || 'fusion', multiplier || 1.0, notes || ''
-        ]);
+        // Try to insert with all columns first
+        try {
+            await dbHelpers.run(`
+                INSERT INTO projects (
+                    id, user_id, name, file_name, word_count, breakdown, 
+                    subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
+            `, [
+                projectId, req.user.id, projectNameToUse, fileName, wordCount, 
+                JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
+                projectType || 'fusion', multiplier || 1.0, notes || ''
+            ]);
+        } catch (error) {
+            // If columns don't exist, try to add them and retry
+            if (error.message.includes('column "subtotal"') || error.message.includes('column "project_management_cost"')) {
+                console.log('🔧 Database columns missing, attempting to add them...');
+                try {
+                    await initializeDatabase();
+                    // Retry the insert
+                    await dbHelpers.run(`
+                        INSERT INTO projects (
+                            id, user_id, name, file_name, word_count, breakdown, 
+                            subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
+                    `, [
+                        projectId, req.user.id, projectNameToUse, fileName, wordCount, 
+                        JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
+                        projectType || 'fusion', multiplier || 1.0, notes || ''
+                    ]);
+                } catch (retryError) {
+                    console.error('❌ Failed to add database columns:', retryError);
+                    throw new Error('Database schema is not ready. Please try again in a moment.');
+                }
+            } else {
+                throw error;
+            }
+        }
         
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [projectId]);
         
