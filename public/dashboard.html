@@ -921,6 +921,56 @@
             .form-label {
                 font-size: 1em;
             }
+
+            /* Modal Mobile Styles */
+            .modal-content {
+                width: 98%;
+                margin: 10px;
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5em;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .info-item {
+                gap: 10px;
+            }
+
+            .info-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+
+            .grand-total-value {
+                font-size: 2em;
+            }
+
+            .modal-actions {
+                padding: 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .modal-btn {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 1em;
+            }
         }
 
         .project-card {
@@ -1085,6 +1135,7 @@
             margin-bottom: 10px;
         }
 
+        /* Premium Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -1092,39 +1143,329 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 1000;
+            backdrop-filter: blur(8px);
         }
 
         .modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .modal-content {
             background: white;
-            border-radius: 8px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
+            border-radius: 20px;
+            padding: 0;
+            width: 95%;
+            max-width: 700px;
             max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-20px) scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
         }
 
         .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .close-btn {
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.9em;
             color: #666;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .project-type-badge-modal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .project-type-badge-modal.premium {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb74d 100%);
+            color: #856404;
+        }
+
+        .costs-section {
+            margin-bottom: 25px;
+        }
+
+        .costs-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .costs-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .cost-item.language {
+            background: white;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .cost-label {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cost-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .grand-total-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            margin: 25px 0;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grand-total-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .grand-total-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .grand-total-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .notes-section {
+            margin-bottom: 25px;
+        }
+
+        .notes-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .notes-textarea::placeholder {
+            color: #999;
+        }
+
+        .modal-actions {
+            padding: 25px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal-btn.primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-btn.secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .modal-btn.secondary:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -1290,18 +1631,18 @@
                 <button class="close-btn" id="modalCloseBtn">&times;</button>
             </div>
 
-            <div id="resultsContent">
-                <!-- Results will be populated here -->
+            <div class="modal-body">
+                <div id="resultsContent">
+                    <!-- Results will be populated here -->
+                </div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button id="saveProjectBtn"
-                    style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; flex: 1;">
-                    Save Project
+            <div class="modal-actions">
+                <button id="saveProjectBtn" class="modal-btn primary">
+                    💾 Save Project
                 </button>
-                <button id="closeModalBtn2"
-                    style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">
-                    Close
+                <button id="closeModalBtn2" class="modal-btn secondary">
+                    ✕ Close
                 </button>
             </div>
         </div>
@@ -1836,59 +2177,76 @@
             let breakdownHtml = '';
             data.breakdown.forEach(item => {
                 breakdownHtml += `
-                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee;">
-                        <span>${item.language}</span>
-                        <span>$${item.cost}</span>
+                    <div class="cost-item language">
+                        <div class="cost-label">🌍 ${item.language}</div>
+                        <div class="cost-value">$${item.cost}</div>
                     </div>
                 `;
             });
 
             content.innerHTML = `
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>File:</span>
-                        <span>${data.fileName}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Total Words:</span>
-                        <span>${data.wordCount.toLocaleString()}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>Project Type:</span>
-                        <span style="font-weight: 600; color: ${data.projectType === 'pure' ? '#ffd700' : '#4facfe'};">
-                            ${data.projectType === 'pure' ? 'Pure (Premium)' : 'Fusion (Standard)'}
-                            ${data.multiplier > 1 ? ` (${data.multiplier}x)` : ''}
-                        </span>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="margin-bottom: 15px;">💰 Translation Costs</h3>
-                    <div>${breakdownHtml}</div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-weight: 500;">
-                        <span>Subtotal</span>
-                        <span>$${data.subtotal}</span>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h3 style="margin-bottom: 15px;">📋 Additional Costs</h3>
-                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee;">
-                        <span>Project Management</span>
-                        <span>$${data.projectManagementCost || '500.00'}</span>
+                <div class="info-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">📄</div>
+                            <div class="info-content">
+                                <div class="info-label">File Name</div>
+                                <div class="info-value">${data.fileName}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">📝</div>
+                            <div class="info-content">
+                                <div class="info-label">Total Words</div>
+                                <div class="info-value">${data.wordCount.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">🏷️</div>
+                            <div class="info-content">
+                                <div class="info-label">Project Type</div>
+                                <div class="info-value">
+                                    <span class="project-type-badge-modal ${data.projectType === 'pure' ? 'premium' : ''}">
+                                        ${data.projectType === 'pure' ? 'Pure' : 'Fusion'}
+                                        ${data.multiplier > 1 ? ` (${data.multiplier}x)` : ''}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
-                    <div>Grand Total</div>
-                    <div style="font-size: 2em; font-weight: bold;">$${data.total}</div>
+                <div class="costs-section">
+                    <div class="costs-header">💰 Translation Costs</div>
+                    <div class="costs-grid">
+                        ${breakdownHtml}
+                        <div class="cost-item">
+                            <div class="cost-label">📊 Subtotal</div>
+                            <div class="cost-value">$${data.subtotal}</div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div style="margin-top: 20px;">
-                    <h3 style="margin-bottom: 15px;">📝 Notes for Admin (Optional)</h3>
+                <div class="costs-section">
+                    <div class="costs-header">📋 Additional Costs</div>
+                    <div class="costs-grid">
+                        <div class="cost-item">
+                            <div class="cost-label">⚙️ Project Management</div>
+                            <div class="cost-value">$${data.projectManagementCost || '500.00'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grand-total-card">
+                    <div class="grand-total-label">Grand Total</div>
+                    <div class="grand-total-value">$${data.total}</div>
+                </div>
+                
+                <div class="notes-section">
+                    <div class="notes-label">📝 Notes for Admin (Optional)</div>
                     <textarea id="projectNotes" 
+                              class="notes-textarea"
                               placeholder="Add any special instructions, requirements, or notes for the admin team..."
-                              style="width: 100%; min-height: 100px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; resize: vertical;"
                     ></textarea>
                 </div>
             `;
