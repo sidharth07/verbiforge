@@ -4080,12 +4080,16 @@
                 
                 // Get current user data
                 const currentUser = Auth.getUser();
+                console.log('👤 Current user:', currentUser);
+                
                 if (!currentUser) {
                     console.log('❌ No current user found');
                     window.location.href = 'login.html';
                     return;
                 }
 
+                console.log('🔍 User role:', currentUser.role);
+                
                 // Check if user is admin
                 if (currentUser.role !== 'admin' && currentUser.role !== 'super_admin') {
                     console.log('❌ User is not admin, redirecting to dashboard');
@@ -4093,9 +4097,20 @@
                     return;
                 }
 
-                // Verify admin access with server
+                // Verify admin access with server (without auto-redirect)
                 try {
-                    const adminCheckResponse = await Auth.authFetch('/admin/check');
+                    const token = Auth.getToken();
+                    console.log('🔑 Token exists:', !!token);
+                    
+                    const adminCheckResponse = await fetch('/admin/check', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    console.log('📡 Admin check response status:', adminCheckResponse.status);
+                    
                     if (!adminCheckResponse.ok) {
                         console.log('❌ Admin check failed, redirecting to dashboard');
                         window.location.href = 'dashboard.html';
@@ -4103,6 +4118,8 @@
                     }
                     
                     const adminData = await adminCheckResponse.json();
+                    console.log('👑 Admin data:', adminData);
+                    
                     if (!adminData.isAdmin) {
                         console.log('❌ User is not admin, redirecting to dashboard');
                         window.location.href = 'dashboard.html';
@@ -4141,8 +4158,11 @@
                 return;
             }
             
-            // Load admin data
-            loadAdminData();
+            // Load admin data with error handling
+            loadAdminData().catch(error => {
+                console.error('❌ Failed to load admin data:', error);
+                // Don't redirect immediately, let the user see the error
+            });
             
             // Initialize sidebar
             initializeSidebar();
