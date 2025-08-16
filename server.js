@@ -95,6 +95,100 @@ pool.on('error', (err) => {
 const emailService = new EmailService();
 console.log('📧 Email service initialized');
 
+// Initialize database schema (add missing columns if needed)
+async function initializeDatabase() {
+    try {
+        console.log('🔧 Checking database schema...');
+        
+        // Check and add translated_file_path column if missing
+        try {
+            await dbHelpers.query(`
+                ALTER TABLE projects 
+                ADD COLUMN IF NOT EXISTS translated_file_path TEXT
+            `);
+            console.log('✅ translated_file_path column ready');
+        } catch (error) {
+            console.log('ℹ️ translated_file_path column already exists');
+        }
+        
+        // Check and add subtotal column if missing
+        try {
+            await dbHelpers.query(`
+                ALTER TABLE projects 
+                ADD COLUMN IF NOT EXISTS subtotal REAL DEFAULT 0
+            `);
+            console.log('✅ subtotal column ready');
+        } catch (error) {
+            console.log('ℹ️ subtotal column already exists');
+        }
+        
+        // Check and add project_management_cost column if missing
+        try {
+            await dbHelpers.query(`
+                ALTER TABLE projects 
+                ADD COLUMN IF NOT EXISTS project_management_cost REAL DEFAULT 500
+            `);
+            console.log('✅ project_management_cost column ready');
+        } catch (error) {
+            console.log('ℹ️ project_management_cost column already exists');
+        }
+        
+        // Update existing projects with calculated subtotals
+        console.log('🔧 Updating existing projects with calculated subtotals...');
+        const projects = await dbHelpers.query(`
+            SELECT id, breakdown, total, project_management_cost 
+            FROM projects 
+            WHERE subtotal IS NULL OR subtotal = 0
+        `);
+        
+        console.log(`📋 Found ${projects.length} projects to update`);
+        
+        for (const project of projects) {
+            try {
+                let breakdown = [];
+                if (project.breakdown) {
+                    breakdown = JSON.parse(project.breakdown);
+                }
+                
+                // Calculate subtotal from breakdown
+                let subtotal = 0;
+                if (Array.isArray(breakdown)) {
+                    subtotal = breakdown.reduce((sum, item) => {
+                        return sum + parseFloat(item.cost || 0);
+                    }, 0);
+                }
+                
+                // If no breakdown or subtotal is 0, estimate from total
+                if (subtotal === 0 && project.total) {
+                    const pmc = project.project_management_cost || 500;
+                    subtotal = parseFloat(project.total) - pmc;
+                }
+                
+                // Update the project
+                await dbHelpers.run(`
+                    UPDATE projects 
+                    SET subtotal = $1, project_management_cost = $2
+                    WHERE id = $3
+                `, [subtotal, project.project_management_cost || 500, project.id]);
+                
+                console.log(`✅ Updated project ${project.id}: subtotal = $${subtotal.toFixed(2)}`);
+                
+            } catch (error) {
+                console.error(`❌ Error updating project ${project.id}:`, error.message);
+            }
+        }
+        
+        console.log('🎉 Database schema initialization completed!');
+        
+    } catch (error) {
+        console.error('❌ Database initialization error:', error);
+        // Don't fail the server startup, just log the error
+    }
+}
+
+// Initialize database schema
+initializeDatabase();
+
 // Database helpers
 const dbHelpers = {
     query: async (sql, params = []) => {
