@@ -181,7 +181,7 @@
         /* Sidebar Styles */
         .sidebar {
             width: 250px;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             position: fixed;
             height: 100vh;
@@ -2517,8 +2517,39 @@
         
         // Check for new contact messages every 30 seconds
         setInterval(loadContactsCount, 30000);
+        
+        // Check admin status every 10 minutes
+        setInterval(checkAdminStatus, 600000);
+        
+        // Check token expiration every 5 minutes
+        setInterval(checkTokenExpiration, 300000);
 
-        // Removed problematic checkAdminAccess function
+        // Token expiration check function
+        function isTokenExpired(token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const expirationTime = payload.exp * 1000;
+                const currentTime = Date.now();
+                const timeUntilExpiry = expirationTime - currentTime;
+                
+                console.log('🔍 Token expires in:', Math.floor(timeUntilExpiry / 1000 / 60), 'minutes');
+                
+                // Return true if token expires in less than 5 minutes
+                return timeUntilExpiry < 5 * 60 * 1000;
+            } catch (e) {
+                console.error('❌ Error checking token expiration:', e);
+                return true; // Assume expired if we can't parse
+            }
+        }
+
+        // Check token expiration and warn user
+        function checkTokenExpiration() {
+            const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+            if (token && isTokenExpired(token)) {
+                console.warn('⚠️ Token expires soon, warning user');
+                showWarning('Your session will expire soon. Please save your work and refresh the page.');
+            }
+        }
 
         async function loadProjects() {
             try {
@@ -2539,6 +2570,11 @@
                     allProjects = projects;
                     renderProjects();
                     updateStats();
+                } else if (response.status === 401 || response.status === 403) {
+                    console.error('❌ Authentication error, redirecting to login');
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return;
                 } else {
                     const errorData = await response.json();
                     console.error('❌ Admin projects error:', errorData);
