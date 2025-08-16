@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Debug - VerbiForge</title>
+    <script src="client-auth.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .debug-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .debug-content {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .status-ok { color: green; }
+        .status-error { color: red; }
+        .status-warning { color: orange; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔍 Authentication Debug Tool</h1>
+        
+        <div class="debug-section">
+            <div class="debug-title">1. Local Storage Check</div>
+            <div id="localStorageDebug" class="debug-content">Loading...</div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">2. Token Validation</div>
+            <div id="tokenDebug" class="debug-content">Loading...</div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">3. Server Authentication Test</div>
+            <div id="serverDebug" class="debug-content">Click "Test Server Auth" to check</div>
+            <button onclick="testServerAuth()">Test Server Auth</button>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">4. Admin Check Test</div>
+            <div id="adminDebug" class="debug-content">Click "Test Admin Check" to check</div>
+            <button onclick="testAdminCheck()">Test Admin Check</button>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-title">5. Actions</div>
+            <button onclick="clearAuth()">Clear Auth</button>
+            <button onclick="goToLogin()">Go to Login</button>
+            <button onclick="goToAdmin()">Go to Admin Panel</button>
+            <button onclick="refreshDebug()">Refresh Debug Info</button>
+        </div>
+    </div>
+
+    <script>
+        let debugLog = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            debugLog.push(logEntry);
+            console.log(logEntry);
+            return logEntry;
+        }
+        
+        function updateDebugElement(elementId, content) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = content;
+            }
+        }
+        
+        function checkLocalStorage() {
+            log('=== Local Storage Check ===');
+            
+            const token = Auth.getToken();
+            const user = Auth.getUser();
+            const isAuth = Auth.isAuthenticated();
+            
+            let output = '';
+            output += log(`Auth.isAuthenticated(): ${isAuth}`) + '\n';
+            output += log(`Token exists: ${!!token}`) + '\n';
+            output += log(`User exists: ${!!user}`) + '\n';
+            
+            if (token) {
+                output += log(`Token length: ${token.length}`) + '\n';
+                output += log(`Token preview: ${token.substring(0, 50)}...`) + '\n';
+                
+                try {
+                    const parts = token.split('.');
+                    if (parts.length === 3) {
+                        const payload = JSON.parse(atob(parts[1]));
+                        output += log(`Token payload: ${JSON.stringify(payload, null, 2)}`) + '\n';
+                        
+                        const currentTime = Math.floor(Date.now() / 1000);
+                        const expTime = payload.exp;
+                        const timeLeft = expTime - currentTime;
+                        
+                        output += log(`Current time: ${currentTime}`) + '\n';
+                        output += log(`Expiration time: ${expTime}`) + '\n';
+                        output += log(`Time left: ${timeLeft} seconds (${Math.floor(timeLeft/3600)} hours)`) + '\n';
+                        
+                        if (timeLeft < 0) {
+                            output += log('❌ TOKEN EXPIRED!', 'error') + '\n';
+                        } else if (timeLeft < 3600) {
+                            output += log('⚠️ Token expires soon', 'warning') + '\n';
+                        } else {
+                            output += log('✅ Token is valid', 'ok') + '\n';
+                        }
+                    } else {
+                        output += log('❌ Invalid token format', 'error') + '\n';
+                    }
+                } catch (error) {
+                    output += log(`❌ Error parsing token: ${error.message}`, 'error') + '\n';
+                }
+            }
+            
+            if (user) {
+                output += log(`User data: ${JSON.stringify(user, null, 2)}`) + '\n';
+            }
+            
+            updateDebugElement('localStorageDebug', output);
+            updateDebugElement('tokenDebug', output);
+        }
+        
+        async function testServerAuth() {
+            log('=== Server Authentication Test ===');
+            
+            const token = Auth.getToken();
+            if (!token) {
+                updateDebugElement('serverDebug', '❌ No token available');
+                return;
+            }
+            
+            let output = '';
+            output += log('Testing /test-auth endpoint...') + '\n';
+            
+            try {
+                const response = await fetch('/test-auth', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                output += log(`Response status: ${response.status}`) + '\n';
+                output += log(`Response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`) + '\n';
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    output += log(`✅ Success: ${JSON.stringify(data, null, 2)}`) + '\n';
+                } else {
+                    const errorText = await response.text();
+                    output += log(`❌ Error: ${errorText}`, 'error') + '\n';
+                }
+            } catch (error) {
+                output += log(`❌ Network error: ${error.message}`, 'error') + '\n';
+            }
+            
+            updateDebugElement('serverDebug', output);
+        }
+        
+        async function testAdminCheck() {
+            log('=== Admin Check Test ===');
+            
+            const token = Auth.getToken();
+            if (!token) {
+                updateDebugElement('adminDebug', '❌ No token available');
+                return;
+            }
+            
+            let output = '';
+            output += log('Testing /admin/check endpoint...') + '\n';
+            
+            try {
+                const response = await fetch('/admin/check', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                output += log(`Response status: ${response.status}`) + '\n';
+                output += log(`Response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`) + '\n';
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    output += log(`✅ Success: ${JSON.stringify(data, null, 2)}`) + '\n';
+                } else {
+                    const errorText = await response.text();
+                    output += log(`❌ Error: ${errorText}`, 'error') + '\n';
+                }
+            } catch (error) {
+                output += log(`❌ Network error: ${error.message}`, 'error') + '\n';
+            }
+            
+            updateDebugElement('adminDebug', output);
+        }
+        
+        function clearAuth() {
+            log('=== Clearing Authentication ===');
+            Auth.clearAuth();
+            log('✅ Auth cleared');
+            refreshDebug();
+        }
+        
+        function goToLogin() {
+            log('=== Redirecting to Login ===');
+            window.location.href = 'login.html';
+        }
+        
+        function goToAdmin() {
+            log('=== Redirecting to Admin Panel ===');
+            window.location.href = 'admin.html';
+        }
+        
+        function refreshDebug() {
+            log('=== Refreshing Debug Info ===');
+            checkLocalStorage();
+        }
+        
+        // Initialize debug on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('=== Debug Tool Initialized ===');
+            checkLocalStorage();
+        });
+    </script>
+</body>
+</html>
