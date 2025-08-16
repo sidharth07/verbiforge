@@ -4,13 +4,23 @@ const mailgun = new Mailgun(formData);
 
 class EmailService {
     constructor() {
-        this.mg = mailgun.client({
-            username: 'api',
-            key: process.env.MAILGUN_API_KEY || 'your-mailgun-api-key',
-        });
+        this.apiKey = process.env.MAILGUN_API_KEY;
+        this.domain = process.env.MAILGUN_DOMAIN;
+        this.fromEmail = process.env.FROM_EMAIL || 'noreply@verbiforge.com';
         
-        this.domain = process.env.MAILGUN_DOMAIN || 'mg.yourdomain.com';
-        this.fromEmail = process.env.FROM_EMAIL || 'noreply@yourdomain.com';
+        // Check if Mailgun is properly configured
+        this.isConfigured = this.apiKey && this.domain && this.apiKey !== 'your-mailgun-api-key';
+        
+        if (this.isConfigured) {
+            this.mg = mailgun.client({
+                username: 'api',
+                key: this.apiKey,
+            });
+            console.log('📧 Mailgun email service configured successfully');
+        } else {
+            console.warn('⚠️ Mailgun not configured - emails will be logged but not sent');
+            console.warn('⚠️ Set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables');
+        }
     }
 
     // Send welcome email when user signs up
@@ -46,7 +56,7 @@ class EmailService {
                             </div>
                             
                             <div style="text-align: center; margin: 30px 0;">
-                                <a href="${process.env.APP_URL || 'https://your-app-url.com'}/dashboard.html" 
+                                <a href="${process.env.APP_URL || 'https://verbiforge.onrender.com'}/dashboard.html" 
                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                                     Get Started with Your First Project
                                 </a>
@@ -66,6 +76,12 @@ class EmailService {
                     </div>
                 `
             };
+
+            if (!this.isConfigured) {
+                console.log('📧 [MAILGUN NOT CONFIGURED] Welcome email would be sent to:', userEmail);
+                console.log('📧 Email subject:', messageData.subject);
+                return { success: true, messageId: 'not-configured', message: 'Email logged but not sent - Mailgun not configured' };
+            }
 
             const response = await this.mg.messages.create(this.domain, messageData);
             console.log('✅ Welcome email sent successfully:', response);
@@ -133,7 +149,7 @@ class EmailService {
                             </div>
                             
                             <div style="text-align: center; margin: 30px 0;">
-                                <a href="${process.env.APP_URL || 'https://your-app-url.com'}/dashboard.html" 
+                                <a href="${process.env.APP_URL || 'https://verbiforge.onrender.com'}/dashboard.html" 
                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                                     View Project Dashboard
                                 </a>
@@ -149,6 +165,12 @@ class EmailService {
                     </div>
                 `
             };
+
+            if (!this.isConfigured) {
+                console.log('📧 [MAILGUN NOT CONFIGURED] Project creation email would be sent to:', userEmail);
+                console.log('📧 Email subject:', messageData.subject);
+                return { success: true, messageId: 'not-configured', message: 'Email logged but not sent - Mailgun not configured' };
+            }
 
             const response = await this.mg.messages.create(this.domain, messageData);
             console.log('✅ Project creation email sent successfully:', response);
@@ -215,7 +237,7 @@ class EmailService {
                             </div>
                             
                             <div style="text-align: center; margin: 30px 0;">
-                                <a href="${process.env.APP_URL || 'https://your-app-url.com'}/dashboard.html" 
+                                <a href="${process.env.APP_URL || 'https://verbiforge.onrender.com'}/dashboard.html" 
                                    style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                                     Download Your Translation
                                 </a>
@@ -238,6 +260,12 @@ class EmailService {
                     </div>
                 `
             };
+
+            if (!this.isConfigured) {
+                console.log('📧 [MAILGUN NOT CONFIGURED] Project completion email would be sent to:', userEmail);
+                console.log('📧 Email subject:', messageData.subject);
+                return { success: true, messageId: 'not-configured', message: 'Email logged but not sent - Mailgun not configured' };
+            }
 
             const response = await this.mg.messages.create(this.domain, messageData);
             console.log('✅ Project completion email sent successfully:', response);
@@ -265,6 +293,16 @@ class EmailService {
                     </div>
                 `
             };
+
+            if (!this.isConfigured) {
+                console.log('📧 [MAILGUN NOT CONFIGURED] Test email would be sent to:', testEmail);
+                console.log('📧 Email subject:', messageData.subject);
+                return { 
+                    success: false, 
+                    error: 'Mailgun not configured. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.',
+                    message: 'Email logged but not sent - Mailgun not configured'
+                };
+            }
 
             const response = await this.mg.messages.create(this.domain, messageData);
             console.log('✅ Test email sent successfully:', response);
