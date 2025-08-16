@@ -9,6 +9,7 @@ const fs = require('fs');
 const multer = require('multer');
 const XLSX = require('xlsx');
 const EmailService = require('./email-service');
+const FileManager = require('./fileManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -575,7 +576,8 @@ app.get('/projects', requireAuth, async (req, res) => {
                     fileName: project.file_name, // Add alias for frontend compatibility
                     wordCount: project.word_count, // Add alias for frontend compatibility
                     projectType: project.project_type, // Add alias for frontend compatibility
-                    projectManagementCost: project.project_management_cost // Add alias for frontend compatibility
+                    projectManagementCost: project.project_management_cost, // Add alias for frontend compatibility
+                    translatedFileName: project.translated_file_name // Add alias for frontend compatibility
                 };
             } catch (error) {
                 console.error('❌ Error parsing project breakdown:', error, project);
@@ -587,7 +589,8 @@ app.get('/projects', requireAuth, async (req, res) => {
                     fileName: project.file_name,
                     wordCount: project.word_count,
                     projectType: project.project_type,
-                    projectManagementCost: project.project_management_cost
+                    projectManagementCost: project.project_management_cost,
+                    translatedFileName: project.translated_file_name
                 };
             }
         });
@@ -947,7 +950,8 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     fileName: project.file_name, // Add alias for frontend compatibility
                     wordCount: project.word_count, // Add alias for frontend compatibility
                     projectType: project.project_type, // Add alias for frontend compatibility
-                    projectManagementCost: project.project_management_cost // Add alias for frontend compatibility
+                    projectManagementCost: project.project_management_cost, // Add alias for frontend compatibility
+                    translatedFileName: project.translated_file_name // Add alias for frontend compatibility
                 };
             } catch (error) {
                 console.error('❌ Error parsing admin project breakdown:', error, project);
@@ -959,7 +963,8 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     fileName: project.file_name,
                     wordCount: project.word_count,
                     projectType: project.project_type,
-                    projectManagementCost: project.project_management_cost
+                    projectManagementCost: project.project_management_cost,
+                    translatedFileName: project.translated_file_name
                 };
             }
         });
@@ -1378,13 +1383,18 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
         
         console.log('✅ Project found:', { id: project.id, name: project.name, status: project.status });
         
+        // Save the translated file using FileManager
+        console.log('🔍 Saving translated file using FileManager...');
+        const savedFile = await FileManager.saveTranslatedFile(req.file, id);
+        console.log('✅ File saved:', savedFile);
+        
         // Save the translated file information to the database
         console.log('🔍 Updating database with file information...');
         await dbHelpers.run(`
             UPDATE projects 
-            SET translated_file_name = $1, status = $2 
-            WHERE id = $3
-        `, [req.file.originalname, 'completed', id]);
+            SET translated_file_name = $1, translated_file_path = $2, status = $3 
+            WHERE id = $4
+        `, [req.file.originalname, savedFile.filePath, 'completed', id]);
         
         console.log('✅ Database updated successfully');
         
@@ -1457,14 +1467,23 @@ app.get('/projects/:id/download-translated', requireAuth, async (req, res) => {
             return res.status(404).json({ error: 'No translated file available for this project' });
         }
         
-        // For now, return success message since we don't have actual file storage implemented
-        // In the future, this would serve the actual file
-        res.json({ 
-            success: true, 
-            message: 'Download ready',
-            fileName: project.translated_file_name,
-            projectId: id
-        });
+        // Serve the actual file
+        try {
+            console.log('🔍 Serving translated file:', project.translated_file_path);
+            const fileContent = await FileManager.getTranslatedFile(project.translated_file_path);
+            
+            // Set appropriate headers for file download
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', `attachment; filename="${project.translated_file_name}"`);
+            res.setHeader('Content-Length', fileContent.length);
+            
+            // Send the file content
+            res.send(fileContent);
+            
+        } catch (fileError) {
+            console.error('❌ Error serving file:', fileError);
+            res.status(500).json({ error: 'Failed to serve translated file' });
+        }
         
     } catch (error) {
         console.error('❌ Error downloading user translated file:', error);

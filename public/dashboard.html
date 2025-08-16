@@ -1686,24 +1686,24 @@
                 console.log('🔍 Download response:', response);
                 
                 if (response.ok) {
-                    // For now, since we don't have actual file storage, show success message
+                    // Handle actual file download
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // Show success message
                     CustomModal.show({
                         type: 'success',
-                        title: 'Download Ready',
-                        message: `Your translated file "${fileName}" is ready for download!`,
+                        title: 'Download Complete',
+                        message: `Your translated file "${fileName}" has been downloaded successfully!`,
                         primaryText: 'OK'
                     });
-                    
-                    // In the future, when we implement actual file storage, we can use:
-                    // const blob = await response.blob();
-                    // const url = window.URL.createObjectURL(blob);
-                    // const a = document.createElement('a');
-                    // a.href = url;
-                    // a.download = fileName;
-                    // document.body.appendChild(a);
-                    // a.click();
-                    // window.URL.revokeObjectURL(url);
-                    // document.body.removeChild(a);
                     
                 } else {
                     const data = await response.json();
