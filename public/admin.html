@@ -265,6 +265,209 @@
             background: rgba(220, 53, 69, 0.15);
         }
 
+        /* User Management Styles */
+        .add-user-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .add-user-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .user-controls {
+            margin-bottom: 20px;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .role-filter {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Role and Status Badges */
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-user {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .role-admin {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .role-super_admin {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
         /* Main Content Area */
         .main-content {
             flex: 1;
@@ -2103,9 +2306,61 @@
         <div id="usersPage" class="page-content">
             <div class="page-header">
                 <h2>User Management</h2>
-                <p>Manage user accounts and permissions</p>
+                <p>Manage user accounts, roles, and permissions</p>
+                <button class="add-user-btn" onclick="showAddUserModal()">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    Add New User
+                </button>
             </div>
             
+            <!-- User Statistics -->
+            <div class="user-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="regularUsers">0</div>
+                        <div class="stat-label">Regular Users</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🛡️</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="adminUsers">0</div>
+                        <div class="stat-label">Admins</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="totalProjects">0</div>
+                        <div class="stat-label">Total Projects</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search and Filter -->
+            <div class="user-controls">
+                <div class="search-section">
+                    <input type="text" id="userSearch" placeholder="Search users by name or email..." class="search-input">
+                    <select id="roleFilter" class="role-filter">
+                        <option value="">All Roles</option>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Users Table -->
             <div class="users-table-container">
                 <table class="users-table" id="usersTable">
                     <thead>
@@ -2115,6 +2370,7 @@
                             <th>Role</th>
                             <th>Projects</th>
                             <th>Joined</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -2122,6 +2378,79 @@
                         <!-- Users will be loaded here -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Add User Modal -->
+        <div id="addUserModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add New User</h3>
+                    <button class="close-btn" onclick="hideAddUserModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="form-group">
+                            <label for="newUserName">Name *</label>
+                            <input type="text" id="newUserName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserEmail">Email *</label>
+                            <input type="email" id="newUserEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserPassword">Password *</label>
+                            <input type="password" id="newUserPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newUserRole">Role *</label>
+                            <select id="newUserRole" required>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                                <option value="super_admin">Super Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="hideAddUserModal()">Cancel</button>
+                    <button class="btn-primary" onclick="addNewUser()">Add User</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit User Modal -->
+        <div id="editUserModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Edit User</h3>
+                    <button class="close-btn" onclick="hideEditUserModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <input type="hidden" id="editUserId">
+                        <div class="form-group">
+                            <label for="editUserName">Name *</label>
+                            <input type="text" id="editUserName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserEmail">Email *</label>
+                            <input type="email" id="editUserEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserRole">Role *</label>
+                            <select id="editUserRole" required>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                                <option value="super_admin">Super Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="hideEditUserModal()">Cancel</button>
+                    <button class="btn-primary" onclick="updateUser()">Update User</button>
+                </div>
             </div>
         </div>
 
@@ -3810,87 +4139,189 @@
 
         async function loadUsers() {
             try {
+                console.log('🔍 Loading users...');
                 const response = await Auth.authFetch('/admin/users');
+                console.log('🔍 Users response status:', response.status);
+                
                 if (response.ok) {
-                    allUsers = await response.json();
+                    const users = await response.json();
+                    console.log('🔍 Users data:', users);
+                    allUsers = users;
+                    updateUserStats();
                     renderUsers();
                 } else {
-                    showError('Failed to load users');
+                    const errorData = await response.json();
+                    console.error('❌ Failed to load users:', errorData);
+                    showError('Failed to load users: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
-                console.error('Error loading users:', error);
-                showError('Network error loading users');
+                console.error('❌ Error loading users:', error);
+                showError('Network error loading users: ' + error.message);
             }
         }
 
-        function renderUsers() {
-            const loading = document.getElementById('usersLoading');
-            const table = document.getElementById('usersTable');
-            const empty = document.getElementById('usersEmpty');
-            const tbody = document.getElementById('usersTableBody');
+        function updateUserStats() {
+            const totalUsers = allUsers.length;
+            const regularUsers = allUsers.filter(u => u.role === 'user').length;
+            const adminUsers = allUsers.filter(u => u.role === 'admin' || u.role === 'super_admin').length;
+            
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('regularUsers').textContent = regularUsers;
+            document.getElementById('adminUsers').textContent = adminUsers;
+        }
 
-            loading.style.display = 'none';
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
 
             if (allUsers.length === 0) {
-                empty.style.display = 'block';
-                table.style.display = 'none';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                            No users found
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
-            empty.style.display = 'none';
-            table.style.display = 'block';
-            tbody.innerHTML = '';
-
             allUsers.forEach(user => {
-                const joinedDate = new Date(user.createdAt).toLocaleDateString();
                 const row = document.createElement('tr');
+                const joinedDate = new Date(user.created_at || user.createdAt).toLocaleDateString();
                 
                 row.innerHTML = `
                     <td>${user.name}</td>
                     <td>${user.email}</td>
+                    <td><span class="role-badge role-${user.role}">${user.role.replace('_', ' ')}</span></td>
+                    <td>${user.project_count || user.projectCount || 0}</td>
                     <td>${joinedDate}</td>
-                    <td>${user.projectCount}</td>
-                    <td>$${user.totalSpent.toFixed(2)}</td>
+                    <td><span class="status-badge status-active">Active</span></td>
                     <td>
-                        ${isSuperAdmin ? `
-                            <button onclick="deleteUser('${user.id}', '${user.name}')" 
-                                    style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
-                                Delete
-                            </button>
-                        ` : 'View Only'}
+                        <button onclick="editUser('${user.id}')" class="action-btn edit">Edit</button>
+                        <button onclick="deleteUser('${user.id}')" class="action-btn delete">Delete</button>
                     </td>
                 `;
                 
                 tbody.appendChild(row);
             });
-            
-            // Attach event listeners to dynamically created buttons
-            attachDynamicButtonListeners();
         }
 
-        async function deleteUser(userId, userName) {
-            CustomModal.confirm(
-                `Are you sure you want to delete user "${userName}" and all their projects? This action cannot be undone.`,
-                async () => {
-            
+        // User Modal Functions
+        function showAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'flex';
+        }
+
+        function hideAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'none';
+            document.getElementById('addUserForm').reset();
+        }
+
+        function showEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'flex';
+        }
+
+        function hideEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        async function addNewUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+
+            if (!name || !email || !password || !role) {
+                CustomModal.error('Please fill in all required fields', 'Validation Error');
+                return;
+            }
+
             try {
-                const response = await Auth.authFetch(`/admin/users/${userId}`, {
-                    method: 'DELETE'
+                const response = await Auth.authFetch('/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role })
                 });
-                
+
                 if (response.ok) {
+                    CustomModal.success('User created successfully!', 'Success');
+                    hideAddUserModal();
                     loadUsers();
-                    loadProjects(); // Refresh projects as well
-                    CustomModal.success('User deleted successfully');
                 } else {
-                    const data = await response.json();
-                    CustomModal.error('Error deleting user: ' + data.error);
+                    const error = await response.json();
+                    CustomModal.error('Failed to create user: ' + error.error, 'Error');
                 }
             } catch (error) {
-                console.error('Error deleting user:', error);
-                CustomModal.error('Network error deleting user');
+                console.error('Error creating user:', error);
+                CustomModal.error('Network error creating user', 'Error');
             }
+        }
+
+        function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUserName').value = user.name;
+            document.getElementById('editUserEmail').value = user.email;
+            document.getElementById('editUserRole').value = user.role;
+
+            showEditUserModal();
+        }
+
+        async function updateUser() {
+            const userId = document.getElementById('editUserId').value;
+            const name = document.getElementById('editUserName').value.trim();
+            const email = document.getElementById('editUserEmail').value.trim();
+            const role = document.getElementById('editUserRole').value;
+
+            if (!name || !email || !role) {
+                CustomModal.error('Please fill in all required fields', 'Validation Error');
+                return;
+            }
+
+            try {
+                const response = await Auth.authFetch(`/admin/users/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, role })
                 });
+
+                if (response.ok) {
+                    CustomModal.success('User updated successfully!', 'Success');
+                    hideEditUserModal();
+                    loadUsers();
+                } else {
+                    const error = await response.json();
+                    CustomModal.error('Failed to update user: ' + error.error, 'Error');
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                CustomModal.error('Network error updating user', 'Error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            CustomModal.confirm(
+                'Are you sure you want to delete this user? This action cannot be undone.',
+                async () => {
+                    try {
+                        const response = await Auth.authFetch(`/admin/users/${userId}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            CustomModal.success('User deleted successfully!', 'Success');
+                            loadUsers();
+                        } else {
+                            const error = await response.json();
+                            CustomModal.error('Failed to delete user: ' + error.error, 'Error');
+                        }
+                    } catch (error) {
+                        console.error('Error deleting user:', error);
+                        CustomModal.error('Network error deleting user', 'Error');
+                    }
+                }
+            );
         }
 
         async function loadAdmins() {
@@ -4055,29 +4486,26 @@
         }
 
         function updateContactsNotification() {
-            const notificationBadge = document.getElementById('contactsNotification');
-            const contactsTab = document.getElementById('contactsTabBtn');
             const messagesNotification = document.getElementById('messagesNotification');
             const messagesNavItem = document.getElementById('messagesNavItem');
             
             if (unreadContactsCount > 0) {
-                // Update contacts tab notification
-                notificationBadge.textContent = unreadContactsCount;
-                notificationBadge.style.display = 'inline-block';
-                contactsTab.classList.add('has-notifications');
-                
                 // Update sidebar Messages button notification
-                messagesNotification.textContent = unreadContactsCount;
-                messagesNotification.style.display = 'inline-block';
-                messagesNavItem.classList.add('has-notifications');
+                if (messagesNotification) {
+                    messagesNotification.textContent = unreadContactsCount;
+                    messagesNotification.style.display = 'inline-block';
+                }
+                if (messagesNavItem) {
+                    messagesNavItem.classList.add('has-notifications');
+                }
             } else {
-                // Clear contacts tab notification
-                notificationBadge.style.display = 'none';
-                contactsTab.classList.remove('has-notifications');
-                
                 // Clear sidebar Messages button notification
-                messagesNotification.style.display = 'none';
-                messagesNavItem.classList.remove('has-notifications');
+                if (messagesNotification) {
+                    messagesNotification.style.display = 'none';
+                }
+                if (messagesNavItem) {
+                    messagesNavItem.classList.remove('has-notifications');
+                }
             }
         }
 
