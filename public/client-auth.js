@@ -22,6 +22,12 @@
     localStorage.removeItem(USER_KEY);
   }
 
+  function isAuthenticated() {
+    const token = getToken();
+    const user = getUser();
+    return token && user;
+  }
+
   async function authFetch(input, init) {
     const token = getToken();
     const options = init || {};
@@ -63,7 +69,7 @@
     return response;
   }
 
-  window.Auth = { getToken, getUser, setAuth, clearAuth, authFetch };
+  window.Auth = { getToken, getUser, setAuth, clearAuth, authFetch, isAuthenticated };
 })();
 
 

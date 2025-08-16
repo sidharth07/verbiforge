@@ -4073,9 +4073,76 @@
             // Placeholder for reports implementation
         }
 
+        // Load admin data
+        async function loadAdminData() {
+            try {
+                console.log('🔧 Loading admin data...');
+                
+                // Get current user data
+                const currentUser = Auth.getUser();
+                if (!currentUser) {
+                    console.log('❌ No current user found');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Check if user is admin
+                if (currentUser.role !== 'admin' && currentUser.role !== 'super_admin') {
+                    console.log('❌ User is not admin, redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                // Verify admin access with server
+                try {
+                    const adminCheckResponse = await Auth.authFetch('/admin/check');
+                    if (!adminCheckResponse.ok) {
+                        console.log('❌ Admin check failed, redirecting to dashboard');
+                        window.location.href = 'dashboard.html';
+                        return;
+                    }
+                    
+                    const adminData = await adminCheckResponse.json();
+                    if (!adminData.isAdmin) {
+                        console.log('❌ User is not admin, redirecting to dashboard');
+                        window.location.href = 'dashboard.html';
+                        return;
+                    }
+                } catch (error) {
+                    console.error('❌ Error checking admin status:', error);
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                // Update user info in header
+                const userNameElement = document.getElementById('userName');
+                const userRoleElement = document.getElementById('userRole');
+                const userAvatarElement = document.getElementById('userAvatar');
+
+                if (userNameElement) userNameElement.textContent = currentUser.name;
+                if (userRoleElement) userRoleElement.textContent = currentUser.role === 'super_admin' ? 'Super Admin' : 'Administrator';
+                if (userAvatarElement) userAvatarElement.textContent = currentUser.name.charAt(0).toUpperCase();
+
+                console.log('✅ Admin data loaded successfully');
+            } catch (error) {
+                console.error('❌ Error loading admin data:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
         // Add event listeners after DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Setting up admin event listeners...');
+            
+            // Check authentication
+            if (!Auth.isAuthenticated()) {
+                console.log('❌ Not authenticated, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load admin data
+            loadAdminData();
             
             // Initialize sidebar
             initializeSidebar();
