@@ -2461,8 +2461,33 @@
                 <p>Manage customer inquiries and support requests</p>
             </div>
             
-            <div class="messages-container" id="messagesContainer">
-                <!-- Messages will be loaded here -->
+            <div id="contactsLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading contact messages...</p>
+            </div>
+            
+            <div id="contactsTable" style="display: none;">
+                <table class="projects-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Company</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contactsTableBody">
+                        <!-- Contact messages will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="contactsEmpty" class="empty-state" style="display: none;">
+                <h3>No contact messages found</h3>
+                <p>No contact form submissions have been received yet</p>
             </div>
         </div>
 
@@ -4165,9 +4190,15 @@
             const regularUsers = allUsers.filter(u => u.role === 'user').length;
             const adminUsers = allUsers.filter(u => u.role === 'admin' || u.role === 'super_admin').length;
             
+            // Calculate total projects from all users
+            const totalProjects = allUsers.reduce((total, user) => {
+                return total + (parseInt(user.project_count || user.projectCount || 0));
+            }, 0);
+            
             document.getElementById('totalUsers').textContent = totalUsers;
             document.getElementById('regularUsers').textContent = regularUsers;
             document.getElementById('adminUsers').textContent = adminUsers;
+            document.getElementById('totalProjects').textContent = totalProjects;
         }
 
         function renderUsers() {
