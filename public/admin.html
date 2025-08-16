@@ -2076,6 +2076,7 @@
                         Create Project
                     </button>
                     <button type="button" onclick="resetCreateProjectForm()" class="reset-btn">Reset Form</button>
+                    <button type="button" onclick="testDownload()" class="test-btn" style="background: #17a2b8; color: white; border: none; padding: 14px 32px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s ease;">Test Download</button>
                 </div>
             </div>
         </div>
@@ -5049,6 +5050,38 @@
             document.getElementById('createProjectLanguage').value = '';
             document.getElementById('createProjectDescription').value = '';
             removeCreateProjectFile();
+        }
+
+        // Test download functionality
+        async function testDownload() {
+            try {
+                console.log('🧪 Testing download functionality...');
+                
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                console.log('🧪 Token available:', !!token);
+                console.log('🧪 Token length:', token ? token.length : 0);
+                
+                const response = await fetch('/admin/test-download', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                console.log('🧪 Test response status:', response.status);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('🧪 Test successful:', result);
+                    CustomModal.success('Download test successful!', 'Test Result');
+                } else {
+                    const error = await response.json();
+                    console.error('🧪 Test failed:', error);
+                    CustomModal.error(`Test failed: ${error.error}`, 'Test Result');
+                }
+            } catch (error) {
+                console.error('🧪 Test error:', error);
+                CustomModal.error('Test error: ' + error.message, 'Test Result');
+            }
         }
     </script>
 </body>
