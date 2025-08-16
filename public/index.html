@@ -34,6 +34,35 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <style>
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --background-white: #ffffff;
+            --background-light: #f8f9fa;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -43,19 +72,19 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: var(--text-primary);
         }
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
-            padding: 1rem 0;
+            padding: var(--spacing-md) 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
         }
 
         .nav {
@@ -64,7 +93,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
+            padding: 0 var(--spacing-lg);
         }
 
         .logo {
@@ -72,7 +101,7 @@
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: var(--spacing-sm);
         }
 
         .logo-icon {
@@ -88,18 +117,44 @@
 
         .nav-buttons {
             display: flex;
-            gap: 1rem;
+            gap: var(--spacing-md);
         }
 
+        /* Button Styles */
         .btn {
-            padding: 0.8rem 1.5rem;
+            padding: var(--spacing-md) var(--spacing-lg);
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-block;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--success-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-outline {
@@ -110,229 +165,268 @@
 
         .btn-outline:hover {
             background: white;
-            color: #667eea;
+            color: var(--primary-color);
         }
 
-        .btn-primary {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #218838;
-            transform: translateY(-2px);
+        .btn-large {
+            padding: var(--spacing-lg) var(--spacing-2xl);
+            font-size: 1.1rem;
         }
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
-            padding: 8rem 0 4rem;
+            padding: var(--spacing-3xl) 0 var(--spacing-2xl);
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
 
         .hero-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 var(--spacing-lg);
+            position: relative;
+            z-index: 1;
         }
 
         .hero h1 {
             font-size: 3.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: var(--spacing-lg);
             font-weight: 700;
+            line-height: 1.2;
         }
 
         .hero p {
             font-size: 1.3rem;
-            margin-bottom: 2rem;
+            margin-bottom: var(--spacing-2xl);
             opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .hero-buttons {
             display: flex;
-            gap: 1rem;
+            gap: var(--spacing-lg);
             justify-content: center;
             flex-wrap: wrap;
         }
 
-        .btn-large {
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-        }
-
-        /* Features Section */
-        .features {
-            padding: 5rem 0;
-            background: #f8f9fa;
+        /* Value Props Section */
+        .value-props {
+            padding: var(--spacing-3xl) 0;
+            background: var(--background-white);
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 var(--spacing-lg);
         }
 
         .section-title {
             text-align: center;
             font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: #333;
+            margin-bottom: var(--spacing-3xl);
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
-        .features-grid {
+        .value-props-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-2xl);
         }
 
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        .value-prop-card {
+            background: var(--background-white);
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
+        .value-prop-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .value-prop-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--primary-gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 2rem;
+            margin: 0 auto var(--spacing-lg);
             color: white;
-        }
-
-        .feature-card h3 {
             font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #333;
         }
 
-        .feature-card p {
-            color: #666;
+        .value-prop-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .value-prop-card p {
+            color: var(--text-secondary);
             line-height: 1.6;
         }
 
         /* Services Section */
         .services {
-            padding: 5rem 0;
+            padding: var(--spacing-3xl) 0;
+            background: var(--background-light);
         }
 
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
         }
 
         .service-card {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 2rem;
+            background: var(--background-white);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
             text-align: center;
             transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .service-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .service-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: #667eea;
+            width: 48px;
+            height: 48px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-md);
+            color: white;
+            font-size: 1.2rem;
         }
 
-        .service-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            color: #333;
+        .service-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
         .service-card p {
-            color: #666;
-            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         /* Stats Section */
         .stats {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4rem 0;
+            padding: var(--spacing-3xl) 0;
+            background: var(--background-white);
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-2xl);
+        }
+
+        .stat-item {
             text-align: center;
         }
 
-        .stat-item h3 {
+        .stat-number {
             font-size: 3rem;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
         }
 
-        .stat-item p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
         }
-
-
 
         /* CTA Section */
-        .cta {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        .cta-section {
+            padding: var(--spacing-3xl) 0;
+            background: var(--primary-gradient);
             color: white;
-            padding: 4rem 0;
             text-align: center;
         }
 
-        .cta h2 {
+        .cta-content h2 {
             font-size: 2.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: var(--spacing-lg);
+            font-weight: 600;
         }
 
-        .cta p {
+        .cta-content p {
             font-size: 1.2rem;
-            margin-bottom: 2rem;
+            margin-bottom: var(--spacing-2xl);
             opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: var(--spacing-lg);
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         /* Footer */
         .footer {
-            background: #333;
+            background: #2c3e50;
             color: white;
-            padding: 3rem 0 1rem;
+            padding: var(--spacing-3xl) 0 var(--spacing-2xl);
         }
 
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-2xl);
+            margin-bottom: var(--spacing-2xl);
         }
 
         .footer-section h3 {
-            margin-bottom: 1rem;
-            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: var(--spacing-lg);
+            font-weight: 600;
         }
 
-        .footer-section p, .footer-section a {
-            color: #ccc;
+        .footer-section p,
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             line-height: 1.8;
+            margin-bottom: var(--spacing-sm);
+            display: block;
         }
 
         .footer-section a:hover {
@@ -341,256 +435,64 @@
 
         .footer-bottom {
             text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid #555;
-            color: #ccc;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        /* Mobile Design - Completely Different Layout */
-        @media (max-width: 768px) {
-            /* Reset desktop styles for mobile */
-            .header {
-                position: relative;
-                padding: 1rem 0;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .value-props-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-
-            .nav {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
-
-            .logo {
-                font-size: 1.8rem;
-                justify-content: center;
-            }
-
-            .logo-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-
-            .nav-buttons {
-                flex-direction: row;
-                justify-content: center;
-                gap: 1rem;
-                width: 100%;
-            }
-
-            .btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.9rem;
-                min-width: 120px;
-            }
-
-            /* Mobile Hero Section */
-            .hero {
-                padding: 2rem 0 3rem;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            }
-
-            .hero h1 {
-                font-size: 2.2rem;
-                margin-bottom: 1rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-                margin-bottom: 2rem;
-                padding: 0 1rem;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
-
-            .btn-large {
-                width: 100%;
-                max-width: 280px;
-                padding: 1rem 1.5rem;
-                font-size: 1rem;
-            }
-
-            /* Mobile Features - Card Stack */
-            .features {
-                padding: 3rem 0;
-                background: #f8f9fa;
-            }
-
-            .section-title {
-                font-size: 1.8rem;
-                margin-bottom: 2rem;
-                padding: 0 1rem;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
-
-            .feature-card {
-                padding: 1.5rem;
-                border-radius: 16px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                background: white;
-                text-align: left;
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-            }
-
-            .feature-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-                margin: 0;
-                flex-shrink: 0;
-            }
-
-            .feature-card h3 {
-                font-size: 1.2rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .feature-card p {
-                font-size: 0.9rem;
-                margin: 0;
-            }
-
-            /* Mobile Services - Horizontal Scroll */
-            .services {
-                padding: 3rem 0;
-                background: white;
-            }
-
+            
             .services-grid {
-                display: flex;
-                overflow-x: auto;
-                gap: 1rem;
-                padding: 0 1rem;
-                scroll-snap-type: x mandatory;
-                -webkit-overflow-scrolling: touch;
+                grid-template-columns: repeat(2, 1fr);
             }
-
-            .service-card {
-                min-width: 280px;
-                padding: 1.5rem;
-                border-radius: 16px;
-                border: 2px solid #e9ecef;
-                scroll-snap-align: start;
-                text-align: center;
-                background: white;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            }
-
-            .service-card:hover {
-                border-color: #667eea;
-                transform: translateY(-2px);
-            }
-
-            .service-icon {
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-            }
-
-            .service-card h3 {
-                font-size: 1.2rem;
-                margin-bottom: 0.8rem;
-            }
-
-            .service-card p {
-                font-size: 0.9rem;
-                line-height: 1.5;
-            }
-
-            /* Mobile Stats - Grid */
-            .stats {
-                padding: 3rem 0;
-            }
-
+            
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 1.5rem;
-                padding: 0 1rem;
-            }
-
-            .stat-item h3 {
-                font-size: 2.5rem;
-            }
-
-            .stat-item p {
-                font-size: 1rem;
-            }
-
-            /* Mobile CTA */
-            .cta {
-                padding: 3rem 0;
-            }
-
-            .cta h2 {
-                font-size: 2rem;
-                margin-bottom: 1rem;
-            }
-
-            .cta p {
-                font-size: 1rem;
-                margin-bottom: 2rem;
-                padding: 0 1rem;
-            }
-
-            /* Mobile Footer */
-            .footer {
-                padding: 2rem 0 1rem;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-                padding: 0 1rem;
-            }
-
-            .footer-section {
-                text-align: center;
-            }
-
-            .footer-section h3 {
-                margin-bottom: 1rem;
-                font-size: 1.2rem;
-            }
-
-            .container {
-                padding: 0;
+                gap: var(--spacing-xl);
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
             .hero h1 {
-                font-size: 1.8rem;
+                font-size: 2.5rem;
             }
-
+            
             .hero p {
-                font-size: 0.9rem;
+                font-size: 1.1rem;
             }
-
-            .section-title {
-                font-size: 1.6rem;
+            
+            .value-props-grid {
+                grid-template-columns: 1fr;
             }
-
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-xl);
+            }
+            
+            .hero-buttons,
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
             .btn-large {
-                max-width: 250px;
-                padding: 0.9rem 1.2rem;
-                font-size: 0.9rem;
+                width: 100%;
+                max-width: 300px;
             }
-
-            .feature-card {
-                padding: 1.2rem;
-            }
+        }
 
             .feature-icon {
                 width: 45px;
@@ -610,11 +512,6 @@
 
             .stat-item h3 {
                 font-size: 2rem;
-            }
-
-            .cta h2 {
-                font-size: 1.8rem;
-            }
         }
     </style>
 </head>
@@ -636,49 +533,46 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Professional Translation Services</h1>
-            <p>Accurate, fast, and reliable translation solutions for businesses worldwide. Support for 100+ languages with industry expertise.</p>
+            <h1>Fast, Secure, and Accurate Translation for Global Businesses</h1>
+            <p>Trusted by 1,500+ companies worldwide with enterprise-grade security and 100+ language support.</p>
             <div class="hero-buttons">
                 <a href="signup.html" class="btn btn-primary btn-large">Start Your Project</a>
-                <a href="#services" class="btn btn-outline btn-large">View Services</a>
+                <a href="#services" class="btn btn-secondary btn-large">View Services</a>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features">
+    <!-- Value Props Section -->
+    <section class="value-props">
         <div class="container">
-            <h2 class="section-title">Why Choose VerbiForge?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🌍</div>
-                    <h3>100+ Languages</h3>
-                    <p>Comprehensive language coverage including rare dialects and specialized terminology for any industry.</p>
+            <h2 class="section-title">Why Choose Us</h2>
+            <div class="value-props-grid">
+                <div class="value-prop-card">
+                    <div class="value-prop-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                            <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.5 2.54l2.6 1.53c.56-1.24.9-2.62.9-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.05.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-1.53C16.17 17.98 14.21 19 12 19z"/>
+                        </svg>
+                    </div>
+                    <h3>Speed & Scale</h3>
+                    <p>24-48 hour turnaround with express options. Handle projects of any size with our scalable infrastructure and dedicated project management.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Fast Turnaround</h3>
-                    <p>Express delivery options available. Standard projects completed within 24-48 hours with rush options.</p>
+                <div class="value-prop-card">
+                    <div class="value-prop-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <h3>Trust & Security</h3>
+                    <p>Enterprise-grade security with NDA protection, encrypted file transfer, and strict confidentiality protocols. Your data is always safe.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Industry Expertise</h3>
-                    <p>Specialized translators for legal, medical, technical, marketing, and academic content with domain knowledge.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Secure & Confidential</h3>
-                    <p>Enterprise-grade security with NDA protection, encrypted file transfer, and strict confidentiality protocols.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">✅</div>
-                    <h3>Quality Assurance</h3>
-                    <p>Multi-step review process including translation, editing, proofreading, and final quality check by native speakers.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <h3>Competitive Pricing</h3>
-                    <p>Transparent pricing with no hidden fees. Volume discounts and special rates for ongoing projects.</p>
+                <div class="value-prop-card">
+                    <div class="value-prop-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <h3>Expertise & Pricing</h3>
+                    <p>Specialized translators for every industry with transparent pricing. No hidden fees, volume discounts, and competitive rates for quality work.</p>
                 </div>
             </div>
         </div>
@@ -687,37 +581,61 @@
     <!-- Services Section -->
     <section class="services" id="services">
         <div class="container">
-            <h2 class="section-title">Our Translation Services</h2>
+            <h2 class="section-title">Our Services</h2>
             <div class="services-grid">
                 <div class="service-card">
-                    <div class="service-icon">📄</div>
-                    <h3>Document Translation</h3>
-                    <p>Legal documents, contracts, certificates, manuals, and technical documentation with certified translations available.</p>
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM16 18H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                    </div>
+                    <h4>Document Translation</h4>
+                    <p>Legal documents, contracts, and technical documentation with certified translations.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">🌐</div>
-                    <h3>Website Localization</h3>
-                    <p>Complete website translation and cultural adaptation for global markets with SEO optimization.</p>
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                    </div>
+                    <h4>Website Localization</h4>
+                    <p>Complete website translation and cultural adaptation for global markets.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">📱</div>
-                    <h3>App Localization</h3>
-                    <p>Mobile app translation with UI/UX adaptation, cultural considerations, and platform-specific optimization.</p>
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                        </svg>
+                    </div>
+                    <h4>App Localization</h4>
+                    <p>Mobile app translation with UI/UX adaptation and cultural considerations.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">📚</div>
-                    <h3>Academic Translation</h3>
-                    <p>Research papers, theses, academic publications, and educational materials with subject matter expertise.</p>
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09v6h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
+                        </svg>
+                    </div>
+                    <h4>Academic Translation</h4>
+                    <p>Research papers, theses, and educational materials with subject expertise.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">💼</div>
-                    <h3>Business Translation</h3>
-                    <p>Marketing materials, business plans, financial reports, and corporate communications with industry terminology.</p>
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
+                        </svg>
+                    </div>
+                    <h4>Business Translation</h4>
+                    <p>Marketing materials, business plans, and corporate communications.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">🎬</div>
-                    <h3>Media Translation</h3>
-                    <p>Subtitles, voice-overs, scripts, and multimedia content with timing and cultural adaptation.</p>
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+                        </svg>
+                    </div>
+                    <h4>Media Translation</h4>
+                    <p>Video subtitles, audio transcription, and multimedia content localization.</p>
                 </div>
             </div>
         </div>
@@ -728,35 +646,35 @@
         <div class="container">
             <div class="stats-grid">
                 <div class="stat-item">
-                    <h3>1,500+</h3>
-                    <p>Projects Completed</p>
+                    <div class="stat-number">1,500+</div>
+                    <div class="stat-label">Projects Completed</div>
                 </div>
                 <div class="stat-item">
-                    <h3>500+</h3>
-                    <p>Expert Translators</p>
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Happy Clients</div>
                 </div>
                 <div class="stat-item">
-                    <h3>100+</h3>
-                    <p>Languages Supported</p>
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Languages</div>
                 </div>
                 <div class="stat-item">
-                    <h3>99.5%</h3>
-                    <p>Client Satisfaction</p>
+                    <div class="stat-number">24h</div>
+                    <div class="stat-label">Average Turnaround</div>
                 </div>
             </div>
         </div>
     </section>
 
-
-
     <!-- CTA Section -->
-    <section class="cta">
+    <section class="cta-section">
         <div class="container">
-            <h2>Ready to Start Your Translation Project?</h2>
-            <p>Join thousands of satisfied clients who trust VerbiForge for their translation needs.</p>
-            <div class="hero-buttons">
-                <a href="signup.html" class="btn btn-primary btn-large">Get Started Today</a>
-                <a href="login.html" class="btn btn-outline btn-large">Login to Dashboard</a>
+            <div class="cta-content">
+                <h2>Ready to Start Your Project?</h2>
+                <p>Join thousands of businesses that trust VerbiForge for their translation needs.</p>
+                <div class="cta-buttons">
+                    <a href="signup.html" class="btn btn-primary btn-large">Get Started</a>
+                    <a href="login.html" class="btn btn-secondary btn-large">Login to Dashboard</a>
+                </div>
             </div>
         </div>
     </section>
@@ -766,27 +684,25 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>VerbiForge</h3>
-                    <p>Professional translation services for businesses worldwide. Accurate, fast, and reliable solutions in 100+ languages.</p>
+                    <h3>About VerbiForge</h3>
+                    <p>Professional translation services with instant pricing and project management. Supporting businesses worldwide with accurate, fast, and reliable translation solutions.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Services</h3>
-                    <p><a href="#services">Document Translation</a></p>
-                    <p><a href="#services">Website Localization</a></p>
-                    <p><a href="#services">App Localization</a></p>
-                    <p><a href="#services">Academic Translation</a></p>
+                    <a href="#services">Document Translation</a>
+                    <a href="#services">Website Localization</a>
+                    <a href="#services">App Localization</a>
+                    <a href="#services">Academic Translation</a>
+                    <a href="#services">Business Translation</a>
+                    <a href="#services">Media Translation</a>
                 </div>
                 <div class="footer-section">
-                    <h3>Support</h3>
-                    <p><a href="contact.html">Contact Us</a></p>
-                    <p><a href="about.html">About Us</a></p>
-                    <p><a href="#">Privacy Policy</a></p>
-                    <p><a href="#">Terms of Service</a></p>
-                </div>
-                <div class="footer-section">
-                    <h3>Contact</h3>
-                    <p>Email: info@verbiforge.com</p>
-                    <p>Hours: Mon-Fri 9AM-6PM EST</p>
+                    <h3>Support & Contact</h3>
+                    <a href="contact.html">Contact Us</a>
+                    <a href="about.html">About Us</a>
+                    <a href="login.html">Login</a>
+                    <a href="signup.html">Sign Up</a>
+                    <p>Email: support@verbiforge.com</p>
                 </div>
             </div>
             <div class="footer-bottom">
