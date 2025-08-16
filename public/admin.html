@@ -3078,10 +3078,7 @@
         // Load languages for project creation
         async function loadProjectLanguages() {
             try {
-                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
-                const response = await fetch('/admin/languages', { 
-                    headers: { 'Authorization': `Bearer ${token}` } 
-                });
+                const response = await Auth.authFetch('/admin/languages');
                 
                 if (response.ok) {
                     const languages = await response.json();
@@ -3097,8 +3094,10 @@
                         option.textContent = language;
                         languageSelect.appendChild(option);
                     });
+                    
+                    console.log('✅ Loaded languages for project creation:', Object.keys(languages).length);
                 } else {
-                    console.error('Failed to load languages');
+                    console.error('Failed to load languages:', response.status);
                 }
             } catch (error) {
                 console.error('Error loading languages:', error);
