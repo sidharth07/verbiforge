@@ -122,17 +122,32 @@ class FileManager {
             const filePath = path.join(TRANSLATED_DIR, fileName);
             console.log('FileManager: Translated file path:', filePath);
             
-            // Validate file
-            if (!file || !file.buffer) {
-                console.error('FileManager: Invalid translated file data - file:', !!file, 'buffer:', !!file?.buffer);
-                throw new Error('Invalid file data');
+            // Validate file - handle both buffer (memory storage) and path (disk storage)
+            if (!file) {
+                console.error('FileManager: No file provided');
+                throw new Error('No file provided');
             }
             
-            console.log('FileManager: Translated file validation passed, size:', file.buffer.length);
+            if (file.buffer) {
+                // Memory storage - file has buffer
+                console.log('FileManager: Using memory storage, file size:', file.buffer.length);
+                await fs.writeFile(filePath, file.buffer);
+            } else if (file.path) {
+                // Disk storage - file has path to temporary location
+                console.log('FileManager: Using disk storage, temp path:', file.path);
+                await fs.copyFile(file.path, filePath);
+                // Clean up temporary file
+                try {
+                    await fs.unlink(file.path);
+                    console.log('FileManager: Temporary file cleaned up');
+                } catch (cleanupError) {
+                    console.warn('FileManager: Could not clean up temporary file:', cleanupError.message);
+                }
+            } else {
+                console.error('FileManager: Invalid file data - no buffer or path');
+                throw new Error('Invalid file data - no buffer or path');
+            }
             
-            // For now, save file without encryption to debug the issue
-            console.log('FileManager: Saving translated file without encryption for debugging');
-            await fs.writeFile(filePath, file.buffer);
             console.log('FileManager: Translated file written successfully');
             
             return {
