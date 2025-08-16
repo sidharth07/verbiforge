@@ -885,8 +885,13 @@ app.get('/debug/schema', requireAuth, async (req, res) => {
 // Search projects by project ID (admin only)
 app.get('/admin/projects/search/:projectId', requireAuth, async (req, res) => {
     try {
+        console.log('🔍 Search endpoint called');
+        console.log('🔍 Request params:', req.params);
+        console.log('🔍 Request user:', { id: req.user.id, email: req.user.email, role: req.user.role });
+        
         const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
         if (!isAdmin) {
+            console.log('❌ Access denied - not admin');
             return res.status(403).json({ error: 'Admin access required' });
         }
         

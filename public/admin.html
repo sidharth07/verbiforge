@@ -2671,10 +2671,17 @@
                 statusDiv.innerHTML = '<div style="color: #007bff; background: #d1ecf1; padding: 8px; border-radius: 4px;">Searching...</div>';
                 statusDiv.style.display = 'block';
                 
-                const response = await Auth.authFetch(`/admin/projects/search/${encodeURIComponent(searchInput)}`);
+                const searchUrl = `/admin/projects/search/${encodeURIComponent(searchInput)}`;
+                console.log('🔍 Search URL:', searchUrl);
+                console.log('🔍 Search input:', searchInput);
+                
+                const response = await Auth.authFetch(searchUrl);
+                console.log('🔍 Search response status:', response.status);
+                console.log('🔍 Search response ok:', response.ok);
                 
                 if (response.ok) {
                     const projects = await response.json();
+                    console.log('🔍 Search results:', projects);
                     
                     if (projects.length > 0) {
                         allProjects = projects; // Update the global projects array
@@ -2687,10 +2694,13 @@
                     }
                 } else {
                     const error = await response.json();
+                    console.error('❌ Search response error:', error);
                     statusDiv.innerHTML = `<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">Search failed: ${error.error}</div>`;
                 }
             } catch (error) {
                 console.error('❌ Search error:', error);
+                console.error('❌ Search error message:', error.message);
+                console.error('❌ Search error stack:', error.stack);
                 statusDiv.innerHTML = '<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">Network error during search</div>';
             }
         }
