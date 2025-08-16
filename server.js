@@ -577,6 +577,7 @@ app.get('/projects', requireAuth, async (req, res) => {
                     wordCount: project.word_count, // Add alias for frontend compatibility
                     projectType: project.project_type, // Add alias for frontend compatibility
                     projectManagementCost: project.project_management_cost, // Add alias for frontend compatibility
+                    subtotal: project.subtotal, // Add alias for frontend compatibility
                     translatedFileName: project.translated_file_name // Add alias for frontend compatibility
                 };
             } catch (error) {
@@ -590,6 +591,7 @@ app.get('/projects', requireAuth, async (req, res) => {
                     wordCount: project.word_count,
                     projectType: project.project_type,
                     projectManagementCost: project.project_management_cost,
+                    subtotal: project.subtotal,
                     translatedFileName: project.translated_file_name
                 };
             }
@@ -662,11 +664,11 @@ app.post('/projects', requireAuth, async (req, res) => {
         await dbHelpers.run(`
             INSERT INTO projects (
                 id, user_id, name, file_name, word_count, breakdown, 
-                total, status, project_type, multiplier, notes, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
+                subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
         `, [
             projectId, req.user.id, projectNameToUse, fileName, wordCount, 
-            JSON.stringify(breakdown), total, 'quote_generated', 
+            JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
             projectType || 'fusion', multiplier || 1.0, notes || ''
         ]);
         
@@ -951,6 +953,7 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     wordCount: project.word_count, // Add alias for frontend compatibility
                     projectType: project.project_type, // Add alias for frontend compatibility
                     projectManagementCost: project.project_management_cost, // Add alias for frontend compatibility
+                    subtotal: project.subtotal, // Add alias for frontend compatibility
                     translatedFileName: project.translated_file_name // Add alias for frontend compatibility
                 };
             } catch (error) {
@@ -964,6 +967,7 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     wordCount: project.word_count,
                     projectType: project.project_type,
                     projectManagementCost: project.project_management_cost,
+                    subtotal: project.subtotal,
                     translatedFileName: project.translated_file_name
                 };
             }
