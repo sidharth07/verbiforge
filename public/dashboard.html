@@ -256,8 +256,11 @@
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 12px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .nav-content {
@@ -272,6 +275,13 @@
         .nav-brand {
             font-size: 1.5em;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-brand-icon {
+            font-size: 1.2em;
         }
 
         .nav-user {
@@ -295,17 +305,23 @@
         }
 
         .logout-btn {
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .container {
@@ -315,12 +331,32 @@
         }
 
         .dashboard-header {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
             margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .dashboard-header h1 {
             color: #333;
             margin-bottom: 10px;
+            font-size: 2.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dashboard-header-icon {
+            font-size: 1.2em;
+        }
+
+        .dashboard-header p {
+            color: #666;
+            font-size: 1.1em;
+            margin: 0;
         }
 
         .dashboard-tabs {
@@ -328,12 +364,15 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            border-bottom: 1px solid #ddd;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .tabs-left {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .tabs-right {
@@ -344,12 +383,33 @@
         .tab-btn {
             background: none;
             border: none;
-            padding: 15px 25px;
+            padding: 12px 20px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            margin: 0 4px;
+        }
+
+        .tab-btn:hover {
+            color: #333;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-btn.active:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .tab-btn.active {
@@ -396,23 +456,64 @@
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .project-card {
+                padding: 20px;
+            }
+            
+            .dashboard-tabs {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .tabs-left {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .tabs-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .nav-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .nav-user {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
 
         .project-card {
             background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             height: 100%;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .project-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: rgba(102, 126, 234, 0.2);
         }
 
         .project-header {
@@ -438,44 +539,115 @@
         }
 
         .project-detail {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 12px;
             font-size: 0.9em;
+            align-items: center;
+        }
+
+        .project-detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .project-detail-value {
+            color: #333;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .project-detail-value.highlight {
+            color: #667eea;
+            font-weight: bold;
         }
 
         .project-total {
-            font-size: 1.3em;
+            font-size: 1.4em;
             font-weight: bold;
-            color: #28a745;
+            color: #667eea;
             text-align: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
             flex-shrink: 0;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-total::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .project-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             margin-top: auto;
             flex-shrink: 0;
         }
 
-        .delete-btn {
-            background: #dc3545;
+        .action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 12px 20px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 0.9em;
+            font-weight: 600;
             flex: 1;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .action-btn.danger:hover {
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            flex: 1;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .delete-btn:hover {
-            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
         }
 
         .empty-state {
@@ -536,6 +708,7 @@
     <nav class="navbar">
         <div class="nav-content">
             <div class="nav-brand">
+                <span class="nav-brand-icon">🚀</span>
                 <svg width="32" height="32" viewBox="0 0 32 32" style="margin-right: 8px; vertical-align: middle;">
                     <defs>
                         <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -552,22 +725,25 @@
                 VerbiForge
             </div>
             <div class="nav-user">
-                <span id="userName">Loading...</span>
-                <button class="logout-btn" id="logoutBtn">Logout</button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">👤</div>
+                    <span id="userName" style="font-weight: 600;">Loading...</span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">🔓 Logout</button>
             </div>
         </div>
     </nav>
 
     <div class="container">
         <div class="dashboard-header">
-            <h1>Dashboard</h1>
+            <h1><span class="dashboard-header-icon">📊</span>Dashboard</h1>
             <p>Manage your translation projects</p>
         </div>
 
         <div class="dashboard-tabs">
             <div class="tabs-left">
-                <button class="tab-btn active" data-tab="projects">My Projects</button>
-                <button class="tab-btn" data-tab="completed">Completed Projects</button>
+                <button class="tab-btn active" data-tab="projects">📂 My Projects</button>
+                <button class="tab-btn" data-tab="completed">✅ Completed Projects</button>
             </div>
             <div class="tabs-right">
                 <button class="create-project-btn" onclick="switchTab('create')">
@@ -1492,8 +1668,8 @@
                 project.breakdown.forEach(item => {
                     breakdownHtml += `
                         <div class="project-detail">
-                            <span>${item.language}</span>
-                            <span>$${item.cost}</span>
+                            <div class="project-detail-label">🌍 ${item.language}:</div>
+                            <div class="project-detail-value">$${item.cost}</div>
                         </div>
                     `;
                 });
@@ -1501,89 +1677,87 @@
                 html += `
                     <div class="project-card">
                         <div class="project-header">
-                            <div class="project-name">${project.name}</div>
+                            <div>
+                                <div class="project-name">${project.name}</div>
+                                <div class="project-id" style="font-size: 0.8em; color: #667eea; font-weight: 600; margin-top: 5px;">${project.projectId || 'N/A'}</div>
+                            </div>
                             <div class="project-date">${date}</div>
-                            <div class="project-id" style="font-size: 0.8em; color: #666; font-weight: 600; margin-top: 5px;">${project.projectId || 'N/A'}</div>
                         </div>
                         
                         <div class="project-details">
                             <div class="project-detail">
-                                <span>File:</span>
-                                <span>${project.fileName}</span>
+                                <div class="project-detail-label">📄 File:</div>
+                                <div class="project-detail-value">${project.fileName}</div>
                             </div>
                             <div class="project-detail">
-                                <span>Words:</span>
-                                <span>${(project.wordCount || 0).toLocaleString()}</span>
+                                <div class="project-detail-label">📝 Words:</div>
+                                <div class="project-detail-value">${(project.wordCount || 0).toLocaleString()}</div>
                             </div>
                             <div class="project-detail">
-                                <span>Type:</span>
-                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                                <div class="project-detail-label">🏷️ Type:</div>
+                                <div class="project-detail-value" style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#667eea'}; font-weight: 600;">
                                     ${(project.projectType || 'fusion') === 'pure' ? 'Pure' : 'Fusion'}
                                     ${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}
-                                </span>
+                                </div>
                             </div>
                             <div class="project-detail">
-                                <span>Status:</span>
-                                <span style="color: ${getStatusColor(project.status)};">
+                                <div class="project-detail-label">📊 Status:</div>
+                                <div class="project-detail-value" style="color: ${getStatusColor(project.status)};">
                                     ${getStatusText(project.status)}
-                                </span>
+                                </div>
                             </div>
                             ${project.eta ? `
                                 <div class="project-detail">
-                                    <span>ETA:</span>
-                                    <span style="font-weight: 600; color: #28a745;">${project.eta} working days</span>
+                                    <div class="project-detail-label">⏰ ETA:</div>
+                                    <div class="project-detail-value" style="color: #28a745; font-weight: 600;">${project.eta} working days</div>
                                 </div>
                             ` : ''}
                         </div>
                         
-                        <div style="margin-bottom: 15px; flex: 1;">
-                            <h4 style="margin-bottom: 10px; font-size: 0.9em; color: #666;">Translation Costs:</h4>
+                        <div style="margin-bottom: 20px; flex: 1;">
+                            <h4 style="margin-bottom: 15px; font-size: 1em; color: #333; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 8px;">💰 Translation Costs:</h4>
                             ${breakdownHtml}
-                            <div class="project-detail" style="border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
-                                <span>Subtotal:</span>
-                                <span>$${project.subtotal || '0.00'}</span>
+                            <div class="project-detail" style="border-top: 2px solid #eee; padding-top: 12px; margin-top: 12px;">
+                                <div class="project-detail-label">Subtotal:</div>
+                                <div class="project-detail-value highlight">$${project.subtotal || '0.00'}</div>
                             </div>
                             <div class="project-detail">
-                                <span>Project Management:</span>
-                                <span>$${project.projectManagementCost || '500.00'}</span>
+                                <div class="project-detail-label">Project Management:</div>
+                                <div class="project-detail-value">$${project.projectManagementCost || '500.00'}</div>
                             </div>
                         </div>
                         
                         <div class="project-total">$${project.total}</div>
                         
                         ${containerId === 'completedProjectsList' ? `
-                            <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
+                            <div class="project-actions">
                                 ${project.translatedFileName ? `
                                     <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
-                                            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
-                                        <span style="font-size: 16px;">📥</span>
-                                        Download Translated File
+                                            class="action-btn">
+                                        📥 Download Translated File
                                     </button>
                                 ` : `
-                                    <div style="background: linear-gradient(135deg, #ffc107 0%, #ffb74d 100%); color: #856404; padding: 12px 20px; border-radius: 6px; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); border: 1px solid #ffeaa7;">
-                                        <span style="font-size: 16px;">⏳</span>
-                                        Files on the way
+                                    <div style="background: linear-gradient(135deg, #ffc107 0%, #ffb74d 100%); color: #856404; padding: 12px 20px; border-radius: 25px; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); border: 1px solid #ffeaa7;">
+                                        ⏳ Files on the way
                                     </div>
                                 `}
                             </div>
                         ` : `
-                            <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
+                            <div class="project-actions">
                                 ${project.status === 'quote_generated' ? `
-                                    <button class="submit-project-btn" data-project-id="${project.id}" 
-                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
-                                        Submit Project
+                                    <button class="action-btn submit-project-btn" data-project-id="${project.id}">
+                                        📤 Submit Project
                                     </button>
                                 ` : ''}
                                 ${project.translatedFileName ? `
-                                    <a href="/projects/${project.id}/download-translated" 
-                                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block;">
-                                       Download Translated
-                                    </a>
+                                    <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
+                                            class="action-btn">
+                                        📥 Download Translated
+                                    </button>
                                 ` : ''}
                                 ${project.status === 'quote_generated' ? `
-                                    <button class="delete-project-btn" data-project-id="${project.id}" 
-                                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
-                                        Delete
+                                    <button class="action-btn danger delete-project-btn" data-project-id="${project.id}">
+                                        🗑️ Delete
                                     </button>
                                 ` : ''}
                             </div>
