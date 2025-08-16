@@ -149,6 +149,12 @@ class FileManager {
             }
             
             console.log('FileManager: Translated file written successfully');
+            console.log('FileManager: Returning file info:', {
+                filePath: fileName,
+                originalName: file.originalname,
+                mimeType: file.mimetype,
+                size: file.size
+            });
             
             return {
                 filePath: fileName, // Store relative path only
@@ -180,14 +186,41 @@ class FileManager {
     // Retrieve translated file
     async getTranslatedFile(fileName) {
         try {
+            console.log('FileManager: Retrieving translated file:', fileName);
+            console.log('FileManager: TRANSLATED_DIR:', TRANSLATED_DIR);
+            
             const filePath = path.join(TRANSLATED_DIR, fileName);
+            console.log('FileManager: Full file path:', filePath);
+            
+            // Check if file exists
+            try {
+                await fs.access(filePath);
+                console.log('FileManager: File exists at path');
+            } catch (accessError) {
+                console.error('FileManager: File does not exist at path:', filePath);
+                console.error('FileManager: Access error:', accessError.message);
+                
+                // List files in directory for debugging
+                try {
+                    const files = await fs.readdir(TRANSLATED_DIR);
+                    console.log('FileManager: Files in translated directory:', files);
+                } catch (readdirError) {
+                    console.error('FileManager: Could not read directory:', readdirError.message);
+                }
+                
+                throw new Error(`File not found: ${fileName}`);
+            }
+            
             const content = await fs.readFile(filePath);
+            console.log('FileManager: File content retrieved, size:', content.length);
             
             // For now, return content directly without decryption since files are saved unencrypted
             return content;
         } catch (error) {
-            console.error('Error retrieving translated file:', error);
-            throw new Error('Translated file not found or corrupted');
+            console.error('FileManager: Error retrieving translated file:', error);
+            console.error('FileManager: Error message:', error.message);
+            console.error('FileManager: Error stack:', error.stack);
+            throw new Error('Translated file not found or corrupted: ' + error.message);
         }
     }
 
