@@ -106,103 +106,27 @@ async function initializeDatabase() {
     try {
         console.log('🔧 Checking database schema...');
         
-        // Check and add translated_file_path column if missing
-        try {
-            await dbHelpers.query(`
-                ALTER TABLE projects 
-                ADD COLUMN translated_file_path TEXT
-            `);
-            console.log('✅ translated_file_path column added');
-        } catch (error) {
-            if (error.message.includes('already exists')) {
-                console.log('ℹ️ translated_file_path column already exists');
-            } else {
-                console.error('❌ Error adding translated_file_path column:', error.message);
-            }
-        }
+        // Add columns if they don't exist (ignore errors if they already exist)
+        const columns = [
+            { name: 'translated_file_path', type: 'TEXT' },
+            { name: 'subtotal', type: 'REAL DEFAULT 0' },
+            { name: 'project_management_cost', type: 'REAL DEFAULT 500' }
+        ];
         
-        // Check and add subtotal column if missing
-        try {
-            await dbHelpers.query(`
-                ALTER TABLE projects 
-                ADD COLUMN subtotal REAL DEFAULT 0
-            `);
-            console.log('✅ subtotal column added');
-        } catch (error) {
-            if (error.message.includes('already exists')) {
-                console.log('ℹ️ subtotal column already exists');
-            } else {
-                console.error('❌ Error adding subtotal column:', error.message);
-            }
-        }
-        
-        // Check and add project_management_cost column if missing
-        try {
-            await dbHelpers.query(`
-                ALTER TABLE projects 
-                ADD COLUMN project_management_cost REAL DEFAULT 500
-            `);
-            console.log('✅ project_management_cost column added');
-        } catch (error) {
-            if (error.message.includes('already exists')) {
-                console.log('ℹ️ project_management_cost column already exists');
-            } else {
-                console.error('❌ Error adding project_management_cost column:', error.message);
-            }
-        }
-        
-        // Update existing projects with calculated subtotals (only if we have projects to update)
-        try {
-            console.log('🔧 Checking for projects that need subtotal updates...');
-            const projects = await dbHelpers.query(`
-                SELECT id, breakdown, total, project_management_cost 
-                FROM projects 
-                WHERE subtotal IS NULL OR subtotal = 0
-                LIMIT 10
-            `);
-            
-            if (projects.length > 0) {
-                console.log(`📋 Found ${projects.length} projects to update`);
-                
-                for (const project of projects) {
-                    try {
-                        let breakdown = [];
-                        if (project.breakdown) {
-                            breakdown = JSON.parse(project.breakdown);
-                        }
-                        
-                        // Calculate subtotal from breakdown
-                        let subtotal = 0;
-                        if (Array.isArray(breakdown)) {
-                            subtotal = breakdown.reduce((sum, item) => {
-                                return sum + parseFloat(item.cost || 0);
-                            }, 0);
-                        }
-                        
-                        // If no breakdown or subtotal is 0, estimate from total
-                        if (subtotal === 0 && project.total) {
-                            const pmc = project.project_management_cost || 500;
-                            subtotal = parseFloat(project.total) - pmc;
-                        }
-                        
-                        // Update the project
-                        await dbHelpers.run(`
-                            UPDATE projects 
-                            SET subtotal = $1, project_management_cost = $2
-                            WHERE id = $3
-                        `, [subtotal, project.project_management_cost || 500, project.id]);
-                        
-                        console.log(`✅ Updated project ${project.id}: subtotal = $${subtotal.toFixed(2)}`);
-                        
-                    } catch (error) {
-                        console.error(`❌ Error updating project ${project.id}:`, error.message);
-                    }
+        for (const column of columns) {
+            try {
+                await dbHelpers.query(`
+                    ALTER TABLE projects 
+                    ADD COLUMN ${column.name} ${column.type}
+                `);
+                console.log(`✅ Added ${column.name} column`);
+            } catch (error) {
+                if (error.message.includes('already exists')) {
+                    console.log(`ℹ️ ${column.name} column already exists`);
+                } else {
+                    console.error(`❌ Error adding ${column.name} column:`, error.message);
                 }
-            } else {
-                console.log('ℹ️ No projects need subtotal updates');
             }
-        } catch (error) {
-            console.error('❌ Error checking for projects to update:', error.message);
         }
         
         console.log('🎉 Database schema initialization completed!');
@@ -805,7 +729,25 @@ app.post('/projects', requireAuth, async (req, res) => {
             if (error.message.includes('column "subtotal"') || error.message.includes('column "project_management_cost"')) {
                 console.log('🔧 Database columns missing, attempting to add them...');
                 try {
-                    await initializeDatabase();
+                    // Add missing columns directly
+                    await dbHelpers.query(`
+                        ALTER TABLE projects 
+                        ADD COLUMN subtotal REAL DEFAULT 0
+                    `);
+                    console.log('✅ Added subtotal column');
+                    
+                    await dbHelpers.query(`
+                        ALTER TABLE projects 
+                        ADD COLUMN project_management_cost REAL DEFAULT 500
+                    `);
+                    console.log('✅ Added project_management_cost column');
+                    
+                    await dbHelpers.query(`
+                        ALTER TABLE projects 
+                        ADD COLUMN translated_file_path TEXT
+                    `);
+                    console.log('✅ Added translated_file_path column');
+                    
                     // Retry the insert
                     await dbHelpers.run(`
                         INSERT INTO projects (
