@@ -11,6 +11,45 @@ const XLSX = require('xlsx');
 const EmailService = require('./email-service');
 const FileManager = require('./fileManager');
 
+// Project ID generation utility
+function generateProjectId() {
+    // Get the next available number starting from 700
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Get the highest project number from existing projects
+            const result = await dbHelpers.get(`
+                SELECT MAX(CAST(SUBSTRING(project_id FROM 1 FOR POSITION('-' IN project_id) - 1) AS INTEGER)) as max_number 
+                FROM projects 
+                WHERE project_id IS NOT NULL AND project_id ~ '^[0-9]+-[A-Z]{2}$'
+            `);
+            
+            let nextNumber = 700;
+            if (result && result.max_number) {
+                nextNumber = Math.max(700, result.max_number + 1);
+            }
+            
+            // Generate 2 random uppercase letters
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const letter1 = letters[Math.floor(Math.random() * letters.length)];
+            const letter2 = letters[Math.floor(Math.random() * letters.length)];
+            
+            const projectId = `${nextNumber}-${letter1}${letter2}`;
+            console.log('🔢 Generated project ID:', projectId);
+            resolve(projectId);
+        } catch (error) {
+            console.error('❌ Error generating project ID:', error);
+            // Fallback to timestamp-based ID
+            const timestamp = Date.now();
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const letter1 = letters[Math.floor(Math.random() * letters.length)];
+            const letter2 = letters[Math.floor(Math.random() * letters.length)];
+            const fallbackId = `${timestamp}-${letter1}${letter2}`;
+            console.log('🔢 Using fallback project ID:', fallbackId);
+            resolve(fallbackId);
+        }
+    });
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -110,7 +149,8 @@ async function initializeDatabase() {
         const columns = [
             { name: 'translated_file_path', type: 'TEXT' },
             { name: 'subtotal', type: 'REAL DEFAULT 0' },
-            { name: 'project_management_cost', type: 'REAL DEFAULT 500' }
+            { name: 'project_management_cost', type: 'REAL DEFAULT 500' },
+            { name: 'project_id', type: 'VARCHAR(20)' }
         ];
         
         for (const column of columns) {
@@ -751,6 +791,72 @@ app.get('/debug/schema', requireAuth, async (req, res) => {
     }
 });
 
+// Search projects by project ID (admin only)
+app.get('/admin/projects/search/:projectId', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { projectId } = req.params;
+        console.log('🔍 Searching for project with ID:', projectId);
+        
+        const projects = await dbHelpers.query(`
+            SELECT p.*, u.name as user_name, u.email as user_email 
+            FROM projects p 
+            JOIN users u ON p.user_id = u.id 
+            WHERE p.project_id ILIKE $1
+            ORDER BY p.created_at DESC
+        `, [`%${projectId}%`]);
+        
+        console.log('📋 Search results:', projects.length, 'projects found');
+        
+        // Parse JSON fields for frontend
+        const processedProjects = projects.map(project => {
+            try {
+                return {
+                    ...project,
+                    breakdown: project.breakdown ? JSON.parse(project.breakdown) : [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at,
+                    fileName: project.file_name,
+                    wordCount: project.word_count,
+                    projectType: project.project_type,
+                    projectManagementCost: project.project_management_cost,
+                    subtotal: project.subtotal,
+                    translatedFileName: project.translated_file_name,
+                    userName: project.user_name,
+                    userEmail: project.user_email,
+                    projectId: project.project_id
+                };
+            } catch (error) {
+                console.error('❌ Error parsing search result:', error, project);
+                return {
+                    ...project,
+                    breakdown: [],
+                    created_at: project.created_at,
+                    createdAt: project.created_at,
+                    fileName: project.file_name,
+                    wordCount: project.word_count,
+                    projectType: project.project_type,
+                    projectManagementCost: project.project_management_cost,
+                    subtotal: project.subtotal,
+                    translatedFileName: project.translated_file_name,
+                    userName: project.user_name,
+                    userEmail: project.user_email,
+                    projectId: project.project_id
+                };
+            }
+        });
+        
+        res.json(processedProjects);
+    } catch (error) {
+        console.error('❌ Error searching projects:', error);
+        res.status(500).json({ error: 'Failed to search projects' });
+    }
+});
+
 // Get multiplier
 app.get('/multiplier', requireAuth, async (req, res) => {
     try {
@@ -789,7 +895,8 @@ app.get('/projects', requireAuth, async (req, res) => {
                     projectType: project.project_type, // Add alias for frontend compatibility
                     projectManagementCost: project.project_management_cost, // Add alias for frontend compatibility
                     subtotal: project.subtotal, // Add alias for frontend compatibility
-                    translatedFileName: project.translated_file_name // Add alias for frontend compatibility
+                    translatedFileName: project.translated_file_name, // Add alias for frontend compatibility
+                    projectId: project.project_id // Add alias for frontend compatibility
                 };
             } catch (error) {
                 console.error('❌ Error parsing project breakdown:', error, project);
@@ -803,7 +910,8 @@ app.get('/projects', requireAuth, async (req, res) => {
                     projectType: project.project_type,
                     projectManagementCost: project.project_management_cost,
                     subtotal: project.subtotal,
-                    translatedFileName: project.translated_file_name
+                    translatedFileName: project.translated_file_name,
+                    projectId: project.project_id
                 };
             }
         });
@@ -860,8 +968,12 @@ app.post('/projects', requireAuth, async (req, res) => {
         
         const projectId = uuidv4();
         
+        // Generate a human-readable project ID
+        const humanReadableId = await generateProjectId();
+        
         console.log('🔍 Creating project with data:', {
             projectId,
+            humanReadableId,
             userId: req.user.id,
             name: projectNameToUse,
             fileName,
@@ -877,12 +989,12 @@ app.post('/projects', requireAuth, async (req, res) => {
             await dbHelpers.run(`
                 INSERT INTO projects (
                     id, user_id, name, file_name, word_count, breakdown, 
-                    subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
+                    subtotal, project_management_cost, total, status, project_type, multiplier, notes, project_id, created_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, CURRENT_TIMESTAMP)
             `, [
                 projectId, req.user.id, projectNameToUse, fileName, wordCount, 
                 JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
-                projectType || 'fusion', multiplier || 1.0, notes || ''
+                projectType || 'fusion', multiplier || 1.0, notes || '', humanReadableId
             ]);
         } catch (error) {
             // If columns don't exist, try to add them and retry
@@ -908,16 +1020,22 @@ app.post('/projects', requireAuth, async (req, res) => {
                     `);
                     console.log('✅ Added translated_file_path column');
                     
+                    await dbHelpers.query(`
+                        ALTER TABLE projects 
+                        ADD COLUMN project_id VARCHAR(20)
+                    `);
+                    console.log('✅ Added project_id column');
+                    
                     // Retry the insert
                     await dbHelpers.run(`
                         INSERT INTO projects (
                             id, user_id, name, file_name, word_count, breakdown, 
-                            subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
-                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
+                            subtotal, project_management_cost, total, status, project_type, multiplier, notes, project_id, created_at
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, CURRENT_TIMESTAMP)
                     `, [
                         projectId, req.user.id, projectNameToUse, fileName, wordCount, 
                         JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
-                        projectType || 'fusion', multiplier || 1.0, notes || ''
+                        projectType || 'fusion', multiplier || 1.0, notes || '', humanReadableId
                     ]);
                 } catch (retryError) {
                     console.error('❌ Failed to add database columns:', retryError);
@@ -1231,7 +1349,8 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     subtotal: project.subtotal, // Add alias for frontend compatibility
                     translatedFileName: project.translated_file_name, // Add alias for frontend compatibility
                     userName: project.user_name, // Add alias for frontend compatibility
-                    userEmail: project.user_email // Add alias for frontend compatibility
+                    userEmail: project.user_email, // Add alias for frontend compatibility
+                    projectId: project.project_id // Add alias for frontend compatibility
                 };
             } catch (error) {
                 console.error('❌ Error parsing admin project breakdown:', error, project);
@@ -1247,7 +1366,8 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     subtotal: project.subtotal,
                     translatedFileName: project.translated_file_name,
                     userName: project.user_name, // Add alias for frontend compatibility
-                    userEmail: project.user_email // Add alias for frontend compatibility
+                    userEmail: project.user_email, // Add alias for frontend compatibility
+                    projectId: project.project_id // Add alias for frontend compatibility
                 };
             }
         });

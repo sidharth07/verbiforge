@@ -751,6 +751,26 @@
                 <p>View and manage all user projects</p>
             </div>
             
+            <!-- Search functionality -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label for="projectSearch" style="font-weight: 600; color: #333;">🔍 Search Project ID:</label>
+                        <input type="text" id="projectSearch" placeholder="e.g., 700-AS, 701-BT" 
+                               style="width: 200px; padding: 10px 12px; border: 2px solid #007bff; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <button id="searchProjectBtn" 
+                            style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        Search
+                    </button>
+                    <button id="clearSearchBtn" 
+                            style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        Clear
+                    </button>
+                </div>
+                <div id="searchStatus" style="margin-top: 10px; padding: 8px; border-radius: 4px; display: none;"></div>
+            </div>
+            
             <div id="loadingState" class="loading">
                 <div class="spinner"></div>
                 <p>Loading projects...</p>
@@ -1275,6 +1295,7 @@
                         <div style="font-weight: 500; cursor: pointer; color: #007bff;" onclick="openProjectDetails('${project.id}')">
                             ${project.name}
                         </div>
+                        <div style="font-size: 0.8em; color: #666; font-weight: 600;">${project.projectId || 'N/A'}</div>
                     </td>
                     <td>
                         <div>${project.userName}</div>
@@ -2621,8 +2642,65 @@
                 uploadTranslatedBtn.addEventListener('click', uploadTranslatedFile);
             }
 
+            // Search functionality
+            document.getElementById('searchProjectBtn').addEventListener('click', searchProjects);
+            document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+            
+            // Enter key support for search
+            document.getElementById('projectSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchProjects();
+                }
+            });
+
             console.log('✅ Admin event listeners set up successfully');
         });
+
+        // Search projects by project ID
+        async function searchProjects() {
+            const searchInput = document.getElementById('projectSearch').value.trim();
+            const statusDiv = document.getElementById('searchStatus');
+            
+            if (!searchInput) {
+                statusDiv.innerHTML = '<div style="color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px;">Please enter a project ID to search</div>';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                statusDiv.innerHTML = '<div style="color: #007bff; background: #d1ecf1; padding: 8px; border-radius: 4px;">Searching...</div>';
+                statusDiv.style.display = 'block';
+                
+                const response = await Auth.authFetch(`/admin/projects/search/${encodeURIComponent(searchInput)}`);
+                
+                if (response.ok) {
+                    const projects = await response.json();
+                    
+                    if (projects.length > 0) {
+                        allProjects = projects; // Update the global projects array
+                        displayProjects();
+                        statusDiv.innerHTML = `<div style="color: #155724; background: #d4edda; padding: 8px; border-radius: 4px;">Found ${projects.length} project(s) matching "${searchInput}"</div>`;
+                    } else {
+                        statusDiv.innerHTML = `<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">No projects found matching "${searchInput}"</div>`;
+                        // Clear the table
+                        document.getElementById('projectsTableBody').innerHTML = '';
+                    }
+                } else {
+                    const error = await response.json();
+                    statusDiv.innerHTML = `<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">Search failed: ${error.error}</div>`;
+                }
+            } catch (error) {
+                console.error('❌ Search error:', error);
+                statusDiv.innerHTML = '<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">Network error during search</div>';
+            }
+        }
+
+        // Clear search and show all projects
+        async function clearSearch() {
+            document.getElementById('projectSearch').value = '';
+            document.getElementById('searchStatus').style.display = 'none';
+            await loadProjects(); // Reload all projects
+        }
     </script>
 </body>
 </html>
