@@ -2226,9 +2226,9 @@ app.post('/projects/:id/upload-translated', requireAuth, upload.single('file'), 
         console.log('🔍 Updating database with file information...');
         await dbHelpers.run(`
             UPDATE projects 
-            SET translated_file_name = $1, status = $2 
-            WHERE id = $3
-        `, [req.file.originalname, 'completed', id]);
+            SET translated_file_name = $1, translated_file_path = $2, status = $3 
+            WHERE id = $4
+        `, [req.file.originalname, req.file.path, 'completed', id]);
         
         console.log('✅ Database updated successfully');
         
