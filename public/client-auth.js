@@ -15,11 +15,17 @@
   }
 
   function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+    // Check all possible token keys
+    return localStorage.getItem(TOKEN_KEY) || 
+           localStorage.getItem('jwtToken') || 
+           localStorage.getItem('jwt');
   }
 
   function getUser() {
-    const raw = localStorage.getItem(USER_KEY);
+    // Check all possible user keys
+    const raw = localStorage.getItem(USER_KEY) || 
+                localStorage.getItem('currentUser') || 
+                localStorage.getItem('userData');
     try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
   }
 
