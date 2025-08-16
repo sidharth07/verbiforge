@@ -4147,7 +4147,10 @@
                 console.log('❌ Not authenticated, redirecting to login');
                 console.log('❌ DEBUG: user missing:', !user);
                 console.log('❌ DEBUG: token missing:', !token);
-                window.location.href = 'login.html';
+                
+                // TEMPORARILY PREVENT REDIRECT TO SEE LOGS
+                console.log('🚫 DEBUG: Redirect blocked for debugging');
+                alert('DEBUG: Would redirect to login. Check console for details.');
                 return;
             }
             
