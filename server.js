@@ -1092,77 +1092,71 @@ app.post('/projects', requireAuth, async (req, res) => {
             // If columns don't exist, try to add them and retry
             if (error.message.includes('column "subtotal"') || error.message.includes('column "project_management_cost"') || error.message.includes('column "project_id"') || error.message.includes('column "translated_file_path"')) {
                 console.log('🔧 Database columns missing, attempting to add them...');
-                try {
-                    // Add missing columns with error handling for existing columns
-                    const columnsToAdd = [
-                        { name: 'subtotal', type: 'REAL DEFAULT 0' },
-                        { name: 'project_management_cost', type: 'REAL DEFAULT 500' },
-                        { name: 'translated_file_path', type: 'TEXT' },
-                        { name: 'project_id', type: 'VARCHAR(20)' }
-                    ];
-                    
-                    for (const column of columnsToAdd) {
-                        try {
-                            await dbHelpers.query(`
-                                ALTER TABLE projects 
-                                ADD COLUMN ${column.name} ${column.type}
-                            `);
-                            console.log(`✅ Added ${column.name} column`);
-                        } catch (columnError) {
-                            if (columnError.message.includes('already exists')) {
-                                console.log(`ℹ️ ${column.name} column already exists`);
-                            } else {
-                                console.error(`❌ Error adding ${column.name} column:`, columnError.message);
-                                throw columnError;
-                            }
+                // Add missing columns with error handling for existing columns
+                const columnsToAdd = [
+                    { name: 'subtotal', type: 'REAL DEFAULT 0' },
+                    { name: 'project_management_cost', type: 'REAL DEFAULT 500' },
+                    { name: 'translated_file_path', type: 'TEXT' },
+                    { name: 'project_id', type: 'VARCHAR(20)' }
+                ];
+                
+                for (const column of columnsToAdd) {
+                    try {
+                        await dbHelpers.query(`
+                            ALTER TABLE projects 
+                            ADD COLUMN ${column.name} ${column.type}
+                        `);
+                        console.log(`✅ Added ${column.name} column`);
+                    } catch (columnError) {
+                        if (columnError.message.includes('already exists')) {
+                            console.log(`ℹ️ ${column.name} column already exists`);
+                        } else {
+                            console.error(`❌ Error adding ${column.name} column:`, columnError.message);
+                            throw columnError;
                         }
                     }
+                }
+                
+                // Generate project ID after adding the column
+                const humanReadableId = await generateProjectId();
+                console.log('✅ Generated project ID after schema fix:', humanReadableId);
+                
+                // Retry the insert with a simple approach - try without project_id first if it fails
+                try {
+                    await dbHelpers.run(`
+                        INSERT INTO projects (
+                            id, user_id, name, file_name, word_count, breakdown, 
+                            subtotal, project_management_cost, total, status, project_type, multiplier, notes, project_id, created_at
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, CURRENT_TIMESTAMP)
+                    `, [
+                        projectId, req.user.id, projectNameToUse, fileName, wordCount, 
+                        JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
+                        projectType || 'fusion', multiplier || 1.0, notes || '', humanReadableId
+                    ]);
+                    console.log('✅ Project created successfully after schema fix');
+                } catch (retryInsertError) {
+                    console.log('🔍 Retry insert failed, trying without project_id:', retryInsertError.message);
                     
-                    // Generate project ID after adding the column
-                    const humanReadableId = await generateProjectId();
-                    console.log('✅ Generated project ID after schema fix:', humanReadableId);
+                    // If project_id still fails, try without it
+                    await dbHelpers.run(`
+                        INSERT INTO projects (
+                            id, user_id, name, file_name, word_count, breakdown, 
+                            subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
+                    `, [
+                        projectId, req.user.id, projectNameToUse, fileName, wordCount, 
+                        JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
+                        projectType || 'fusion', multiplier || 1.0, notes || ''
+                    ]);
                     
-                    // Retry the insert with a simple approach - try without project_id first if it fails
-                    try {
-                        await dbHelpers.run(`
-                            INSERT INTO projects (
-                                id, user_id, name, file_name, word_count, breakdown, 
-                                subtotal, project_management_cost, total, status, project_type, multiplier, notes, project_id, created_at
-                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, CURRENT_TIMESTAMP)
-                        `, [
-                            projectId, req.user.id, projectNameToUse, fileName, wordCount, 
-                            JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
-                            projectType || 'fusion', multiplier || 1.0, notes || '', humanReadableId
-                        ]);
-                        console.log('✅ Project created successfully after schema fix');
-                    } catch (retryInsertError) {
-                        console.log('🔍 Retry insert failed, trying without project_id:', retryInsertError.message);
-                        
-                        // If project_id still fails, try without it
-                        await dbHelpers.run(`
-                            INSERT INTO projects (
-                                id, user_id, name, file_name, word_count, breakdown, 
-                                subtotal, project_management_cost, total, status, project_type, multiplier, notes, created_at
-                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
-                        `, [
-                            projectId, req.user.id, projectNameToUse, fileName, wordCount, 
-                            JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
-                            projectType || 'fusion', multiplier || 1.0, notes || ''
-                        ]);
-                        
-                        // Update the project_id separately
-                        await dbHelpers.run(`
-                            UPDATE projects 
-                            SET project_id = $1 
-                            WHERE id = $2
-                        `, [humanReadableId, projectId]);
-                        
-                        console.log('✅ Project created successfully with separate project_id update');
-                    }
-                } catch (retryError) {
-                    console.error('❌ Failed to add database columns:', retryError);
-                    console.error('❌ Retry error details:', retryError.message);
-                    throw new Error('Database schema is not ready. Please try again in a moment.');
+                    // Update the project_id separately
+                    await dbHelpers.run(`
+                        UPDATE projects 
+                        SET project_id = $1 
+                        WHERE id = $2
+                    `, [humanReadableId, projectId]);
+                    
+                    console.log('✅ Project created successfully with separate project_id update');
                 }
             } else {
                 console.error('❌ Unexpected database error:', error.message);
