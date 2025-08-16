@@ -242,6 +242,7 @@
             align-items: center;
             font-size: 1.5em;
             font-weight: bold;
+            margin-left: -20px; /* Move to extreme left */
         }
 
         .nav-actions {
@@ -1925,22 +1926,36 @@
             
             // Update sidebar buttons
             document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
-            const tabBtn = document.getElementById(tab + 'TabBtn');
+            
+            // Handle special case for create-project tab
+            let tabBtnId = tab + 'TabBtn';
+            if (tab === 'create-project') {
+                tabBtnId = 'createProjectTabBtn';
+            }
+            
+            const tabBtn = document.getElementById(tabBtnId);
             if (tabBtn) {
                 tabBtn.classList.add('active');
-                console.log('✅ Tab button activated:', tab + 'TabBtn');
+                console.log('✅ Tab button activated:', tabBtnId);
             } else {
-                console.error('❌ Tab button not found:', tab + 'TabBtn');
+                console.error('❌ Tab button not found:', tabBtnId);
             }
             
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            const tabContent = document.getElementById(tab + 'Tab');
+            
+            // Handle special case for create-project tab
+            let tabContentId = tab + 'Tab';
+            if (tab === 'create-project') {
+                tabContentId = 'createProjectTab';
+            }
+            
+            const tabContent = document.getElementById(tabContentId);
             if (tabContent) {
                 tabContent.classList.add('active');
-                console.log('✅ Tab content activated:', tab + 'Tab');
+                console.log('✅ Tab content activated:', tabContentId);
             } else {
-                console.error('❌ Tab content not found:', tab + 'Tab');
+                console.error('❌ Tab content not found:', tabContentId);
             }
             
             // Load data for the selected tab
