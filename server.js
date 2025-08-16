@@ -591,6 +591,40 @@ app.post('/test-email', requireAuth, async (req, res) => {
     }
 });
 
+// Test admin notification email (admin only)
+app.post('/test-admin-notification', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const result = await emailService.sendProjectCreatedNotificationToAdmin({
+            projectName: 'Test Project',
+            fileName: 'test-file.xlsx',
+            wordCount: 1000,
+            projectType: 'fusion',
+            total: 1500.00,
+            userEmail: 'test@example.com',
+            userName: 'Test User',
+            projectId: 'test-project-id',
+            breakdown: [
+                { language: 'English', cost: '1000.00' },
+                { language: 'Spanish', cost: '500.00' }
+            ]
+        });
+        
+        if (result.success) {
+            res.json({ success: true, message: 'Admin notification test sent successfully', messageId: result.messageId });
+        } else {
+            res.status(500).json({ error: 'Failed to send admin notification: ' + result.error });
+        }
+    } catch (error) {
+        console.error('❌ Error testing admin notification:', error);
+        res.status(500).json({ error: 'Admin notification test failed: ' + error.message });
+    }
+});
+
 // Get multiplier
 app.get('/multiplier', requireAuth, async (req, res) => {
     try {
