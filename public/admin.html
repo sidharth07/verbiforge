@@ -3711,6 +3711,7 @@
                 if (projectsResponse.ok) {
                     projects = await projectsResponse.json();
                     console.log('📋 Projects loaded:', projects.length);
+                    console.log('📋 Sample project data:', projects[0]); // Show first project structure
                 } else {
                     console.error('❌ Failed to load projects:', projectsResponse.status);
                 }
@@ -3751,7 +3752,11 @@
                 document.getElementById('cancelledProjectsDashboard').textContent = cancelledProjects;
 
                 // Calculate revenue
-                const totalRevenue = projects.reduce((sum, p) => sum + (parseFloat(p.total_cost) || 0), 0);
+                const totalRevenue = projects.reduce((sum, p) => {
+                    const projectTotal = parseFloat(p.total) || 0;
+                    console.log(`💰 Project ${p.project_id || p.id}: total=${p.total}, parsed=${projectTotal}`);
+                    return sum + projectTotal;
+                }, 0);
                 const avgProjectValue = totalProjects > 0 ? totalRevenue / totalProjects : 0;
 
                 console.log('💰 Revenue stats:', { totalRevenue, avgProjectValue });
