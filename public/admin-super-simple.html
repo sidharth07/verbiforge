@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Super Simple</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #ddd; border: none; border-radius: 4px; cursor: pointer; }
+        .tab.active { background: #007bff; color: white; }
+        .content { background: white; padding: 20px; border-radius: 8px; }
+        .project { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .btn { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+        .error { color: red; }
+        .success { color: green; }
+        .info { background: #e7f3ff; padding: 10px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Admin Panel - Super Simple</h1>
+            <div id="userInfo"></div>
+            <div class="info">
+                <strong>Token:</strong> <span id="tokenInfo"></span><br>
+                <strong>User:</strong> <span id="userData"></span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('projects')">📋 Projects</button>
+            <button class="tab" onclick="showTab('users')">👥 Users</button>
+            <button class="tab" onclick="showTab('contacts')">📧 Contacts</button>
+        </div>
+
+        <div class="content">
+            <div id="projects-tab">
+                <h2>All Projects</h2>
+                <button class="btn" onclick="loadProjects()">🔄 Load Projects</button>
+                <div id="projectsList"></div>
+            </div>
+
+            <div id="users-tab" style="display: none;">
+                <h2>All Users</h2>
+                <button class="btn" onclick="loadUsers()">🔄 Load Users</button>
+                <div id="usersList"></div>
+            </div>
+
+            <div id="contacts-tab" style="display: none;">
+                <h2>Contact Submissions</h2>
+                <button class="btn" onclick="loadContacts()">🔄 Load Contacts</button>
+                <div id="contactsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SUPER SIMPLE - NO AUTH CHECKS, NO REDIRECTS, NO COMPLEX LOGIC
+        
+        function getToken() {
+            // Try all possible token keys
+            return localStorage.getItem('token') || 
+                   localStorage.getItem('jwtToken') || 
+                   localStorage.getItem('jwt') ||
+                   'NO_TOKEN_FOUND';
+        }
+
+        function getUser() {
+            // Try all possible user keys
+            const user = localStorage.getItem('user') || 
+                        localStorage.getItem('currentUser') || 
+                        localStorage.getItem('userData');
+            try { 
+                return user ? JSON.parse(user) : { name: 'Unknown', email: 'unknown@email.com', role: 'unknown' }; 
+            } catch (e) { 
+                return { name: 'Error parsing user', email: 'error@email.com', role: 'error' }; 
+            }
+        }
+
+        function showUserInfo() {
+            const token = getToken();
+            const user = getUser();
+            
+            document.getElementById('tokenInfo').textContent = token.substring(0, 30) + '...';
+            document.getElementById('userData').textContent = `${user.name} (${user.email}) - ${user.role}`;
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => tab.style.display = 'none');
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        async function loadProjects() {
+            const token = getToken();
+            const projectsList = document.getElementById('projectsList');
+            
+            projectsList.innerHTML = '<p>Loading projects...</p>';
+            
+            try {
+                const response = await fetch('/admin/projects', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                console.log('Projects response status:', response.status);
+                
+                if (response.ok) {
+                    const projects = await response.json();
+                    console.log('Projects loaded:', projects);
+                    
+                    if (projects.length === 0) {
+                        projectsList.innerHTML = '<p>No projects found.</p>';
+                    } else {
+                        projectsList.innerHTML = projects.map(project => `
+                            <div class="project">
+                                <h3>${project.project_id || 'No ID'} - ${project.file_name || 'No file'}</h3>
+                                <p><strong>User:</strong> ${project.userName || project.user_name || 'Unknown'}</p>
+                                <p><strong>Status:</strong> ${project.status}</p>
+                                <p><strong>Created:</strong> ${new Date(project.created_at).toLocaleDateString()}</p>
+                                <p><strong>Total:</strong> $${project.total || 0}</p>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    projectsList.innerHTML = `<p class="error">❌ Failed to load projects: ${response.status} - ${errorText}</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                projectsList.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function loadUsers() {
+            const token = getToken();
+            const usersList = document.getElementById('usersList');
+            
+            usersList.innerHTML = '<p>Loading users...</p>';
+            
+            try {
+                const response = await fetch('/admin/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                console.log('Users response status:', response.status);
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    console.log('Users loaded:', users);
+                    
+                    if (users.length === 0) {
+                        usersList.innerHTML = '<p>No users found.</p>';
+                    } else {
+                        usersList.innerHTML = users.map(user => `
+                            <div class="project">
+                                <h3>${user.name}</h3>
+                                <p><strong>Email:</strong> ${user.email}</p>
+                                <p><strong>Role:</strong> ${user.role}</p>
+                                <p><strong>Joined:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    usersList.innerHTML = `<p class="error">❌ Failed to load users: ${response.status} - ${errorText}</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                usersList.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function loadContacts() {
+            const token = getToken();
+            const contactsList = document.getElementById('contactsList');
+            
+            contactsList.innerHTML = '<p>Loading contacts...</p>';
+            
+            try {
+                const response = await fetch('/admin/contacts', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                console.log('Contacts response status:', response.status);
+                
+                if (response.ok) {
+                    const contacts = await response.json();
+                    console.log('Contacts loaded:', contacts);
+                    
+                    if (contacts.length === 0) {
+                        contactsList.innerHTML = '<p>No contacts found.</p>';
+                    } else {
+                        contactsList.innerHTML = contacts.map(contact => `
+                            <div class="project">
+                                <h3>${contact.name}</h3>
+                                <p><strong>Email:</strong> ${contact.email}</p>
+                                <p><strong>Message:</strong> ${contact.message}</p>
+                                <p><strong>Status:</strong> ${contact.status}</p>
+                                <p><strong>Date:</strong> ${new Date(contact.created_at).toLocaleDateString()}</p>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    contactsList.innerHTML = `<p class="error">❌ Failed to load contacts: ${response.status} - ${errorText}</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+                contactsList.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize on page load - NO AUTH CHECKS, NO REDIRECTS
+        window.onload = function() {
+            console.log('🚀 Super simple admin panel loaded');
+            showUserInfo();
+            loadProjects();
+        };
+    </script>
+</body>
+</html>
