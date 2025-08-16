@@ -2551,6 +2551,44 @@
             }
         }
 
+        // Check admin status periodically
+        async function checkAdminStatus() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                const response = await fetch('/admin/check', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    console.warn('⚠️ Admin status check failed, redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                
+                const adminData = await response.json();
+                if (!adminData.isAdmin) {
+                    console.warn('⚠️ User no longer has admin privileges, redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                
+                console.log('✅ Admin status check passed');
+            } catch (error) {
+                console.error('❌ Error checking admin status:', error);
+                // Don't redirect on network errors, just log them
+            }
+        }
+
+        // Show warning message function
+        function showWarning(message) {
+            // Use existing modal system or create a simple alert
+            if (typeof CustomModal !== 'undefined') {
+                CustomModal.warning('Session Warning', message);
+            } else {
+                alert('⚠️ ' + message);
+            }
+        }
+
         async function loadProjects() {
             try {
                 console.log('🔍 Loading admin projects...');
@@ -3080,15 +3118,22 @@
 
         async function loadLanguages() {
             try {
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
                 const [languagesResponse, defaultsResponse] = await Promise.all([
-                    Auth.authFetch('/admin/languages'),
-                    Auth.authFetch('/admin/languages/defaults')
+                    fetch('/admin/languages', { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch('/admin/languages/defaults', { headers: { 'Authorization': `Bearer ${token}` } })
                 ]);
                 
                 if (languagesResponse.ok && defaultsResponse.ok) {
                     allLanguages = await languagesResponse.json();
                     DEFAULT_LANGUAGES = await defaultsResponse.json();
                     renderLanguageGrid();
+                } else if (languagesResponse.status === 401 || languagesResponse.status === 403 || 
+                          defaultsResponse.status === 401 || defaultsResponse.status === 403) {
+                    console.error('❌ Authentication error loading languages, redirecting to login');
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return;
                 } else {
                     showError('Failed to load languages');
                 }
