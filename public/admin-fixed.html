@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Fixed</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 30px 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            border-left-color: white;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .user-role {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 5px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        /* Project Cards */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .project-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .project-id {
+            font-size: 14px;
+            color: #6c757d;
+            font-family: monospace;
+        }
+
+        .project-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-submitted {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .project-details {
+            margin-bottom: 15px;
+        }
+
+        .project-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .project-detail-label {
+            color: #6c757d;
+        }
+
+        .project-detail-value {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🔧 Admin Panel</div>
+            <div class="sidebar-subtitle">Fixed Version</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" onclick="showTab('projects')">
+                <span class="nav-icon">📋</span>
+                Projects
+            </a>
+            <a href="#" class="nav-item" onclick="showTab('create')">
+                <span class="nav-icon">➕</span>
+                Create Project
+            </a>
+            <a href="#" class="nav-item" onclick="showTab('users')">
+                <span class="nav-icon">👥</span>
+                Users
+            </a>
+            <a href="#" class="nav-item" onclick="showTab('contacts')">
+                <span class="nav-icon">📧</span>
+                Contacts
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="header-left">
+                <h1>Admin Dashboard</h1>
+                <div class="header-subtitle">Manage your translation platform</div>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="user-name" id="userName">Loading...</div>
+                    <div class="user-role" id="userRole">Loading...</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Projects Tab -->
+        <div id="projects-tab" class="content-card">
+            <div class="card-header">
+                <h2 class="card-title">All Projects</h2>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="loadProjects()">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+            <div id="projectsList" class="loading">Loading projects...</div>
+        </div>
+
+        <!-- Create Project Tab -->
+        <div id="create-tab" class="content-card" style="display: none;">
+            <div class="card-header">
+                <h2 class="card-title">Create Project for User</h2>
+            </div>
+            <div style="max-width: 500px;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Select User:</label>
+                    <select id="userSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <option value="">Loading users...</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Upload File:</label>
+                    <input type="file" id="projectFile" accept=".pdf,.doc,.docx,.txt,.csv" 
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="analyzeFile()">📊 Analyze File</button>
+                    <button class="btn btn-secondary" onclick="createProject()">💾 Create Project</button>
+                </div>
+                <div id="analysisResults" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users-tab" class="content-card" style="display: none;">
+            <div class="card-header">
+                <h2 class="card-title">All Users</h2>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="loadUsers()">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+            <div id="usersList" class="loading">Loading users...</div>
+        </div>
+
+        <!-- Contacts Tab -->
+        <div id="contacts-tab" class="content-card" style="display: none;">
+            <div class="card-header">
+                <h2 class="card-title">Contact Submissions</h2>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="loadContacts()">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+            <div id="contactsList" class="loading">Loading contacts...</div>
+        </div>
+    </div>
+
+    <script>
+        // FIXED VERSION - Using the working approach from super simple panel
+        
+        function getToken() {
+            return localStorage.getItem('token') || 
+                   localStorage.getItem('jwtToken') || 
+                   localStorage.getItem('jwt') ||
+                   'NO_TOKEN_FOUND';
+        }
+
+        function getUser() {
+            const user = localStorage.getItem('user') || 
+                        localStorage.getItem('currentUser') || 
+                        localStorage.getItem('userData');
+            try { 
+                return user ? JSON.parse(user) : { name: 'Unknown', email: 'unknown@email.com', role: 'unknown' }; 
+            } catch (e) { 
+                return { name: 'Error parsing user', email: 'error@email.com', role: 'error' }; 
+            }
+        }
+
+        function updateUserInfo() {
+            const user = getUser();
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userRole').textContent = user.role === 'super_admin' ? 'Super Admin' : 'Administrator';
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => tab.style.display = 'none');
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Load data for tab
+            switch(tabName) {
+                case 'projects': loadProjects(); break;
+                case 'users': loadUsers(); break;
+                case 'contacts': loadContacts(); break;
+                case 'create': loadUsersForSelect(); break;
+            }
+        }
+
+        async function loadProjects() {
+            const token = getToken();
+            const projectsList = document.getElementById('projectsList');
+            
+            projectsList.innerHTML = '<div class="loading">Loading projects...</div>';
+            
+            try {
+                const response = await fetch('/admin/projects', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const projects = await response.json();
+                    
+                    if (projects.length === 0) {
+                        projectsList.innerHTML = '<p>No projects found.</p>';
+                    } else {
+                        projectsList.innerHTML = `
+                            <div class="project-grid">
+                                ${projects.map(project => `
+                                    <div class="project-card">
+                                        <div class="project-header">
+                                            <div>
+                                                <div class="project-title">${project.file_name || 'No file'}</div>
+                                                <div class="project-id">${project.project_id || 'No ID'}</div>
+                                            </div>
+                                            <span class="project-status status-${project.status}">${project.status}</span>
+                                        </div>
+                                        <div class="project-details">
+                                            <div class="project-detail">
+                                                <span class="project-detail-label">User:</span>
+                                                <span class="project-detail-value">${project.userName || project.user_name || 'Unknown'}</span>
+                                            </div>
+                                            <div class="project-detail">
+                                                <span class="project-detail-label">Created:</span>
+                                                <span class="project-detail-value">${new Date(project.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                            <div class="project-detail">
+                                                <span class="project-detail-label">Total:</span>
+                                                <span class="project-detail-value">$${project.total || 0}</span>
+                                            </div>
+                                        </div>
+                                        <div class="project-actions">
+                                            <button class="btn btn-primary btn-sm" onclick="viewProject(${project.id})">👁️ View</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="updateStatus(${project.id}, 'completed')">✅ Complete</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteProject(${project.id})">🗑️ Delete</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                } else {
+                    const errorText = await response.text();
+                    projectsList.innerHTML = `<div class="error">❌ Failed to load projects: ${response.status} - ${errorText}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                projectsList.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function loadUsers() {
+            const token = getToken();
+            const usersList = document.getElementById('usersList');
+            
+            usersList.innerHTML = '<div class="loading">Loading users...</div>';
+            
+            try {
+                const response = await fetch('/admin/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    
+                    if (users.length === 0) {
+                        usersList.innerHTML = '<p>No users found.</p>';
+                    } else {
+                        usersList.innerHTML = `
+                            <div class="project-grid">
+                                ${users.map(user => `
+                                    <div class="project-card">
+                                        <div class="project-header">
+                                            <div>
+                                                <div class="project-title">${user.name}</div>
+                                                <div class="project-id">${user.email}</div>
+                                            </div>
+                                            <span class="project-status status-${user.role}">${user.role}</span>
+                                        </div>
+                                        <div class="project-details">
+                                            <div class="project-detail">
+                                                <span class="project-detail-label">Role:</span>
+                                                <span class="project-detail-value">${user.role}</span>
+                                            </div>
+                                            <div class="project-detail">
+                                                <span class="project-detail-label">Joined:</span>
+                                                <span class="project-detail-value">${new Date(user.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                } else {
+                    const errorText = await response.text();
+                    usersList.innerHTML = `<div class="error">❌ Failed to load users: ${response.status} - ${errorText}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                usersList.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function loadUsersForSelect() {
+            try {
+                const response = await fetch('/admin/users', {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    const userSelect = document.getElementById('userSelect');
+                    userSelect.innerHTML = '<option value="">Select a user...</option>' + 
+                        users.map(user => `<option value="${user.id}">${user.name} (${user.email})</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        async function loadContacts() {
+            const token = getToken();
+            const contactsList = document.getElementById('contactsList');
+            
+            contactsList.innerHTML = '<div class="loading">Loading contacts...</div>';
+            
+            try {
+                const response = await fetch('/admin/contacts', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const contacts = await response.json();
+                    
+                    if (contacts.length === 0) {
+                        contactsList.innerHTML = '<p>No contacts found.</p>';
+                    } else {
+                        contactsList.innerHTML = `
+                            <div class="project-grid">
+                                ${contacts.map(contact => `
+                                    <div class="project-card">
+                                        <div class="project-header">
+                                            <div>
+                                                <div class="project-title">${contact.name}</div>
+                                                <div class="project-id">${contact.email}</div>
+                                            </div>
+                                            <span class="project-status status-${contact.status}">${contact.status}</span>
+                                        </div>
+                                        <div class="project-details">
+                                            <div class="project-detail">
+                                                <span class="project-detail-label">Message:</span>
+                                                <span class="project-detail-value">${contact.message.substring(0, 100)}${contact.message.length > 100 ? '...' : ''}</span>
+                                            </div>
+                                            <div class="project-detail">
+                                                <span class="project-detail-label">Date:</span>
+                                                <span class="project-detail-value">${new Date(contact.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                } else {
+                    const errorText = await response.text();
+                    contactsList.innerHTML = `<div class="error">❌ Failed to load contacts: ${response.status} - ${errorText}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+                contactsList.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function analyzeFile() {
+            const fileInput = document.getElementById('projectFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file first.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const analysis = await response.json();
+                    document.getElementById('analysisResults').innerHTML = `
+                        <div class="success">
+                            <h3>📊 Analysis Results</h3>
+                            <p><strong>Words:</strong> ${analysis.wordCount}</p>
+                            <p><strong>Characters:</strong> ${analysis.charCount}</p>
+                            <p><strong>Estimated Cost:</strong> $${analysis.estimatedCost}</p>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('analysisResults').innerHTML = '<div class="error">❌ Analysis failed</div>';
+                }
+            } catch (error) {
+                document.getElementById('analysisResults').innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function createProject() {
+            const userId = document.getElementById('userSelect').value;
+            const fileInput = document.getElementById('projectFile');
+            const file = fileInput.files[0];
+            
+            if (!userId || !file) {
+                alert('Please select a user and file.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('userId', userId);
+            
+            try {
+                const response = await fetch('/admin/create-project', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getToken()}` },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    alert('✅ Project created successfully!');
+                    showTab('projects');
+                } else {
+                    alert('❌ Failed to create project');
+                }
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+            }
+        }
+
+        async function updateStatus(projectId, status) {
+            try {
+                const response = await fetch(`/admin/projects/${projectId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Status updated!');
+                    loadProjects();
+                } else {
+                    alert('❌ Failed to update status');
+                }
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+            }
+        }
+
+        async function deleteProject(projectId) {
+            if (!confirm('Are you sure you want to delete this project?')) return;
+            
+            try {
+                const response = await fetch(`/admin/projects/${projectId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                if (response.ok) {
+                    alert('✅ Project deleted!');
+                    loadProjects();
+                } else {
+                    alert('❌ Failed to delete project');
+                }
+            } catch (error) {
+                alert(`❌ Error: ${error.message}`);
+            }
+        }
+
+        function viewProject(projectId) {
+            alert(`Viewing project ${projectId} - This would open a detailed view`);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Initialize on page load - NO AUTH CHECKS, NO REDIRECTS
+        window.onload = function() {
+            console.log('🚀 Fixed admin panel loaded');
+            updateUserInfo();
+            loadProjects();
+        };
+    </script>
+</body>
+</html>
