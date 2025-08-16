@@ -1182,6 +1182,14 @@
                         </div>
                         
                         <div style="margin-bottom: 20px;">
+                            <label for="projectLanguages" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Target Languages:</label>
+                            <select id="projectLanguages" multiple style="width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; min-height: 100px;">
+                                <option value="">Select languages...</option>
+                            </select>
+                            <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Hold Ctrl/Cmd to select multiple languages</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
                             <label for="projectFile" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Upload File:</label>
                             <input type="file" id="projectFile" accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" 
                                    style="width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
@@ -2960,6 +2968,36 @@
             }
         }
 
+        // Load languages for project creation
+        async function loadProjectLanguages() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                const response = await fetch('/admin/languages', { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                
+                if (response.ok) {
+                    const languages = await response.json();
+                    const languageSelect = document.getElementById('projectLanguages');
+                    
+                    // Clear existing options except the first one
+                    languageSelect.innerHTML = '<option value="">Select languages...</option>';
+                    
+                    // Add language options
+                    Object.keys(languages).forEach(language => {
+                        const option = document.createElement('option');
+                        option.value = language;
+                        option.textContent = language;
+                        languageSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('Failed to load languages');
+                }
+            } catch (error) {
+                console.error('Error loading languages:', error);
+            }
+        }
+
         // Handle user selection
         document.getElementById('userSelect').addEventListener('change', function() {
             selectedUserId = this.value;
@@ -2968,6 +3006,8 @@
             if (selectedUserId) {
                 projectForm.style.display = 'block';
                 document.getElementById('userSelectStatus').innerHTML = '<div style="color: #155724;">✅ User selected. You can now create a project.</div>';
+                // Load languages when form is shown
+                loadProjectLanguages();
             } else {
                 projectForm.style.display = 'none';
                 document.getElementById('userSelectStatus').innerHTML = '';
@@ -2983,11 +3023,18 @@
 
             const projectName = document.getElementById('projectName').value.trim();
             const projectType = document.getElementById('projectType').value;
+            const projectLanguages = document.getElementById('projectLanguages');
+            const selectedLanguages = Array.from(projectLanguages.selectedOptions).map(option => option.value).filter(lang => lang !== '');
             const projectFile = document.getElementById('projectFile').files[0];
             const projectNotes = document.getElementById('projectNotes').value.trim();
 
             if (!projectName) {
                 showError('Please enter a project name');
+                return;
+            }
+
+            if (selectedLanguages.length === 0) {
+                showError('Please select at least one target language');
                 return;
             }
 
@@ -3004,6 +3051,7 @@
                 const formData = new FormData();
                 formData.append('name', projectName);
                 formData.append('projectType', projectType);
+                formData.append('languages', JSON.stringify(selectedLanguages));
                 formData.append('file', projectFile);
                 if (projectNotes) {
                     formData.append('notes', projectNotes);
@@ -3121,6 +3169,11 @@
             document.getElementById('userSelect').value = '';
             document.getElementById('projectName').value = '';
             document.getElementById('projectType').value = 'fusion';
+            // Reset multi-select by deselecting all options
+            const languageSelect = document.getElementById('projectLanguages');
+            if (languageSelect) {
+                Array.from(languageSelect.options).forEach(option => option.selected = false);
+            }
             document.getElementById('projectFile').value = '';
             document.getElementById('projectNotes').value = '';
             document.getElementById('projectCreationForm').style.display = 'none';
