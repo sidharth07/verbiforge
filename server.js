@@ -658,6 +658,67 @@ app.get('/debug/project/:id', requireAuth, async (req, res) => {
     }
 });
 
+// Fix projects with missing translated_file_path (admin only)
+app.post('/fix-translated-files', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        // Find projects with translated_file_name but missing translated_file_path
+        const projects = await dbHelpers.all(`
+            SELECT id, translated_file_name, translated_file_path 
+            FROM projects 
+            WHERE translated_file_name IS NOT NULL 
+            AND (translated_file_path IS NULL OR translated_file_path = '')
+        `);
+        
+        console.log('🔍 Found projects with missing translated_file_path:', projects.length);
+        
+        const fixedProjects = [];
+        const failedProjects = [];
+        
+        for (const project of projects) {
+            try {
+                // Generate a default file path based on the file name
+                const defaultPath = `translated_${project.id}_${Date.now()}_${project.translated_file_name}`;
+                
+                await dbHelpers.run(`
+                    UPDATE projects 
+                    SET translated_file_path = $1 
+                    WHERE id = $2
+                `, [defaultPath, project.id]);
+                
+                fixedProjects.push({
+                    id: project.id,
+                    oldPath: project.translated_file_path,
+                    newPath: defaultPath
+                });
+                
+                console.log('✅ Fixed project:', project.id, 'with path:', defaultPath);
+            } catch (error) {
+                console.error('❌ Failed to fix project:', project.id, error.message);
+                failedProjects.push({
+                    id: project.id,
+                    error: error.message
+                });
+            }
+        }
+        
+        res.json({
+            success: true,
+            message: `Fixed ${fixedProjects.length} projects, ${failedProjects.length} failed`,
+            fixedProjects,
+            failedProjects
+        });
+        
+    } catch (error) {
+        console.error('❌ Error fixing translated files:', error);
+        res.status(500).json({ error: 'Failed to fix translated files: ' + error.message });
+    }
+});
+
 // Get multiplier
 app.get('/multiplier', requireAuth, async (req, res) => {
     try {
@@ -1574,15 +1635,32 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
         const savedFile = await FileManager.saveTranslatedFile(req.file, id);
         console.log('✅ File saved:', savedFile);
         
+        // Validate that savedFile.filePath exists
+        if (!savedFile || !savedFile.filePath) {
+            console.error('❌ FileManager did not return valid filePath:', savedFile);
+            throw new Error('Failed to save file - no file path returned');
+        }
+        
+        console.log('🔍 File path to save in database:', savedFile.filePath);
+        
         // Save the translated file information to the database
         console.log('🔍 Updating database with file information...');
-        await dbHelpers.run(`
+        const updateResult = await dbHelpers.run(`
             UPDATE projects 
             SET translated_file_name = $1, translated_file_path = $2, status = $3 
             WHERE id = $4
         `, [req.file.originalname, savedFile.filePath, 'completed', id]);
         
         console.log('✅ Database updated successfully');
+        
+        // Verify the update was successful
+        const verifyProject = await dbHelpers.get('SELECT translated_file_path FROM projects WHERE id = $1', [id]);
+        if (!verifyProject.translated_file_path) {
+            console.error('❌ Database update failed - translated_file_path is still null');
+            throw new Error('Database update failed - file path not saved');
+        }
+        
+        console.log('✅ Database verification successful - file path saved:', verifyProject.translated_file_path);
         
         // Send project completion email to user
         try {
@@ -1662,6 +1740,14 @@ app.get('/projects/:id/download-translated', requireAuth, async (req, res) => {
                 translated_file_path: project.translated_file_path,
                 status: project.status
             });
+            
+            // Validate that translated_file_path exists
+            if (!project.translated_file_path) {
+                console.error('❌ translated_file_path is null or undefined for project:', project.id);
+                return res.status(500).json({ 
+                    error: 'Translated file path not found in database. Please contact admin to re-upload the file.' 
+                });
+            }
             
             const fileContent = await FileManager.getTranslatedFile(project.translated_file_path);
             console.log('✅ File content retrieved, size:', fileContent.length);
