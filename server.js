@@ -10,6 +10,7 @@ const multer = require('multer');
 const XLSX = require('xlsx');
 const EmailService = require('./email-service');
 const FileManager = require('./fileManager');
+const AuthManager = require('./auth-postgres');
 
 // Project ID generation utility
 function generateProjectId() {
@@ -243,6 +244,9 @@ const dbHelpers = {
     }
 };
 
+// Initialize AuthManager with dbHelpers
+const authManager = new AuthManager(dbHelpers);
+
 // Check if database already has data
 async function checkExistingData() {
     try {
@@ -438,10 +442,16 @@ const requireAuth = async (req, res, next) => {
             return res.status(401).json({ error: 'No token provided' });
         }
 
-        // For now, just check if user exists (simplified auth)
-        const user = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [token]);
+        // Verify JWT token
+        const decoded = authManager.verifyToken(token);
+        if (!decoded) {
+            return res.status(401).json({ error: 'Invalid or expired token' });
+        }
+
+        // Get user from database
+        const user = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [decoded.id]);
         if (!user) {
-            return res.status(401).json({ error: 'Invalid token' });
+            return res.status(401).json({ error: 'User not found' });
         }
 
         req.user = user;
@@ -525,9 +535,12 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        // Generate JWT token
+        const token = authManager.generateToken(user);
+        
         res.json({ 
             success: true, 
-            token: user.id,
+            token: token,
             user: {
                 id: user.id,
                 email: user.email,
@@ -575,9 +588,13 @@ app.post('/signup', async (req, res) => {
             // Don't fail the signup if email fails
         }
         
+        // Generate JWT token
+        const user = { id: userId, email, name, role: 'user' };
+        const token = authManager.generateToken(user);
+        
         res.json({ 
             success: true, 
-            token: userId,
+            token: token,
             user: {
                 id: userId,
                 email: email,
