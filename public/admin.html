@@ -1787,6 +1787,12 @@
                         Messages
                         <span class="notification-badge" id="messagesNotification" style="display: none;">0</span>
                     </div>
+                    <div class="nav-item" onclick="switchAdminTab('languages')">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.01-4.65.83-6.99l2.53 2.53c1.77 1.77 1.77 4.64 0 6.47z"/>
+                        </svg>
+                        Languages
+                    </div>
                 </div>
                 
                 <div class="nav-section">
@@ -3378,52 +3384,110 @@
         function switchAdminTab(tab) {
             console.log('🔍 Switching to tab:', tab);
             
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // Handle special case for create-project tab
-            let tabBtnId = tab + 'TabBtn';
-            if (tab === 'create-project') {
-                tabBtnId = 'createProjectTabBtn';
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const activeNavItem = document.querySelector(`[onclick="switchAdminTab('${tab}')"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
             }
             
-            const tabBtn = document.getElementById(tabBtnId);
-            if (tabBtn) {
-                tabBtn.classList.add('active');
-                console.log('✅ Tab button activated:', tabBtnId);
-            } else {
-                console.error('❌ Tab button not found:', tabBtnId);
-            }
+            // Hide all page content
+            document.querySelectorAll('.page-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('active');
+            });
             
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('active');
+            });
             
-            // Handle special case for create-project tab
-            let tabContentId = tab + 'Tab';
-            if (tab === 'create-project') {
-                tabContentId = 'createProjectTab';
-            }
-            
-            const tabContent = document.getElementById(tabContentId);
-            if (tabContent) {
-                tabContent.classList.add('active');
-                console.log('✅ Tab content activated:', tabContentId);
-            } else {
-                console.error('❌ Tab content not found:', tabContentId);
-            }
-            
-            // Load data for the selected tab
-            if (tab === 'users') {
-                loadUsers();
-            } else if (tab === 'admins' && isSuperAdmin) {
-                loadAdmins();
-            } else if (tab === 'contacts') {
-                loadContacts();
-            } else if (tab === 'languages') {
-                loadMultiplier(); // Reload multiplier when switching to languages tab
+            // Show the appropriate content based on tab
+            if (tab === 'dashboard') {
+                const dashboardPage = document.getElementById('dashboardPage');
+                if (dashboardPage) {
+                    dashboardPage.style.display = 'block';
+                    dashboardPage.classList.add('active');
+                }
+            } else if (tab === 'projects') {
+                const projectsPage = document.getElementById('projectsPage');
+                if (projectsPage) {
+                    projectsPage.style.display = 'block';
+                    projectsPage.classList.add('active');
+                    loadProjects();
+                }
             } else if (tab === 'create-project') {
-                // Reset the create project form when switching to this tab
-                resetProjectCreation();
+                const createProjectPage = document.getElementById('createProjectPage');
+                if (createProjectPage) {
+                    createProjectPage.style.display = 'block';
+                    createProjectPage.classList.add('active');
+                    loadCreateProjectPage();
+                }
+            } else if (tab === 'users') {
+                const usersPage = document.getElementById('usersPage');
+                if (usersPage) {
+                    usersPage.style.display = 'block';
+                    usersPage.classList.add('active');
+                    loadUsers();
+                }
+            } else if (tab === 'contacts') {
+                const messagesPage = document.getElementById('messagesPage');
+                if (messagesPage) {
+                    messagesPage.style.display = 'block';
+                    messagesPage.classList.add('active');
+                    loadContacts();
+                }
+            } else if (tab === 'languages') {
+                const languagesTab = document.getElementById('languagesTab');
+                if (languagesTab) {
+                    languagesTab.style.display = 'block';
+                    languagesTab.classList.add('active');
+                    loadLanguages();
+                }
+            } else if (tab === 'analytics') {
+                const analyticsPage = document.getElementById('analyticsPage');
+                if (analyticsPage) {
+                    analyticsPage.style.display = 'block';
+                    analyticsPage.classList.add('active');
+                }
+            } else if (tab === 'reports') {
+                const reportsPage = document.getElementById('reportsPage');
+                if (reportsPage) {
+                    reportsPage.style.display = 'block';
+                    reportsPage.classList.add('active');
+                }
+            } else if (tab === 'settings') {
+                const settingsPage = document.getElementById('settingsPage');
+                if (settingsPage) {
+                    settingsPage.style.display = 'block';
+                    settingsPage.classList.add('active');
+                }
+            } else if (tab === 'help') {
+                const helpPage = document.getElementById('helpPage');
+                if (helpPage) {
+                    helpPage.style.display = 'block';
+                    helpPage.classList.add('active');
+                }
+            }
+            
+            // Update page title
+            const pageTitles = {
+                'dashboard': 'Dashboard',
+                'projects': 'View Projects',
+                'create-project': 'Create for User',
+                'users': 'Users',
+                'contacts': 'Messages',
+                'languages': 'Languages',
+                'analytics': 'Analytics',
+                'reports': 'Reports',
+                'settings': 'Settings',
+                'help': 'Help'
+            };
+            
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle && pageTitles[tab]) {
+                pageTitle.textContent = pageTitles[tab];
             }
         }
 
