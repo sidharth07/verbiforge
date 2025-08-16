@@ -4102,6 +4102,12 @@
                     const token = Auth.getToken();
                     console.log('🔑 Token exists:', !!token);
                     
+                    if (!token) {
+                        console.log('❌ No token found, redirecting to login');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
                     const adminCheckUrl = '/admin/check';
                     console.log('🌐 Calling admin check URL:', adminCheckUrl);
                     
@@ -4114,8 +4120,15 @@
                     
                     console.log('📡 Admin check response status:', adminCheckResponse.status);
                     
+                    if (adminCheckResponse.status === 401 || adminCheckResponse.status === 403) {
+                        console.log('❌ Token invalid or expired, redirecting to login');
+                        Auth.clearAuth();
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
                     if (!adminCheckResponse.ok) {
-                        console.log('❌ Admin check failed, redirecting to dashboard');
+                        console.log('❌ Admin check failed with status:', adminCheckResponse.status);
                         window.location.href = 'dashboard.html';
                         return;
                     }
@@ -4130,8 +4143,8 @@
                     }
                 } catch (error) {
                     console.error('❌ Error checking admin status:', error);
-                    window.location.href = 'dashboard.html';
-                    return;
+                    // Don't redirect on network errors, just log the error
+                    console.log('⚠️ Network error during admin check, continuing...');
                 }
 
                 // Update user info in header
@@ -4160,6 +4173,19 @@
                 window.location.href = 'login.html';
                 return;
             }
+            
+            // Additional token validation
+            const token = Auth.getToken();
+            const user = Auth.getUser();
+            
+            if (!token || !user) {
+                console.log('❌ Missing token or user data, redirecting to login');
+                Auth.clearAuth();
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            console.log('✅ Authentication check passed, loading admin data...');
             
             // Load admin data with error handling
             loadAdminData().catch(error => {

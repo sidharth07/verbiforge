@@ -36,8 +36,14 @@
     
     const response = await fetch(input, { ...options, headers });
     
-    // Handle authentication errors
+    // Handle authentication errors - but be more careful about admin endpoints
     if (response.status === 401 || response.status === 403) {
+      // Don't auto-redirect for admin endpoints, let the calling code handle it
+      if (input.includes('/admin/')) {
+        console.log('🔒 Auth error on admin endpoint, letting caller handle');
+        return response;
+      }
+      
       clearAuth();
       window.location.href = 'login.html';
       return response;
