@@ -1799,6 +1799,9 @@
                 loadContacts();
             } else if (tab === 'languages') {
                 loadMultiplier(); // Reload multiplier when switching to languages tab
+            } else if (tab === 'create-project') {
+                // Reset the create project form when switching to this tab
+                resetProjectCreation();
             }
         }
 
