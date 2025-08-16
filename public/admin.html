@@ -2690,7 +2690,7 @@
                     
                     if (projects.length > 0) {
                         allProjects = projects; // Update the global projects array
-                        displayProjects();
+                        renderProjects();
                         statusDiv.innerHTML = `<div style="color: #155724; background: #d4edda; padding: 8px; border-radius: 4px;">Found ${projects.length} project(s) matching "${searchInput}"</div>`;
                     } else {
                         statusDiv.innerHTML = `<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">No projects found matching "${searchInput}"</div>`;
