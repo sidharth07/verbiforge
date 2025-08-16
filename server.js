@@ -1229,7 +1229,9 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     projectType: project.project_type, // Add alias for frontend compatibility
                     projectManagementCost: project.project_management_cost, // Add alias for frontend compatibility
                     subtotal: project.subtotal, // Add alias for frontend compatibility
-                    translatedFileName: project.translated_file_name // Add alias for frontend compatibility
+                    translatedFileName: project.translated_file_name, // Add alias for frontend compatibility
+                    userName: project.user_name, // Add alias for frontend compatibility
+                    userEmail: project.user_email // Add alias for frontend compatibility
                 };
             } catch (error) {
                 console.error('❌ Error parsing admin project breakdown:', error, project);
@@ -1243,7 +1245,9 @@ app.get('/admin/projects', requireAuth, async (req, res) => {
                     projectType: project.project_type,
                     projectManagementCost: project.project_management_cost,
                     subtotal: project.subtotal,
-                    translatedFileName: project.translated_file_name
+                    translatedFileName: project.translated_file_name,
+                    userName: project.user_name, // Add alias for frontend compatibility
+                    userEmail: project.user_email // Add alias for frontend compatibility
                 };
             }
         });
