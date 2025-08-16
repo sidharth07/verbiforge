@@ -3181,14 +3181,17 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Setting up admin event listeners...');
             
-            // Logout button
-            document.getElementById('logoutBtn').addEventListener('click', logout);
+            // Logout button (moved to sidebar, no longer needed here)
+            // document.getElementById('logoutBtn').addEventListener('click', logout);
 
             // Admin tab switching
             document.querySelectorAll('.sidebar-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tab = this.getAttribute('data-admin-tab');
-                    switchAdminTab(tab);
+                    console.log('🔍 Sidebar button clicked:', tab, this);
+                    if (tab) {
+                        switchAdminTab(tab);
+                    }
                 });
             });
 
@@ -3254,6 +3257,10 @@
             document.getElementById('languageDropdownBtn').addEventListener('click', toggleLanguageDropdown);
 
             console.log('✅ Admin event listeners set up successfully');
+            
+            // Load dashboard data on page load
+            console.log('🔍 Loading initial dashboard data...');
+            loadDashboardData();
         });
 
         // Create Project Variables
@@ -3675,6 +3682,7 @@
 
         // Load dashboard data
         async function loadDashboardData() {
+            console.log('🔍 Loading dashboard data...');
             try {
                 // Load all data in parallel
                 const [usersResponse, projectsResponse, languagesResponse] = await Promise.all([
@@ -3683,24 +3691,42 @@
                     Auth.authFetch('/admin/languages')
                 ]);
 
+                console.log('📊 API Responses:', {
+                    users: usersResponse.status,
+                    projects: projectsResponse.status,
+                    languages: languagesResponse.status
+                });
+
                 let users = [];
                 let projects = [];
                 let languages = {};
 
                 if (usersResponse.ok) {
                     users = await usersResponse.json();
+                    console.log('👥 Users loaded:', users.length);
+                } else {
+                    console.error('❌ Failed to load users:', usersResponse.status);
                 }
+                
                 if (projectsResponse.ok) {
                     projects = await projectsResponse.json();
+                    console.log('📋 Projects loaded:', projects.length);
+                } else {
+                    console.error('❌ Failed to load projects:', projectsResponse.status);
                 }
+                
                 if (languagesResponse.ok) {
                     languages = await languagesResponse.json();
+                    console.log('🌍 Languages loaded:', Object.keys(languages).length);
+                } else {
+                    console.error('❌ Failed to load languages:', languagesResponse.status);
                 }
 
                 // Update user statistics
                 const totalUsers = users.filter(u => u.role === 'user').length;
                 const totalAdmins = users.filter(u => u.role === 'admin' || u.role === 'super_admin').length;
                 
+                console.log('📊 User stats:', { totalUsers, totalAdmins });
                 document.getElementById('totalUsers').textContent = totalUsers;
                 document.getElementById('totalAdmins').textContent = totalAdmins;
 
@@ -3712,6 +3738,11 @@
                 const completedProjects = projects.filter(p => p.status === 'completed').length;
                 const cancelledProjects = projects.filter(p => p.status === 'cancelled').length;
 
+                console.log('📊 Project stats:', { 
+                    totalProjects, activeProjects, pendingProjects, 
+                    inProgressProjects, completedProjects, cancelledProjects 
+                });
+
                 document.getElementById('totalProjectsDashboard').textContent = totalProjects;
                 document.getElementById('activeProjects').textContent = activeProjects;
                 document.getElementById('pendingProjectsDashboard').textContent = pendingProjects;
@@ -3720,25 +3751,29 @@
                 document.getElementById('cancelledProjectsDashboard').textContent = cancelledProjects;
 
                 // Calculate revenue
-                const totalRevenue = projects.reduce((sum, p) => sum + (p.total_cost || 0), 0);
+                const totalRevenue = projects.reduce((sum, p) => sum + (parseFloat(p.total_cost) || 0), 0);
                 const avgProjectValue = totalProjects > 0 ? totalRevenue / totalProjects : 0;
 
+                console.log('💰 Revenue stats:', { totalRevenue, avgProjectValue });
                 document.getElementById('totalRevenueDashboard').textContent = `$${totalRevenue.toFixed(2)}`;
                 document.getElementById('avgProjectValue').textContent = `$${avgProjectValue.toFixed(2)}`;
 
                 // Update language statistics
                 const totalLanguages = Object.keys(languages).length;
                 const avgLanguagePrice = totalLanguages > 0 ? 
-                    Object.values(languages).reduce((sum, price) => sum + price, 0) / totalLanguages : 0;
+                    Object.values(languages).reduce((sum, price) => sum + (parseFloat(price) || 0), 0) / totalLanguages : 0;
 
+                console.log('🌍 Language stats:', { totalLanguages, avgLanguagePrice });
                 document.getElementById('totalLanguages').textContent = totalLanguages;
                 document.getElementById('avgLanguagePrice').textContent = `$${(avgLanguagePrice / 100).toFixed(2)}`;
 
                 // Load recent activity
                 loadRecentActivity(projects, users);
 
+                console.log('✅ Dashboard data loaded successfully');
+
             } catch (error) {
-                console.error('Error loading dashboard data:', error);
+                console.error('❌ Error loading dashboard data:', error);
             }
         }
 
