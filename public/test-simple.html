@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test - VerbiForge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .info {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Simple Test Page</h1>
+        <p>This page has NO authentication - it should stay loaded forever.</p>
+        
+        <div class="status" id="pageStatus">
+            ✅ Page loaded successfully at <span id="loadTime"></span>
+        </div>
+        
+        <div class="info">
+            <h3>Page Information:</h3>
+            <p><strong>URL:</strong> <span id="currentUrl"></span></p>
+            <p><strong>Domain:</strong> <span id="currentDomain"></span></p>
+            <p><strong>Protocol:</strong> <span id="currentProtocol"></span></p>
+            <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+        </div>
+        
+        <div>
+            <h3>Test Actions:</h3>
+            <button onclick="testServer()">Test Server Connection</button>
+            <button onclick="testLocalStorage()">Test Local Storage</button>
+            <button onclick="addTimestamp()">Add Timestamp</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div class="info">
+            <h3>Activity Log:</h3>
+            <div id="activityLog" style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px;">
+                Page loaded...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logCount = 0;
+        
+        function log(message) {
+            const logDiv = document.getElementById('activityLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logCount++;
+            logDiv.innerHTML += `\n[${timestamp}] ${message}`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function clearLog() {
+            document.getElementById('activityLog').innerHTML = 'Log cleared...';
+            logCount = 0;
+        }
+        
+        function addTimestamp() {
+            const timestamp = new Date().toISOString();
+            log(`Manual timestamp added: ${timestamp}`);
+        }
+        
+        async function testServer() {
+            log('Testing server connection...');
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Server OK: ${JSON.stringify(data)}`);
+                } else {
+                    log(`❌ Server error: ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ Server connection failed: ${error.message}`);
+            }
+        }
+        
+        function testLocalStorage() {
+            log('Testing localStorage...');
+            try {
+                localStorage.setItem('test-key', 'test-value');
+                const value = localStorage.getItem('test-key');
+                localStorage.removeItem('test-key');
+                
+                if (value === 'test-value') {
+                    log('✅ localStorage working correctly');
+                } else {
+                    log('❌ localStorage not working correctly');
+                }
+            } catch (error) {
+                log(`❌ localStorage error: ${error.message}`);
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('loadTime').textContent = now.toLocaleString();
+            document.getElementById('currentUrl').textContent = window.location.href;
+            document.getElementById('currentDomain').textContent = window.location.hostname;
+            document.getElementById('currentProtocol').textContent = window.location.protocol;
+            document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 50) + '...';
+            
+            log('Page DOM loaded successfully');
+            
+            // Add periodic heartbeat
+            setInterval(() => {
+                const heartbeat = new Date().toLocaleTimeString();
+                log(`💓 Heartbeat: ${heartbeat} (${logCount} total logs)`);
+            }, 30000); // Every 30 seconds
+        });
+        
+        // Monitor for page unload
+        window.addEventListener('beforeunload', function() {
+            log('⚠️ Page is about to unload!');
+        });
+        
+        window.addEventListener('unload', function() {
+            log('❌ Page is unloading!');
+        });
+        
+        // Monitor for visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                log('👁️ Page became hidden');
+            } else {
+                log('👁️ Page became visible');
+            }
+        });
+    </script>
+</body>
+</html>
