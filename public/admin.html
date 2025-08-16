@@ -4033,6 +4033,17 @@
         function switchPage(page) {
             console.log('🔍 Switching to page:', page);
             
+            // Handle create-project as a special case (it's a tab within projects)
+            if (page === 'create-project') {
+                // Switch to projects page first
+                switchPage('projects');
+                // Then switch to the create-project tab
+                setTimeout(() => {
+                    switchAdminTab('create-project');
+                }, 100);
+                return;
+            }
+            
             // Hide all page content
             document.querySelectorAll('.page-content').forEach(content => {
                 content.classList.remove('active');
