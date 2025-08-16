@@ -154,6 +154,8 @@
             overflow-y: auto;
             z-index: 1000;
             box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar-header {
@@ -791,8 +793,6 @@
             </div>
             <div class="nav-actions">
                 <span id="adminName">Loading...</span>
-                <a href="dashboard.html" class="nav-btn">User Dashboard</a>
-                <button class="nav-btn" id="logoutBtn">Logout</button>
             </div>
         </div>
     </nav>
@@ -804,7 +804,13 @@
                 <h2>Admin Panel</h2>
             </div>
             <nav class="sidebar-nav">
-                <button class="sidebar-btn active" data-admin-tab="projects" id="projectsTabBtn">
+                <button class="sidebar-btn active" data-admin-tab="dashboard" id="dashboardTabBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                    Dashboard
+                </button>
+                <button class="sidebar-btn" data-admin-tab="projects" id="projectsTabBtn">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                         <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
                     </svg>
@@ -843,6 +849,22 @@
                     Admin Management
                 </button>
             </nav>
+            
+            <!-- Sidebar Navigation Buttons -->
+            <div style="margin-top: auto; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button class="sidebar-btn" onclick="window.location.href='/dashboard.html'" style="width: 100%; margin-bottom: 10px; background: rgba(255,255,255,0.1);">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    User Dashboard
+                </button>
+                <button class="sidebar-btn" onclick="logout()" style="width: 100%; background: rgba(220,53,69,0.8);">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
         </div>
         
         <!-- Main Content -->
@@ -852,7 +874,167 @@
                 <p>Manage projects and language pricing</p>
             </div>
         
-        <div id="projectsTab" class="tab-content active">
+        <div id="dashboardTab" class="tab-content active">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>Admin Dashboard</h2>
+                    <p>Overview of system statistics and performance</p>
+                </div>
+                
+                <!-- Main Stats Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <!-- Users Stats -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #007bff;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="margin: 0; color: #333; font-size: 1.1em;">👥 Users</h3>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Total registered users</p>
+                            </div>
+                            <div style="background: #007bff; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                👤
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #007bff;" id="totalUsers">0</div>
+                                <div style="font-size: 0.9em; color: #666;">Total Users</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #28a745;" id="totalAdmins">0</div>
+                                <div style="font-size: 0.9em; color: #666;">Admins</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Projects Stats -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #28a745;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="margin: 0; color: #333; font-size: 1.1em;">📋 Projects</h3>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Project statistics</p>
+                            </div>
+                            <div style="background: #28a745; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                📊
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #28a745;" id="totalProjectsDashboard">0</div>
+                                <div style="font-size: 0.9em; color: #666;">Total Projects</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #ffc107;" id="activeProjects">0</div>
+                                <div style="font-size: 0.9em; color: #666;">Active</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Languages Stats -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #17a2b8;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="margin: 0; color: #333; font-size: 1.1em;">🌍 Languages</h3>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Available languages</p>
+                            </div>
+                            <div style="background: #17a2b8; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                🌐
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #17a2b8;" id="totalLanguages">0</div>
+                                <div style="font-size: 0.9em; color: #666;">Total Languages</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #6f42c1;" id="avgLanguagePrice">$0</div>
+                                <div style="font-size: 0.9em; color: #666;">Avg Price</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Revenue Stats -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #dc3545;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="margin: 0; color: #333; font-size: 1.1em;">💰 Revenue</h3>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Financial overview</p>
+                            </div>
+                            <div style="background: #dc3545; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                💵
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #dc3545;" id="totalRevenueDashboard">$0</div>
+                                <div style="font-size: 0.9em; color: #666;">Total Revenue</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2em; font-weight: 700; color: #fd7e14;" id="avgProjectValue">$0</div>
+                                <div style="font-size: 0.9em; color: #666;">Avg Project</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Stats Section -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 30px;">
+                    <!-- Project Status Chart -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <h3 style="margin: 0 0 20px 0; color: #333; font-size: 1.3em;">📊 Project Status Breakdown</h3>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 1.8em; font-weight: 700; color: #ffc107;" id="pendingProjectsDashboard">0</div>
+                                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Pending</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 1.8em; font-weight: 700; color: #17a2b8;" id="inProgressProjectsDashboard">0</div>
+                                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">In Progress</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 1.8em; font-weight: 700; color: #28a745;" id="completedProjectsDashboard">0</div>
+                                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Completed</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 1.8em; font-weight: 700; color: #dc3545;" id="cancelledProjectsDashboard">0</div>
+                                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Cancelled</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <h3 style="margin: 0 0 20px 0; color: #333; font-size: 1.3em;">🕒 Recent Activity</h3>
+                        <div id="recentActivity" style="max-height: 300px; overflow-y: auto;">
+                            <div style="padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                                <div style="font-weight: 600; color: #333;">Loading...</div>
+                                <div style="font-size: 0.9em; color: #666;">Please wait</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <h3 style="margin: 0 0 20px 0; color: #333; font-size: 1.3em;">⚡ Quick Actions</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <button onclick="switchAdminTab('create-project')" style="background: #28a745; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                            ➕ Create New Project
+                        </button>
+                        <button onclick="switchAdminTab('users')" style="background: #007bff; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                            👥 Manage Users
+                        </button>
+                        <button onclick="switchAdminTab('languages')" style="background: #17a2b8; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                            🌍 Language Pricing
+                        </button>
+                        <button onclick="switchAdminTab('contacts')" style="background: #6f42c1; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                            📧 View Messages
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="projectsTab" class="tab-content">
             <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <div class="stat-number" id="totalProjects">0</div>
@@ -2029,7 +2211,9 @@
             }
             
             // Load data for the selected tab
-            if (tab === 'users') {
+            if (tab === 'dashboard') {
+                loadDashboardData();
+            } else if (tab === 'users') {
                 loadUsers();
             } else if (tab === 'admins' && isSuperAdmin) {
                 loadAdmins();
@@ -3443,6 +3627,117 @@
             document.getElementById('projectSearch').value = '';
             document.getElementById('searchStatus').style.display = 'none';
             await loadProjects(); // Reload all projects
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load all data in parallel
+                const [usersResponse, projectsResponse, languagesResponse] = await Promise.all([
+                    Auth.authFetch('/admin/users'),
+                    Auth.authFetch('/admin/projects'),
+                    Auth.authFetch('/admin/languages')
+                ]);
+
+                let users = [];
+                let projects = [];
+                let languages = {};
+
+                if (usersResponse.ok) {
+                    users = await usersResponse.json();
+                }
+                if (projectsResponse.ok) {
+                    projects = await projectsResponse.json();
+                }
+                if (languagesResponse.ok) {
+                    languages = await languagesResponse.json();
+                }
+
+                // Update user statistics
+                const totalUsers = users.filter(u => u.role === 'user').length;
+                const totalAdmins = users.filter(u => u.role === 'admin' || u.role === 'super_admin').length;
+                
+                document.getElementById('totalUsers').textContent = totalUsers;
+                document.getElementById('totalAdmins').textContent = totalAdmins;
+
+                // Update project statistics
+                const totalProjects = projects.length;
+                const activeProjects = projects.filter(p => p.status === 'pending' || p.status === 'in_progress').length;
+                const pendingProjects = projects.filter(p => p.status === 'pending').length;
+                const inProgressProjects = projects.filter(p => p.status === 'in_progress').length;
+                const completedProjects = projects.filter(p => p.status === 'completed').length;
+                const cancelledProjects = projects.filter(p => p.status === 'cancelled').length;
+
+                document.getElementById('totalProjectsDashboard').textContent = totalProjects;
+                document.getElementById('activeProjects').textContent = activeProjects;
+                document.getElementById('pendingProjectsDashboard').textContent = pendingProjects;
+                document.getElementById('inProgressProjectsDashboard').textContent = inProgressProjects;
+                document.getElementById('completedProjectsDashboard').textContent = completedProjects;
+                document.getElementById('cancelledProjectsDashboard').textContent = cancelledProjects;
+
+                // Calculate revenue
+                const totalRevenue = projects.reduce((sum, p) => sum + (p.total_cost || 0), 0);
+                const avgProjectValue = totalProjects > 0 ? totalRevenue / totalProjects : 0;
+
+                document.getElementById('totalRevenueDashboard').textContent = `$${totalRevenue.toFixed(2)}`;
+                document.getElementById('avgProjectValue').textContent = `$${avgProjectValue.toFixed(2)}`;
+
+                // Update language statistics
+                const totalLanguages = Object.keys(languages).length;
+                const avgLanguagePrice = totalLanguages > 0 ? 
+                    Object.values(languages).reduce((sum, price) => sum + price, 0) / totalLanguages : 0;
+
+                document.getElementById('totalLanguages').textContent = totalLanguages;
+                document.getElementById('avgLanguagePrice').textContent = `$${(avgLanguagePrice / 100).toFixed(2)}`;
+
+                // Load recent activity
+                loadRecentActivity(projects, users);
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load recent activity
+        function loadRecentActivity(projects, users) {
+            const recentActivityDiv = document.getElementById('recentActivity');
+            
+            // Get recent projects (last 10)
+            const recentProjects = projects
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 10);
+
+            if (recentProjects.length === 0) {
+                recentActivityDiv.innerHTML = '<div style="padding: 10px 0; color: #666;">No recent activity</div>';
+                return;
+            }
+
+            const activityHtml = recentProjects.map(project => {
+                const user = users.find(u => u.id === project.user_id);
+                const userName = user ? user.name : 'Unknown User';
+                const date = new Date(project.created_at).toLocaleDateString();
+                const time = new Date(project.created_at).toLocaleTimeString();
+                
+                return `
+                    <div style="padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                        <div style="font-weight: 600; color: #333;">${userName} created project</div>
+                        <div style="font-size: 0.9em; color: #666;">Project ID: ${project.id} • ${date} at ${time}</div>
+                        <div style="font-size: 0.9em; color: #007bff; margin-top: 2px;">Status: ${project.status}</div>
+                    </div>
+                `;
+            }).join('');
+
+            recentActivityDiv.innerHTML = activityHtml;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('jwt');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userId');
+            window.location.href = '/login.html';
         }
     </script>
 </body>
