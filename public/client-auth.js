@@ -26,39 +26,9 @@
     const token = getToken();
     const user = getUser();
     
-    console.log('🔍 isAuthenticated check - Token exists:', !!token, 'User exists:', !!user);
-    
-    if (!token || !user) {
-      console.log('🔍 isAuthenticated - Missing token or user');
-      return false;
-    }
-    
-    // Check if token is expired (basic check)
-    try {
-      const parts = token.split('.');
-      if (parts.length !== 3) {
-        console.log('🔍 isAuthenticated - Invalid token format');
-        return false;
-      }
-      
-      const payload = JSON.parse(atob(parts[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      
-      console.log('🔍 isAuthenticated - Token payload:', payload);
-      console.log('🔍 isAuthenticated - Current time:', currentTime, 'Exp time:', payload.exp);
-      
-      if (payload.exp && payload.exp < currentTime) {
-        console.log('🔑 Token expired, clearing auth');
-        clearAuth();
-        return false;
-      }
-      
-      console.log('🔍 isAuthenticated - Token valid');
-      return true;
-    } catch (error) {
-      console.log('🔑 Error checking token expiration:', error);
-      return false;
-    }
+    // Simple check - just verify token and user exist
+    // Don't do aggressive token validation that might cause logouts
+    return token && user;
   }
 
   async function authFetch(input, init) {

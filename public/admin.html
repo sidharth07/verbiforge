@@ -4106,9 +4106,6 @@
                 if (userRoleElement) userRoleElement.textContent = currentUser.role === 'super_admin' ? 'Super Admin' : 'Administrator';
                 if (userAvatarElement) userAvatarElement.textContent = currentUser.name.charAt(0).toUpperCase();
 
-                // Verify admin access with server (background check)
-                verifyAdminAccess();
-
                 console.log('✅ Admin data loaded successfully');
             } catch (error) {
                 console.error('❌ Error loading admin data:', error);
@@ -4116,135 +4113,21 @@
             }
         }
 
-        // Separate function for server verification
-        async function verifyAdminAccess() {
-            try {
-                const token = Auth.getToken();
-                console.log('🔑 Token exists:', !!token);
-                
-                if (!token) {
-                    console.log('❌ No token found, redirecting to login');
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                // First test basic authentication
-                console.log('🧪 Testing basic authentication...');
-                const testResponse = await fetch('/test-auth', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                console.log('🧪 Test auth response status:', testResponse.status);
-                
-                if (testResponse.ok) {
-                    const testData = await testResponse.json();
-                    console.log('🧪 Test auth successful:', testData);
-                } else {
-                    console.log('🧪 Test auth failed with status:', testResponse.status);
-                    if (testResponse.status === 401 || testResponse.status === 403) {
-                        console.log('❌ Basic auth failed, redirecting to login');
-                        Auth.clearAuth();
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                }
-                
-                const adminCheckUrl = '/admin/check';
-                console.log('🌐 Calling admin check URL:', adminCheckUrl);
-                
-                const adminCheckResponse = await fetch(adminCheckUrl, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                console.log('📡 Admin check response status:', adminCheckResponse.status);
-                
-                if (adminCheckResponse.status === 401 || adminCheckResponse.status === 403) {
-                    console.log('❌ Token invalid or expired, redirecting to login');
-                    Auth.clearAuth();
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                if (!adminCheckResponse.ok) {
-                    console.log('❌ Admin check failed with status:', adminCheckResponse.status);
-                    // Don't redirect on server errors, just log
-                    console.log('⚠️ Server error during admin check, continuing...');
-                    return;
-                }
-                
-                const adminData = await adminCheckResponse.json();
-                console.log('👑 Admin data:', adminData);
-                
-                if (!adminData.isAdmin) {
-                    console.log('❌ User is not admin, redirecting to dashboard');
-                    window.location.href = 'dashboard.html';
-                    return;
-                }
-                
-                console.log('✅ Server admin verification successful');
-            } catch (error) {
-                console.error('❌ Error checking admin status:', error);
-                // Don't redirect on network errors, just log the error
-                console.log('⚠️ Network error during admin check, continuing...');
-            }
-        }
-
         // Add event listeners after DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Setting up admin event listeners...');
             
-            // Debug: Log all authentication data
-            console.log('🔍 Debug - Auth.isAuthenticated():', Auth.isAuthenticated());
-            console.log('🔍 Debug - Token exists:', !!Auth.getToken());
-            console.log('🔍 Debug - User exists:', !!Auth.getUser());
-            console.log('🔍 Debug - User data:', Auth.getUser());
-            
-            // Check authentication
+            // Simple authentication check
             if (!Auth.isAuthenticated()) {
                 console.log('❌ Not authenticated, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
             
-            // Additional token validation
-            const token = Auth.getToken();
-            const user = Auth.getUser();
-            
-            console.log('🔍 Debug - Token length:', token ? token.length : 0);
-            console.log('🔍 Debug - Token first 50 chars:', token ? token.substring(0, 50) + '...' : 'null');
-            
-            if (!token || !user) {
-                console.log('❌ Missing token or user data, redirecting to login');
-                Auth.clearAuth();
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            console.log('✅ Authentication check passed, loading admin data...');
-            
-            // Load admin data with error handling
+            // Load admin data
             loadAdminData().catch(error => {
                 console.error('❌ Failed to load admin data:', error);
-                // Don't redirect immediately, let the user see the error
             });
-            
-            // Set up periodic token validation with more logging
-            // Temporarily disabled to debug logout issue
-            /*
-            setInterval(() => {
-                console.log('🔍 Periodic check - Auth.isAuthenticated():', Auth.isAuthenticated());
-                if (!Auth.isAuthenticated()) {
-                    console.log('🔑 Token validation failed, redirecting to login');
-                    window.location.href = 'login.html';
-                }
-            }, 30000); // Check every 30 seconds
-            */
             
             // Initialize sidebar
             initializeSidebar();
