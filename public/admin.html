@@ -1181,79 +1181,135 @@
         
         <div id="createProjectTab" class="tab-content">
             <div class="projects-section">
-                <div class="section-header">
-                    <h2>Create Project for User</h2>
-                    <p>Create a new project on behalf of a user</p>
+                <!-- Hero Section -->
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; text-align: center; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>'); opacity: 0.3;"></div>
+                    <div style="position: relative; z-index: 1;">
+                        <h1 style="margin: 0 0 10px 0; font-size: 2.5em; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">🚀 Create Project</h1>
+                        <p style="margin: 0; font-size: 1.2em; opacity: 0.9; font-weight: 300;">Transform ideas into reality by creating projects for your users</p>
+                        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                            <div style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 25px; backdrop-filter: blur(10px);">
+                                <span style="font-weight: 600;">📊 Smart Analysis</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 25px; backdrop-filter: blur(10px);">
+                                <span style="font-weight: 600;">🌍 Multi-Language</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 25px; backdrop-filter: blur(10px);">
+                                <span style="font-weight: 600;">⚡ Instant Setup</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                    <h3 style="margin-bottom: 15px; color: #333;">Step 1: Select User</h3>
+
+                <!-- Step 1: User Selection -->
+                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 16px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                        <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px);">
+                            1️⃣
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.5em; font-weight: 600;">Select User</h3>
+                            <p style="margin: 5px 0 0 0; opacity: 0.9; font-weight: 300;">Choose the user who will own this project</p>
+                        </div>
+                    </div>
+                    
                     <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                        <select id="userSelect" style="padding: 10px 12px; border: 2px solid #007bff; border-radius: 6px; font-size: 14px; min-width: 200px;">
-                            <option value="">Select a user...</option>
+                        <select id="userSelect" style="flex: 1; min-width: 250px; padding: 15px 20px; border: none; border-radius: 12px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            <option value="">👤 Select a user...</option>
                         </select>
-                        <button id="loadUsersBtn" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                            Load Users
+                        <button id="loadUsersBtn" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 15px 25px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px; backdrop-filter: blur(10px); transition: all 0.3s ease; border: 2px solid rgba(255,255,255,0.3);">
+                            🔄 Load Users
                         </button>
                     </div>
-                    <div id="userSelectStatus" style="margin-top: 10px; font-size: 0.9em;"></div>
+                    <div id="userSelectStatus" style="margin-top: 15px; font-size: 0.95em; font-weight: 500;"></div>
                 </div>
                 
+                <!-- Step 2: Project Details -->
                 <div id="projectCreationForm" style="display: none;">
-                    <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                        <h3 style="margin-bottom: 15px; color: #333;">Step 2: Project Details</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                            <div>
-                                <label for="projectName" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Project Name:</label>
-                                <input type="text" id="projectName" placeholder="Enter project name" 
-                                       style="width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 16px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+                            <div style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px);">
+                                2️⃣
                             </div>
                             <div>
-                                <label for="projectType" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Project Type:</label>
-                                <select id="projectType" style="width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
-                                    <option value="fusion">Fusion (Standard)</option>
-                                    <option value="pure">Pure (Premium)</option>
+                                <h3 style="margin: 0; font-size: 1.5em; font-weight: 600;">Project Details</h3>
+                                <p style="margin: 5px 0 0 0; opacity: 0.9; font-weight: 300;">Configure your project settings and upload files</p>
+                            </div>
+                        </div>
+
+                        <!-- Project Name & Type -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+                            <div>
+                                <label for="projectName" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 16px;">📝 Project Name</label>
+                                <input type="text" id="projectName" placeholder="Enter a descriptive project name" 
+                                       style="width: 100%; padding: 15px 20px; border: none; border-radius: 12px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            </div>
+                            <div>
+                                <label for="projectType" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 16px;">🎯 Project Type</label>
+                                <select id="projectType" style="width: 100%; padding: 15px 20px; border: none; border-radius: 12px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                    <option value="fusion">🚀 Fusion (Standard)</option>
+                                    <option value="pure">💎 Pure (Premium)</option>
                                 </select>
                             </div>
                         </div>
                         
-                        <div style="margin-bottom: 20px;">
-                            <label for="projectLanguages" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Target Languages:</label>
-                            <select id="projectLanguages" multiple style="width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; min-height: 100px;">
+                        <!-- Target Languages -->
+                        <div style="margin-bottom: 25px;">
+                            <label for="projectLanguages" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 16px;">🌍 Target Languages</label>
+                            <select id="projectLanguages" multiple style="width: 100%; padding: 15px 20px; border: none; border-radius: 12px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 120px;">
                                 <option value="">Select languages...</option>
                             </select>
-                            <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Hold Ctrl/Cmd to select multiple languages</div>
+                            <div style="font-size: 0.9em; opacity: 0.8; margin-top: 8px; font-weight: 300;">💡 Hold Ctrl/Cmd to select multiple languages</div>
                         </div>
                         
-                        <div style="margin-bottom: 20px;">
-                            <label for="projectFile" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Upload File:</label>
-                            <input type="file" id="projectFile" accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" 
-                                   style="width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
-                            <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Supported formats: Excel, PDF, Word, Text</div>
+                        <!-- File Upload -->
+                        <div style="margin-bottom: 25px;">
+                            <label for="projectFile" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 16px;">📁 Upload File</label>
+                            <div style="position: relative;">
+                                <input type="file" id="projectFile" accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" 
+                                       style="width: 100%; padding: 15px 20px; border: none; border-radius: 12px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;">
+                                <div style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%); pointer-events: none; font-size: 20px;">📎</div>
+                            </div>
+                            <div style="font-size: 0.9em; opacity: 0.8; margin-top: 8px; font-weight: 300;">✅ Supported: Excel, PDF, Word, Text files</div>
                         </div>
                         
-                        <div style="margin-bottom: 20px;">
-                            <label for="projectNotes" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Notes (Optional):</label>
-                            <textarea id="projectNotes" placeholder="Add any special instructions or notes" 
-                                      style="width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; min-height: 80px; resize: vertical;"></textarea>
+                        <!-- Notes -->
+                        <div style="margin-bottom: 30px;">
+                            <label for="projectNotes" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 16px;">📝 Notes (Optional)</label>
+                            <textarea id="projectNotes" placeholder="Add any special instructions, requirements, or notes for the project..." 
+                                      style="width: 100%; padding: 15px 20px; border: none; border-radius: 12px; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 100px; resize: vertical; font-family: inherit;"></textarea>
                         </div>
                         
-                        <button id="analyzeProjectBtn" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">
-                            📊 Analyze Project
-                        </button>
+                        <!-- Analyze Button -->
+                        <div style="text-align: center;">
+                            <button id="analyzeProjectBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 18px 40px; border-radius: 50px; cursor: pointer; font-weight: 700; font-size: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s ease; transform: translateY(0);">
+                                🚀 Analyze Project
+                            </button>
+                        </div>
                     </div>
                     
+                    <!-- Step 3: Analysis Results -->
                     <div id="analysisResults" style="display: none;">
-                        <div style="background: #e8f5e8; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                            <h3 style="margin-bottom: 15px; color: #155724;">Step 3: Analysis Results</h3>
-                            <div id="analysisContent">
+                        <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 16px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+                                <div style="background: rgba(255,255,255,0.3); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px);">
+                                    3️⃣
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5em; font-weight: 600; color: #333;">Analysis Results</h3>
+                                    <p style="margin: 5px 0 0 0; color: #666; font-weight: 300;">Review the project analysis and cost breakdown</p>
+                                </div>
+                            </div>
+                            
+                            <div id="analysisContent" style="background: rgba(255,255,255,0.8); border-radius: 12px; padding: 25px; backdrop-filter: blur(10px);">
                                 <!-- Analysis results will be displayed here -->
                             </div>
-                            <div style="margin-top: 20px;">
-                                <button id="saveProjectBtn" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">
+                            
+                            <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                                <button id="saveProjectBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.2); transition: all 0.3s ease;">
                                     💾 Save Project
                                 </button>
-                                <button id="resetProjectBtn" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px; margin-left: 10px;">
+                                <button id="resetProjectBtn" style="background: rgba(255,255,255,0.3); color: #333; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 16px; backdrop-filter: blur(10px); transition: all 0.3s ease;">
                                     🔄 Reset
                                 </button>
                             </div>
@@ -1261,7 +1317,8 @@
                     </div>
                 </div>
                 
-                <div id="createProjectStatus" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;"></div>
+                <!-- Status Messages -->
+                <div id="createProjectStatus" style="margin-top: 25px; padding: 20px; border-radius: 12px; display: none; font-weight: 500; font-size: 16px;"></div>
             </div>
         </div>
     </div>
@@ -3184,43 +3241,55 @@
 
         // Display analysis results
         function displayAnalysisResults(data) {
+            console.log('📊 Analysis data received:', data);
+            
             const analysisDiv = document.getElementById('analysisResults');
             const contentDiv = document.getElementById('analysisContent');
 
-            const breakdownHtml = data.breakdown.map(item => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px;">
+            // Add null checks and safe property access
+            const wordCount = data?.wordCount || 0;
+            const fileName = data?.fileName || 'Unknown file';
+            const breakdown = data?.breakdown || [];
+            const subtotal = data?.subtotal || 0;
+            const projectManagementCost = data?.projectManagementCost || 0;
+            const total = data?.total || 0;
+
+            const breakdownHtml = breakdown.map(item => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.9); border-radius: 10px; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
                     <div>
-                        <strong>${item.language}</strong>
-                        <div style="font-size: 0.9em; color: #666;">${item.wordCount.toLocaleString()} words</div>
+                        <strong style="font-size: 1.1em; color: #333;">${item.language || 'Unknown'}</strong>
+                        <div style="font-size: 0.9em; color: #666; margin-top: 4px;">${(item.wordCount || 0).toLocaleString()} words</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-weight: 600;">$${item.cost.toFixed(2)}</div>
-                        <div style="font-size: 0.9em; color: #666;">$${item.rate}/word</div>
+                        <div style="font-weight: 700; font-size: 1.1em; color: #333;">$${(item.cost || 0).toFixed(2)}</div>
+                        <div style="font-size: 0.9em; color: #666;">$${(item.rate || 0).toFixed(2)}/word</div>
                     </div>
                 </div>
             `).join('');
 
             contentDiv.innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div style="background: white; padding: 15px; border-radius: 6px;">
-                        <h4 style="margin-bottom: 10px; color: #333;">📄 File Information</h4>
-                        <div><strong>File:</strong> ${data.fileName}</div>
-                        <div><strong>Total Words:</strong> ${data.wordCount.toLocaleString()}</div>
-                        <div><strong>Languages:</strong> ${data.breakdown.length}</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);">
+                        <h4 style="margin-bottom: 15px; font-size: 1.2em; font-weight: 600;">📄 File Information</h4>
+                        <div style="margin-bottom: 8px;"><strong>File:</strong> ${fileName}</div>
+                        <div style="margin-bottom: 8px;"><strong>Total Words:</strong> ${wordCount.toLocaleString()}</div>
+                        <div style="margin-bottom: 8px;"><strong>Languages:</strong> ${breakdown.length}</div>
                     </div>
-                    <div style="background: white; padding: 15px; border-radius: 6px;">
-                        <h4 style="margin-bottom: 10px; color: #333;">💰 Cost Breakdown</h4>
-                        <div><strong>Subtotal:</strong> $${data.subtotal.toFixed(2)}</div>
-                        <div><strong>Project Management:</strong> $${data.projectManagementCost.toFixed(2)}</div>
-                        <div style="font-size: 1.1em; font-weight: 600; color: #007bff; margin-top: 5px;">
-                            <strong>Total:</strong> $${data.total.toFixed(2)}
+                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);">
+                        <h4 style="margin-bottom: 15px; font-size: 1.2em; font-weight: 600;">💰 Cost Breakdown</h4>
+                        <div style="margin-bottom: 8px;"><strong>Subtotal:</strong> $${subtotal.toFixed(2)}</div>
+                        <div style="margin-bottom: 8px;"><strong>Project Management:</strong> $${projectManagementCost.toFixed(2)}</div>
+                        <div style="font-size: 1.3em; font-weight: 700; margin-top: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                            <strong>Total:</strong> $${total.toFixed(2)}
                         </div>
                     </div>
                 </div>
                 
-                <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 10px; color: #333;">🌍 Language Breakdown</h4>
-                    ${breakdownHtml}
+                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);">
+                    <h4 style="margin-bottom: 15px; font-size: 1.2em; font-weight: 600;">🌍 Language Breakdown</h4>
+                    <div style="display: grid; gap: 12px;">
+                        ${breakdownHtml}
+                    </div>
                 </div>
             `;
 
