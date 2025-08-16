@@ -20,6 +20,7 @@ class EmailService {
         } else {
             console.warn('⚠️ Mailgun not configured - emails will be logged but not sent');
             console.warn('⚠️ Set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables');
+            // Don't initialize mailgun client if not configured to prevent 401 errors
         }
     }
 
@@ -81,6 +82,11 @@ class EmailService {
                 console.log('📧 [MAILGUN NOT CONFIGURED] Welcome email would be sent to:', userEmail);
                 console.log('📧 Email subject:', messageData.subject);
                 return { success: true, messageId: 'not-configured', message: 'Email logged but not sent - Mailgun not configured' };
+            }
+
+            if (!this.mg) {
+                console.log('📧 [MAILGUN CLIENT NOT INITIALIZED] Welcome email would be sent to:', userEmail);
+                return { success: true, messageId: 'not-initialized', message: 'Email logged but not sent - Mailgun client not initialized' };
             }
 
             const response = await this.mg.messages.create(this.domain, messageData);
@@ -170,6 +176,11 @@ class EmailService {
                 console.log('📧 [MAILGUN NOT CONFIGURED] Project creation email would be sent to:', userEmail);
                 console.log('📧 Email subject:', messageData.subject);
                 return { success: true, messageId: 'not-configured', message: 'Email logged but not sent - Mailgun not configured' };
+            }
+
+            if (!this.mg) {
+                console.log('📧 [MAILGUN CLIENT NOT INITIALIZED] Project creation email would be sent to:', userEmail);
+                return { success: true, messageId: 'not-initialized', message: 'Email logged but not sent - Mailgun client not initialized' };
             }
 
             const response = await this.mg.messages.create(this.domain, messageData);
@@ -267,6 +278,11 @@ class EmailService {
                 return { success: true, messageId: 'not-configured', message: 'Email logged but not sent - Mailgun not configured' };
             }
 
+            if (!this.mg) {
+                console.log('📧 [MAILGUN CLIENT NOT INITIALIZED] Project completion email would be sent to:', userEmail);
+                return { success: true, messageId: 'not-initialized', message: 'Email logged but not sent - Mailgun client not initialized' };
+            }
+
             const response = await this.mg.messages.create(this.domain, messageData);
             console.log('✅ Project completion email sent successfully:', response);
             return { success: true, messageId: response.id };
@@ -301,6 +317,15 @@ class EmailService {
                     success: false, 
                     error: 'Mailgun not configured. Please set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.',
                     message: 'Email logged but not sent - Mailgun not configured'
+                };
+            }
+
+            if (!this.mg) {
+                console.log('📧 [MAILGUN CLIENT NOT INITIALIZED] Test email would be sent to:', testEmail);
+                return { 
+                    success: false, 
+                    error: 'Mailgun client not initialized. Please check configuration.',
+                    message: 'Email logged but not sent - Mailgun client not initialized'
                 };
             }
 
