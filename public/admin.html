@@ -4147,27 +4147,43 @@
             // Initialize sidebar
             initializeSidebar();
             
-            // Logout button
-            document.getElementById('logoutBtn').addEventListener('click', logout);
+            // Logout button - with null check
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
 
-            // Admin tab switching (legacy)
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tab = this.getAttribute('data-admin-tab');
-                    console.log('🔍 Tab clicked:', tab, 'Button:', this.textContent);
-                    switchAdminTab(tab);
+            // Admin tab switching (legacy) - with null check
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            if (tabBtns.length > 0) {
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const tab = this.getAttribute('data-admin-tab');
+                        console.log('🔍 Tab clicked:', tab, 'Button:', this.textContent);
+                        switchAdminTab(tab);
+                    });
                 });
-            });
+            }
 
-            // Language pricing buttons
-            document.getElementById('applyGlobalPricingBtn').addEventListener('click', applyGlobalPricing);
-            document.getElementById('addNewLanguageBtn').addEventListener('click', addNewLanguage);
-            document.getElementById('updateMultiplierBtn').addEventListener('click', updateMultiplier);
-            document.getElementById('saveAllLanguagePricingBtn').addEventListener('click', saveAllLanguagePricing);
-            document.getElementById('resetLanguagePricingBtn').addEventListener('click', resetLanguagePricing);
+            // Language pricing buttons - with null checks
+            const applyGlobalPricingBtn = document.getElementById('applyGlobalPricingBtn');
+            if (applyGlobalPricingBtn) applyGlobalPricingBtn.addEventListener('click', applyGlobalPricing);
+            
+            const addNewLanguageBtn = document.getElementById('addNewLanguageBtn');
+            if (addNewLanguageBtn) addNewLanguageBtn.addEventListener('click', addNewLanguage);
+            
+            const updateMultiplierBtn = document.getElementById('updateMultiplierBtn');
+            if (updateMultiplierBtn) updateMultiplierBtn.addEventListener('click', updateMultiplier);
+            
+            const saveAllLanguagePricingBtn = document.getElementById('saveAllLanguagePricingBtn');
+            if (saveAllLanguagePricingBtn) saveAllLanguagePricingBtn.addEventListener('click', saveAllLanguagePricing);
+            
+            const resetLanguagePricingBtn = document.getElementById('resetLanguagePricingBtn');
+            if (resetLanguagePricingBtn) resetLanguagePricingBtn.addEventListener('click', resetLanguagePricing);
 
-            // Admin management buttons
-            document.getElementById('createAdminBtn').addEventListener('click', createAdmin);
+            // Admin management buttons - with null check
+            const createAdminBtn = document.getElementById('createAdminBtn');
+            if (createAdminBtn) createAdminBtn.addEventListener('click', createAdmin);
 
             // Contact modal buttons
             const closeContactBtn = document.getElementById('closeContactModalBtn');
@@ -4196,23 +4212,35 @@
                 uploadTranslatedBtn.addEventListener('click', uploadTranslatedFile);
             }
 
-            // Search functionality
-            document.getElementById('searchProjectBtn').addEventListener('click', searchProjects);
-            document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
-
+            // Search functionality - with null checks
+            const searchProjectBtn = document.getElementById('searchProjectBtn');
+            if (searchProjectBtn) searchProjectBtn.addEventListener('click', searchProjects);
             
-            // Enter key support for search
-            document.getElementById('projectSearch').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchProjects();
-                }
-            });
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            if (clearSearchBtn) clearSearchBtn.addEventListener('click', clearSearch);
 
-            // Create Project functionality
-            document.getElementById('loadUsersBtn').addEventListener('click', loadUsersForProject);
-            document.getElementById('analyzeProjectBtn').addEventListener('click', analyzeProjectForUser);
-            document.getElementById('saveProjectBtn').addEventListener('click', saveProjectForUser);
-            document.getElementById('resetProjectBtn').addEventListener('click', resetProjectCreation);
+            // Enter key support for search - with null check
+            const projectSearch = document.getElementById('projectSearch');
+            if (projectSearch) {
+                projectSearch.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchProjects();
+                    }
+                });
+            }
+
+            // Create Project functionality - with null checks
+            const loadUsersBtn = document.getElementById('loadUsersBtn');
+            if (loadUsersBtn) loadUsersBtn.addEventListener('click', loadUsersForProject);
+            
+            const analyzeProjectBtn = document.getElementById('analyzeProjectBtn');
+            if (analyzeProjectBtn) analyzeProjectBtn.addEventListener('click', analyzeProjectForUser);
+            
+            const saveProjectBtn = document.getElementById('saveProjectBtn');
+            if (saveProjectBtn) saveProjectBtn.addEventListener('click', saveProjectForUser);
+            
+            const resetProjectBtn = document.getElementById('resetProjectBtn');
+            if (resetProjectBtn) resetProjectBtn.addEventListener('click', resetProjectCreation);
 
             console.log('✅ Admin event listeners set up successfully');
         });
