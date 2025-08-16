@@ -1169,7 +1169,7 @@ app.post('/admin/projects/create', requireAuth, upload.single('file'), async (re
         if (uploadedFile) {
             try {
                 console.log('🔧 Storing uploaded file...');
-                const savedFile = await FileManager.saveOriginalFile(uploadedFile, projectId);
+                const savedFile = await FileManager.saveUploadedFile(uploadedFile, projectId);
                 console.log('✅ File stored:', savedFile);
                 
                 // Update project with file path
