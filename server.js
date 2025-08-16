@@ -1470,7 +1470,15 @@ app.get('/projects/:id/download-translated', requireAuth, async (req, res) => {
         // Serve the actual file
         try {
             console.log('🔍 Serving translated file:', project.translated_file_path);
+            console.log('🔍 Project data:', {
+                id: project.id,
+                translated_file_name: project.translated_file_name,
+                translated_file_path: project.translated_file_path,
+                status: project.status
+            });
+            
             const fileContent = await FileManager.getTranslatedFile(project.translated_file_path);
+            console.log('✅ File content retrieved, size:', fileContent.length);
             
             // Set appropriate headers for file download
             res.setHeader('Content-Type', 'application/octet-stream');
@@ -1479,10 +1487,13 @@ app.get('/projects/:id/download-translated', requireAuth, async (req, res) => {
             
             // Send the file content
             res.send(fileContent);
+            console.log('✅ File sent successfully');
             
         } catch (fileError) {
             console.error('❌ Error serving file:', fileError);
-            res.status(500).json({ error: 'Failed to serve translated file' });
+            console.error('❌ Error message:', fileError.message);
+            console.error('❌ Error stack:', fileError.stack);
+            res.status(500).json({ error: 'Failed to serve translated file: ' + fileError.message });
         }
         
     } catch (error) {

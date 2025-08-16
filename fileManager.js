@@ -166,10 +166,10 @@ class FileManager {
     async getTranslatedFile(fileName) {
         try {
             const filePath = path.join(TRANSLATED_DIR, fileName);
-            const encryptedContent = await fs.readFile(filePath);
-            const decryptedContent = this.decryptFile(encryptedContent);
+            const content = await fs.readFile(filePath);
             
-            return decryptedContent;
+            // For now, return content directly without decryption since files are saved unencrypted
+            return content;
         } catch (error) {
             console.error('Error retrieving translated file:', error);
             throw new Error('Translated file not found or corrupted');
