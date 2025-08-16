@@ -882,24 +882,6 @@ app.get('/debug/schema', requireAuth, async (req, res) => {
     }
 });
 
-// Test search endpoint (for debugging)
-app.get('/admin/test-search', requireAuth, async (req, res) => {
-    try {
-        console.log('🔍 Test search endpoint called');
-        console.log('🔍 Request user:', { id: req.user.id, email: req.user.email, role: req.user.role });
-        
-        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
-        if (!isAdmin) {
-            console.log('❌ Access denied - not admin');
-            return res.status(403).json({ error: 'Admin access required' });
-        }
-        
-        res.json({ success: true, message: 'Test search endpoint working', user: req.user });
-    } catch (error) {
-        console.error('❌ Error in test search endpoint:', error);
-        res.status(500).json({ error: 'Test search endpoint failed' });
-    }
-});
 
 // Search projects by project ID (admin only)
 app.get('/admin/projects/search/:projectId', requireAuth, async (req, res) => {
