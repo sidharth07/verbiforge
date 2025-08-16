@@ -563,15 +563,18 @@ app.post('/emergency-fix-role', async (req, res) => {
             [newRole, email]
         );
         
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'User not found' });
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'User not found or no changes made' });
         }
+        
+        // Get the updated user data
+        const updatedUser = await dbHelpers.get('SELECT id, email, name, role FROM users WHERE email = $1', [email]);
         
         console.log(`✅ Emergency updated user role: ${email} -> ${newRole}`);
         res.json({ 
             success: true, 
             message: `Emergency updated ${email} role to ${newRole}`,
-            user: result.rows[0]
+            user: updatedUser
         });
         
     } catch (error) {
@@ -601,11 +604,18 @@ app.get('/fix-role/:email/:role', async (req, res) => {
             [role, email]
         );
         
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'User not found or no changes made' });
+        }
+        
+        // Get the updated user data
+        const updatedUser = await dbHelpers.get('SELECT id, email, name, role FROM users WHERE email = $1', [email]);
+        
         console.log(`✅ Simple updated user role: ${email} -> ${role}`);
         res.json({ 
             success: true, 
             message: `Updated ${email} role to ${role}`,
-            user: result.rows[0]
+            user: updatedUser
         });
         
     } catch (error) {
