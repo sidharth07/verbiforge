@@ -719,6 +719,38 @@ app.post('/fix-translated-files', requireAuth, async (req, res) => {
     }
 });
 
+// Check database schema (admin only)
+app.get('/debug/schema', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        // Get table schema
+        const schema = await dbHelpers.all(`
+            SELECT column_name, data_type, is_nullable, column_default
+            FROM information_schema.columns 
+            WHERE table_name = 'projects' 
+            ORDER BY ordinal_position
+        `);
+        
+        // Get sample project data
+        const sampleProject = await dbHelpers.get('SELECT * FROM projects LIMIT 1');
+        
+        res.json({
+            success: true,
+            schema,
+            sampleProject,
+            tableExists: !!schema.length
+        });
+        
+    } catch (error) {
+        console.error('❌ Error checking schema:', error);
+        res.status(500).json({ error: 'Failed to check schema: ' + error.message });
+    }
+});
+
 // Get multiplier
 app.get('/multiplier', requireAuth, async (req, res) => {
     try {
@@ -1645,13 +1677,50 @@ app.post('/admin/projects/:id/upload-translated', requireAuth, upload.single('fi
         
         // Save the translated file information to the database
         console.log('🔍 Updating database with file information...');
-        const updateResult = await dbHelpers.run(`
-            UPDATE projects 
-            SET translated_file_name = $1, translated_file_path = $2, status = $3 
-            WHERE id = $4
-        `, [req.file.originalname, savedFile.filePath, 'completed', id]);
+        console.log('🔍 Update parameters:', {
+            fileName: req.file.originalname,
+            filePath: savedFile.filePath,
+            projectId: id
+        });
         
-        console.log('✅ Database updated successfully');
+        try {
+            const updateResult = await dbHelpers.run(`
+                UPDATE projects 
+                SET translated_file_name = $1, translated_file_path = $2, status = $3 
+                WHERE id = $4
+            `, [req.file.originalname, savedFile.filePath, 'completed', id]);
+            
+            console.log('✅ Database updated successfully');
+        } catch (dbError) {
+            console.error('❌ Database update failed:', dbError);
+            console.error('❌ Error message:', dbError.message);
+            
+            // Check if translated_file_path column exists
+            if (dbError.message.includes('column "translated_file_path"')) {
+                console.log('🔧 translated_file_path column missing, attempting to add it...');
+                try {
+                    await dbHelpers.query(`
+                        ALTER TABLE projects 
+                        ADD COLUMN translated_file_path TEXT
+                    `);
+                    console.log('✅ Added translated_file_path column');
+                    
+                    // Retry the update
+                    await dbHelpers.run(`
+                        UPDATE projects 
+                        SET translated_file_name = $1, translated_file_path = $2, status = $3 
+                        WHERE id = $4
+                    `, [req.file.originalname, savedFile.filePath, 'completed', id]);
+                    
+                    console.log('✅ Database updated successfully after adding column');
+                } catch (retryError) {
+                    console.error('❌ Failed to add column and retry:', retryError);
+                    throw new Error('Database schema issue - could not save file path');
+                }
+            } else {
+                throw dbError;
+            }
+        }
         
         // Verify the update was successful
         const verifyProject = await dbHelpers.get('SELECT translated_file_path FROM projects WHERE id = $1', [id]);
