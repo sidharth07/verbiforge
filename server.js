@@ -1781,6 +1781,68 @@ app.post('/admin/admins', requireAuth, async (req, res) => {
     }
 });
 
+// Create regular user (admin only)
+app.post('/admin/users/create', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { email, name, tempPassword } = req.body;
+        console.log('🔍 Create user request:', { email, name, adminId: req.user.id });
+        
+        if (!email || !name || !tempPassword) {
+            return res.status(400).json({ error: 'Email, name, and temporary password are required' });
+        }
+        
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+        
+        // Password validation
+        if (tempPassword.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+        }
+        
+        // Check if user already exists
+        const existingUser = await dbHelpers.get('SELECT * FROM users WHERE email = $1', [email]);
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with this email already exists' });
+        }
+        
+        // Hash the temporary password
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        
+        // Create new regular user
+        const userId = uuidv4();
+        await dbHelpers.run(`
+            INSERT INTO users (id, email, name, password_hash, role, created_at) 
+            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+        `, [userId, email, name, hashedPassword, 'user']);
+        
+        const newUser = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [userId]);
+        
+        console.log('✅ Regular user created successfully:', newUser);
+        res.json({ 
+            success: true, 
+            message: 'User created successfully',
+            user: {
+                id: newUser.id,
+                email: newUser.email,
+                name: newUser.name,
+                role: newUser.role
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error creating user:', error);
+        res.status(500).json({ error: 'Failed to create user: ' + error.message });
+    }
+});
+
 // Delete admin user
 app.delete('/admin/admins/:email', requireAuth, async (req, res) => {
     try {
