@@ -181,7 +181,7 @@
         /* Sidebar Styles */
         .sidebar {
             width: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
             color: white;
             position: fixed;
             height: 100vh;
@@ -3193,7 +3193,22 @@
             
             try {
                 console.log('🔍 Making authenticated request to download endpoint...');
-                const response = await Auth.authFetch(`/admin/projects/${projectId}/download`);
+                
+                // Get token explicitly
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                console.log('🔍 Token available:', !!token);
+                
+                if (!token) {
+                    console.error('❌ No token found');
+                    CustomModal.error('Authentication required. Please log in again.');
+                    return;
+                }
+                
+                const response = await fetch(`/admin/projects/${projectId}/download`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 
                 console.log('🔍 Response status:', response.status);
                 console.log('🔍 Response headers:', response.headers);
@@ -3223,6 +3238,14 @@
                     console.log('❌ Response not OK, getting error details...');
                     const errorData = await response.json();
                     console.error('❌ Download error:', errorData);
+                    
+                    if (response.status === 401 || response.status === 403) {
+                        console.error('❌ Authentication error, redirecting to login');
+                        localStorage.clear();
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
                     CustomModal.error('Error downloading file: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
