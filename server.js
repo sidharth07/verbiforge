@@ -883,6 +883,94 @@ app.get('/debug/schema', requireAuth, async (req, res) => {
 });
 
 
+// Create project for user (admin only)
+app.post('/admin/projects/create', requireAuth, async (req, res) => {
+    try {
+        console.log('🔧 Admin creating project for user');
+        console.log('🔧 Request body:', req.body);
+        
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            console.log('❌ Access denied - not admin');
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { 
+            name, fileName, wordCount, breakdown, subtotal, 
+            projectManagementCost, total, projectType, multiplier, 
+            notes, userId 
+        } = req.body;
+        
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+        
+        // Verify user exists
+        const user = await dbHelpers.get('SELECT id, name, email FROM users WHERE id = $1', [userId]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        console.log('✅ User found:', user.name, user.email);
+        
+        // Generate project ID
+        const projectId = crypto.randomUUID();
+        const humanReadableId = await generateProjectId();
+        
+        console.log('🔢 Generated project ID:', humanReadableId);
+        
+        // Create project
+        await dbHelpers.run(`
+            INSERT INTO projects (
+                id, user_id, name, file_name, word_count, breakdown, 
+                subtotal, project_management_cost, total, status, project_type, 
+                multiplier, notes, project_id, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, CURRENT_TIMESTAMP)
+        `, [
+            projectId, userId, name, fileName, wordCount, 
+            JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
+            projectType || 'fusion', multiplier || 1.0, notes || '', humanReadableId
+        ]);
+        
+        console.log('✅ Project created successfully for user');
+        
+        // Send email notification to user
+        try {
+            await emailService.sendProjectCreatedEmail(user.email, user.name, name, humanReadableId, total);
+            console.log('✅ Project creation email sent to user');
+        } catch (emailError) {
+            console.error('❌ Failed to send project creation email:', emailError);
+        }
+        
+        // Send admin notification
+        try {
+            await emailService.sendProjectCreatedNotificationToAdmin(user.name, user.email, name, humanReadableId, total);
+            console.log('✅ Admin notification sent for project creation');
+        } catch (adminEmailError) {
+            console.error('❌ Failed to send admin notification:', adminEmailError);
+        }
+        
+        res.json({ 
+            success: true, 
+            message: 'Project created successfully',
+            projectId: humanReadableId,
+            project: {
+                id: projectId,
+                name,
+                fileName,
+                wordCount,
+                total,
+                status: 'quote_generated',
+                projectId: humanReadableId
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error creating project for user:', error);
+        res.status(500).json({ error: 'Failed to create project' });
+    }
+});
+
 // Search projects by project ID (admin only)
 app.get('/admin/projects/search/:projectId', requireAuth, async (req, res) => {
     try {
