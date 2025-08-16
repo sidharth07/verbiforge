@@ -293,6 +293,121 @@ class EmailService {
         }
     }
 
+    // Send project creation notification to super admin
+    async sendProjectCreatedNotificationToAdmin(projectData) {
+        try {
+            const adminEmail = 'sid@verbiforge.com';
+            const messageData = {
+                from: `VerbiForge <${this.fromEmail}>`,
+                to: adminEmail,
+                subject: `New Project Created: ${projectData.projectName} 📋`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">New Project Alert! 🚨</h1>
+                            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">A new project has been created</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333; margin-bottom: 20px;">Project Details 📊</h2>
+                            
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <h3 style="color: #333; margin-top: 0;">Project Information:</h3>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Name:</td>
+                                        <td style="padding: 8px 0; color: #333;">${projectData.projectName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project ID:</td>
+                                        <td style="padding: 8px 0; color: #333; font-family: monospace;">${projectData.projectId}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">File:</td>
+                                        <td style="padding: 8px 0; color: #333;">${projectData.fileName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Word Count:</td>
+                                        <td style="padding: 8px 0; color: #333;">${projectData.wordCount.toLocaleString()} words</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Type:</td>
+                                        <td style="padding: 8px 0; color: #333;">${projectData.projectType}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Total Cost:</td>
+                                        <td style="padding: 8px 0; color: #28a745; font-weight: bold;">$${projectData.total}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
+                                <h4 style="color: #1976d2; margin-top: 0;">Client Information:</h4>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Name:</td>
+                                        <td style="padding: 8px 0; color: #333;">${projectData.userName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Email:</td>
+                                        <td style="padding: 8px 0; color: #333;">${projectData.userEmail}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            ${projectData.breakdown && projectData.breakdown.length > 0 ? `
+                            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                                <h4 style="color: #856404; margin-top: 0;">Language Breakdown:</h4>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    ${projectData.breakdown.map(item => `
+                                        <tr>
+                                            <td style="padding: 8px 0; color: #666; font-weight: bold;">${item.language}:</td>
+                                            <td style="padding: 8px 0; color: #333;">$${item.cost}</td>
+                                        </tr>
+                                    `).join('')}
+                                </table>
+                            </div>
+                            ` : ''}
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="${process.env.APP_URL || 'https://verbiforge.onrender.com'}/admin.html" 
+                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    View Project in Admin Panel
+                                </a>
+                            </div>
+                            
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                            
+                            <p style="color: #999; font-size: 14px; text-align: center;">
+                                This is an automated notification from VerbiForge.<br>
+                                You can manage this project from the Admin Panel.
+                            </p>
+                        </div>
+                    </div>
+                `
+            };
+
+            if (!this.isConfigured) {
+                console.log('📧 [MAILGUN NOT CONFIGURED] Admin notification would be sent to:', adminEmail);
+                console.log('📧 Email subject:', messageData.subject);
+                return { success: true, messageId: 'not-configured', message: 'Email logged but not sent - Mailgun not configured' };
+            }
+
+            if (!this.mg) {
+                console.log('📧 [MAILGUN CLIENT NOT INITIALIZED] Admin notification would be sent to:', adminEmail);
+                return { success: true, messageId: 'not-initialized', message: 'Email logged but not sent - Mailgun client not initialized' };
+            }
+
+            const response = await this.mg.messages.create(this.domain, messageData);
+            console.log('✅ Admin notification sent successfully:', response);
+            return { success: true, messageId: response.id };
+            
+        } catch (error) {
+            console.error('❌ Error sending admin notification:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
     // Test email service
     async testEmailService() {
         try {

@@ -770,7 +770,7 @@ app.post('/projects', requireAuth, async (req, res) => {
         
         const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [projectId]);
         
-        // Send project creation email
+        // Send project creation email to user
         try {
             const user = await dbHelpers.get('SELECT email, name FROM users WHERE id = $1', [req.user.id]);
             if (user) {
@@ -781,11 +781,30 @@ app.post('/projects', requireAuth, async (req, res) => {
                     projectType: projectType || 'fusion',
                     total: parseFloat(total)
                 });
-                console.log('✅ Project creation email sent to:', user.email);
+                console.log('✅ Project creation email sent to user:', user.email);
             }
         } catch (emailError) {
-            console.error('❌ Failed to send project creation email:', emailError);
+            console.error('❌ Failed to send project creation email to user:', emailError);
             // Don't fail the project creation if email fails
+        }
+        
+        // Send project creation notification to super admin
+        try {
+            await emailService.sendProjectCreatedNotificationToAdmin({
+                projectName: projectNameToUse,
+                fileName,
+                wordCount: parseInt(wordCount),
+                projectType: projectType || 'fusion',
+                total: parseFloat(total),
+                userEmail: req.user.email,
+                userName: req.user.name || req.user.email,
+                projectId: projectId,
+                breakdown: breakdown
+            });
+            console.log('✅ Project creation notification sent to super admin');
+        } catch (adminEmailError) {
+            console.error('❌ Failed to send project creation notification to admin:', adminEmailError);
+            // Don't fail the project creation if admin email fails
         }
         
         console.log('✅ Project created successfully:', project);
