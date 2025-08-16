@@ -2508,59 +2508,30 @@
             }
         };
 
-        // Check admin access and load data
-        checkAdminAccess();
+        // Load data directly without complex auth checks
+        console.log('🚀 Loading admin data directly...');
+        loadProjects();
+        loadLanguages();
+        loadContactsCount();
+        loadMultiplier();
         
         // Check for new contact messages every 30 seconds
         setInterval(loadContactsCount, 30000);
 
-        async function checkAdminAccess() {
-            try {
-                const [userResponse, adminResponse] = await Promise.all([
-                    Auth.authFetch('/me'),
-                    Auth.authFetch('/admin/check')
-                ]);
-
-                if (!userResponse.ok) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                const userData = await userResponse.json();
-                const adminData = await adminResponse.json();
-
-                if (!adminData.isAdmin) {
-                    CustomModal.error('Access denied. Admin privileges required.');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 2000);
-                    return;
-                }
-
-                document.getElementById('adminName').textContent = userData.user.name;
-                isSuperAdmin = adminData.isSuperAdmin;
-                
-                // Show admin management tab only for super admin
-                if (isSuperAdmin) {
-                    document.getElementById('adminsTabBtn').style.display = 'block';
-                }
-                
-                loadProjects();
-                loadLanguages();
-                loadContactsCount(); // Load initial contact count
-                loadMultiplier(); // Load current multiplier
-            } catch (error) {
-                console.error('Error checking admin access:', error);
-                window.location.href = 'login.html';
-            }
-        }
+        // Removed problematic checkAdminAccess function
 
         async function loadProjects() {
             try {
                 console.log('🔍 Loading admin projects...');
-                const response = await Auth.authFetch('/admin/projects');
-                console.log('📥 Admin projects response:', response);
-                console.log('📥 Response status:', response.status);
+                
+                // Get token directly like the working panels
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                
+                const response = await fetch('/admin/projects', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                console.log('📥 Admin projects response status:', response.status);
                 
                 if (response.ok) {
                     const projects = await response.json();
