@@ -4073,25 +4073,36 @@
             // Placeholder for reports implementation
         }
 
-        // Load admin data
+        // Load admin data - Fixed version
         async function loadAdminData() {
             try {
                 console.log('🔧 Loading admin data...');
                 
-                // Get current user data
-                const currentUser = Auth.getUser();
-                console.log('👤 Current user:', currentUser);
+                // Get current user data - use direct localStorage access like minimal panel
+                const user = localStorage.getItem('user') || localStorage.getItem('currentUser');
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
                 
-                if (!currentUser) {
-                    console.log('❌ No current user found');
+                let currentUser = null;
+                try {
+                    currentUser = user ? JSON.parse(user) : null;
+                } catch (e) {
+                    console.error('❌ Error parsing user data:', e);
+                }
+                
+                console.log('👤 Current user:', currentUser);
+                console.log('🔑 Token exists:', !!token);
+                
+                if (!currentUser || !token) {
+                    console.log('❌ No current user or token found');
                     window.location.href = 'login.html';
                     return;
                 }
 
                 console.log('🔍 User role:', currentUser.role);
                 
-                // Check if user is admin
-                if (currentUser.role !== 'admin' && currentUser.role !== 'super_admin') {
+                // Check if user is admin - be more flexible with role checking
+                const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin' || currentUser.role === 'superadmin';
+                if (!isAdmin) {
                     console.log('❌ User is not admin, redirecting to dashboard');
                     window.location.href = 'dashboard.html';
                     return;
@@ -4109,7 +4120,8 @@
                 console.log('✅ Admin data loaded successfully');
             } catch (error) {
                 console.error('❌ Error loading admin data:', error);
-                window.location.href = 'login.html';
+                // Don't redirect on error, just log it
+                console.log('⚠️ Continuing despite error...');
             }
         }
 
@@ -4117,8 +4129,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Setting up admin event listeners...');
             
-            // Simple authentication check
-            if (!Auth.isAuthenticated()) {
+            // Simple authentication check - use direct localStorage like minimal panel
+            const user = localStorage.getItem('user') || localStorage.getItem('currentUser');
+            const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
+            
+            if (!user || !token) {
                 console.log('❌ Not authenticated, redirecting to login');
                 window.location.href = 'login.html';
                 return;
