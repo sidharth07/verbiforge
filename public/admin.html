@@ -1526,6 +1526,185 @@
                 margin: 10px;
             }
         }
+
+        /* Create Project Form Styles */
+        .create-project-form {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .file-upload-area:hover {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+
+        .upload-placeholder svg {
+            color: #6c757d;
+            margin-bottom: 16px;
+        }
+
+        .upload-placeholder p {
+            margin: 8px 0;
+            color: #6c757d;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #adb5bd;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #e9ecef;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .remove-file-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .create-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .create-project-form {
+                padding: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1551,9 +1730,9 @@
                 <div class="sidebar-logo">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
+                </svg>
                     VerbiForge
-                </div>
+            </div>
             </div>
             
             <nav class="sidebar-nav">
@@ -1568,13 +1747,23 @@
                 </div>
                 
                 <div class="nav-section">
-                    <div class="nav-section-title">Management</div>
+                    <div class="nav-section-title">Project Management</div>
                     <div class="nav-item" data-page="projects">
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
                         </svg>
-                        Projects
+                        View Projects
                     </div>
+                    <div class="nav-item" data-page="create-project">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        Create for User
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">User Management</div>
                     <div class="nav-item" data-page="users">
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01 1l-1.7 2.26A6.003 6.003 0 0 0 10 16c0 1.1.9 2 2 2s2-.9 2-2c0-.73-.4-1.38-1-1.73V22h3z"/>
@@ -1586,12 +1775,6 @@
                             <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
                         </svg>
                         Messages
-                    </div>
-                    <div class="nav-item" data-page="create-project">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                        </svg>
-                        Create Project
                     </div>
                 </div>
                 
@@ -1640,9 +1823,9 @@
                             <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
                         </svg>
                         Logout
-                    </div>
-                </div>
-            </nav>
+            </div>
+        </div>
+    </nav>
         </aside>
 
         <!-- Sidebar Overlay for Mobile -->
@@ -1658,7 +1841,7 @@
                         </svg>
                     </button>
                     <h1 class="page-title" id="pageTitle">Dashboard</h1>
-                </div>
+        </div>
                 <div class="user-menu">
                     <div class="user-info">
                         <div class="user-name" id="userName">Admin</div>
@@ -1768,7 +1951,7 @@
                                     <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
                                 </svg>
                                 Manage Projects
-                            </button>
+            </button>
                             <button class="quick-action-btn secondary" onclick="switchPage('users')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01 1l-1.7 2.26A6.003 6.003 0 0 0 10 16c0 1.1.9 2 2 2s2-.9 2-2c0-.73-.4-1.38-1-1.73V22h3z"/>
@@ -1780,7 +1963,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Projects Page -->
         <div id="projectsPage" class="page-content">
             <div class="page-header">
@@ -1817,6 +2000,83 @@
                         <!-- Projects will be loaded here -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Create Project Page -->
+        <div id="createProjectPage" class="page-content">
+            <div class="page-header">
+                <h2>Create Project for User</h2>
+                <p>Create a new translation project on behalf of a user</p>
+            </div>
+            
+            <div class="create-project-form">
+                <div class="form-section">
+                    <h3>Project Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="createProjectName">Project Name *</label>
+                            <input type="text" id="createProjectName" placeholder="Enter project name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="createProjectUser">Select User *</label>
+                            <select id="createProjectUser" required>
+                                <option value="">Choose a user...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="createProjectType">Project Type *</label>
+                            <select id="createProjectType" required>
+                                <option value="">Select type...</option>
+                                <option value="translation">Translation</option>
+                                <option value="proofreading">Proofreading</option>
+                                <option value="editing">Editing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="createProjectLanguage">Target Language *</label>
+                            <select id="createProjectLanguage" required>
+                                <option value="">Select language...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="createProjectDescription">Project Description</label>
+                        <textarea id="createProjectDescription" rows="3" placeholder="Describe the project requirements..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>File Upload</h3>
+                    <div class="file-upload-area" id="createProjectFileUpload">
+                        <div class="upload-placeholder">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            <p>Drag and drop files here or click to browse</p>
+                            <p class="upload-hint">Supports: .doc, .docx, .pdf, .txt (Max 10MB)</p>
+                        </div>
+                        <input type="file" id="createProjectFileInput" accept=".doc,.docx,.pdf,.txt" style="display: none;">
+                    </div>
+                    <div id="createProjectFileInfo" class="file-info" style="display: none;">
+                        <span id="createProjectFileName"></span>
+                        <button type="button" onclick="removeCreateProjectFile()" class="remove-file-btn">×</button>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="createProjectForUser()" class="create-btn">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        Create Project
+                    </button>
+                    <button type="button" onclick="resetCreateProjectForm()" class="reset-btn">Reset Form</button>
+                </div>
             </div>
         </div>
 
@@ -2517,7 +2777,7 @@
         
         // Check for new contact messages every 30 seconds
         setInterval(loadContactsCount, 30000);
-        
+
         // Check admin status every 10 minutes
         setInterval(checkAdminStatus, 600000);
         
@@ -2561,10 +2821,10 @@
                 
                 if (!response.ok) {
                     console.warn('⚠️ Admin status check failed, redirecting to dashboard');
-                    window.location.href = 'dashboard.html';
+                        window.location.href = 'dashboard.html';
                     return;
                 }
-                
+
                 const adminData = await response.json();
                 if (!adminData.isAdmin) {
                     console.warn('⚠️ User no longer has admin privileges, redirecting to dashboard');
@@ -3267,22 +3527,22 @@
                             allLanguages = updatedLanguages;
                             
                             // Update all language inputs in the UI
-                            const inputs = document.querySelectorAll('.price-input');
-                            inputs.forEach(input => {
-                                input.value = price;
-                            });
-                            
-                            // Show success message
-                            statusDiv.style.background = '#d4edda';
-                            statusDiv.style.color = '#155724';
+            const inputs = document.querySelectorAll('.price-input');
+            inputs.forEach(input => {
+                input.value = price;
+            });
+            
+            // Show success message
+            statusDiv.style.background = '#d4edda';
+            statusDiv.style.color = '#155724';
                             statusDiv.textContent = `✅ Global pricing of ${price} cents applied and saved to all languages!`;
                             
                             // Clear the global price input
                             document.getElementById('globalPrice').value = '';
-                            
-                            setTimeout(() => {
-                                statusDiv.style.display = 'none';
-                            }, 5000);
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
                         } else {
                             const data = await response.json();
                             statusDiv.style.background = '#f8d7da';
@@ -4033,17 +4293,6 @@
         function switchPage(page) {
             console.log('🔍 Switching to page:', page);
             
-            // Handle create-project as a special case (it's a tab within projects)
-            if (page === 'create-project') {
-                // Switch to projects page first
-                switchPage('projects');
-                // Then switch to the create-project tab
-                setTimeout(() => {
-                    switchAdminTab('create-project');
-                }, 100);
-                return;
-            }
-            
             // Hide all page content
             document.querySelectorAll('.page-content').forEach(content => {
                 content.classList.remove('active');
@@ -4058,7 +4307,8 @@
             // Update page title
             const pageTitles = {
                 'dashboard': 'Dashboard',
-                'projects': 'Projects',
+                'projects': 'View Projects',
+                'create-project': 'Create for User',
                 'users': 'Users',
                 'messages': 'Messages',
                 'analytics': 'Analytics',
@@ -4076,6 +4326,9 @@
                     break;
                 case 'projects':
                     loadProjects();
+                    break;
+                case 'create-project':
+                    loadCreateProjectPage();
                     break;
                 case 'users':
                     loadUsers();
@@ -4233,12 +4486,12 @@
             const tabBtns = document.querySelectorAll('.tab-btn');
             if (tabBtns.length > 0) {
                 tabBtns.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const tab = this.getAttribute('data-admin-tab');
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-admin-tab');
                         console.log('🔍 Tab clicked:', tab, 'Button:', this.textContent);
-                        switchAdminTab(tab);
-                    });
+                    switchAdminTab(tab);
                 });
+            });
             }
 
             // Language pricing buttons - with null checks
@@ -4599,6 +4852,179 @@
             document.getElementById('projectSearch').value = '';
             document.getElementById('searchStatus').style.display = 'none';
             await loadProjects(); // Reload all projects
+        }
+
+        // Load create project page
+        async function loadCreateProjectPage() {
+            console.log('🔍 Loading create project page...');
+            
+            // Load users for the dropdown
+            await loadUsersForCreateProject();
+            
+            // Load languages for the dropdown
+            await loadLanguagesForCreateProject();
+            
+            // Setup file upload functionality
+            setupCreateProjectFileUpload();
+        }
+
+        // Load users for create project dropdown
+        async function loadUsersForCreateProject() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                const response = await fetch('/admin/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    const userSelect = document.getElementById('createProjectUser');
+                    userSelect.innerHTML = '<option value="">Choose a user...</option>';
+                    
+                    users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `${user.name} (${user.email})`;
+                        userSelect.appendChild(option);
+                    });
+                } else if (response.status === 401 || response.status === 403) {
+                    console.error('❌ Authentication error loading users, redirecting to login');
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return;
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Load languages for create project dropdown
+        async function loadLanguagesForCreateProject() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                const response = await fetch('/admin/languages', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const languages = await response.json();
+                    const languageSelect = document.getElementById('createProjectLanguage');
+                    languageSelect.innerHTML = '<option value="">Select language...</option>';
+                    
+                    Object.keys(languages).forEach(language => {
+                        const option = document.createElement('option');
+                        option.value = language;
+                        option.textContent = language;
+                        languageSelect.appendChild(option);
+                    });
+                } else if (response.status === 401 || response.status === 403) {
+                    console.error('❌ Authentication error loading languages, redirecting to login');
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return;
+                }
+            } catch (error) {
+                console.error('Error loading languages:', error);
+            }
+        }
+
+        // Setup file upload for create project
+        function setupCreateProjectFileUpload() {
+            const fileUpload = document.getElementById('createProjectFileUpload');
+            const fileInput = document.getElementById('createProjectFileInput');
+            const fileInfo = document.getElementById('createProjectFileInfo');
+            const fileName = document.getElementById('createProjectFileName');
+
+            fileUpload.addEventListener('click', () => fileInput.click());
+            
+            fileUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUpload.style.borderColor = '#007bff';
+                fileUpload.style.backgroundColor = '#f8f9fa';
+            });
+            
+            fileUpload.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                fileUpload.style.borderColor = '#dee2e6';
+                fileUpload.style.backgroundColor = 'white';
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName.textContent = file.name;
+                    fileInfo.style.display = 'flex';
+                    fileUpload.style.display = 'none';
+                }
+            });
+        }
+
+        // Remove file from create project
+        function removeCreateProjectFile() {
+            document.getElementById('createProjectFileInput').value = '';
+            document.getElementById('createProjectFileInfo').style.display = 'none';
+            document.getElementById('createProjectFileUpload').style.display = 'block';
+        }
+
+        // Create project for user
+        async function createProjectForUser() {
+            const name = document.getElementById('createProjectName').value.trim();
+            const userId = document.getElementById('createProjectUser').value;
+            const type = document.getElementById('createProjectType').value;
+            const language = document.getElementById('createProjectLanguage').value;
+            const description = document.getElementById('createProjectDescription').value.trim();
+            const fileInput = document.getElementById('createProjectFileInput');
+            
+            if (!name || !userId || !type || !language) {
+                CustomModal.error('Please fill in all required fields', 'Validation Error');
+                return;
+            }
+            
+            if (!fileInput.files[0]) {
+                CustomModal.error('Please select a file to upload', 'File Required');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('userId', userId);
+                formData.append('type', type);
+                formData.append('language', language);
+                formData.append('description', description);
+                formData.append('file', fileInput.files[0]);
+                
+                const token = localStorage.getItem('token') || localStorage.getItem('jwtToken') || localStorage.getItem('jwt');
+                const response = await fetch('/admin/projects/create', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    CustomModal.success(`Project created successfully! Project ID: ${result.projectId}`, 'Project Created');
+                    resetCreateProjectForm();
+                } else {
+                    const error = await response.json();
+                    CustomModal.error(`Failed to create project: ${error.error}`, 'Creation Failed');
+                }
+            } catch (error) {
+                console.error('Error creating project:', error);
+                CustomModal.error('Network error while creating project', 'Error');
+            }
+        }
+
+        // Reset create project form
+        function resetCreateProjectForm() {
+            document.getElementById('createProjectName').value = '';
+            document.getElementById('createProjectUser').value = '';
+            document.getElementById('createProjectType').value = '';
+            document.getElementById('createProjectLanguage').value = '';
+            document.getElementById('createProjectDescription').value = '';
+            removeCreateProjectFile();
         }
     </script>
 </body>
