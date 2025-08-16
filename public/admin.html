@@ -236,18 +236,20 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .nav-brand {
+            display: flex;
+            align-items: center;
             font-size: 1.5em;
             font-weight: bold;
         }
-        
+
         .nav-actions {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
+
         .nav-btn {
             background: rgba(255,255,255,0.2);
             color: white;
@@ -257,11 +259,20 @@
             cursor: pointer;
             text-decoration: none;
             transition: background 0.3s;
+            font-size: 0.9em;
         }
-        
+
         .nav-btn:hover {
             background: rgba(255,255,255,0.3);
         }
+
+        #adminName {
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        
+
         
         .container {
             max-width: 1400px;
@@ -1910,13 +1921,27 @@
         }
 
         function switchAdminTab(tab) {
+            console.log('🔍 Switching to tab:', tab);
+            
             // Update sidebar buttons
             document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tab + 'TabBtn').classList.add('active');
+            const tabBtn = document.getElementById(tab + 'TabBtn');
+            if (tabBtn) {
+                tabBtn.classList.add('active');
+                console.log('✅ Tab button activated:', tab + 'TabBtn');
+            } else {
+                console.error('❌ Tab button not found:', tab + 'TabBtn');
+            }
             
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tab + 'Tab').classList.add('active');
+            const tabContent = document.getElementById(tab + 'Tab');
+            if (tabContent) {
+                tabContent.classList.add('active');
+                console.log('✅ Tab content activated:', tab + 'Tab');
+            } else {
+                console.error('❌ Tab content not found:', tab + 'Tab');
+            }
             
             // Load data for the selected tab
             if (tab === 'users') {
