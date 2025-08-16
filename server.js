@@ -104,78 +104,99 @@ async function initializeDatabase() {
         try {
             await dbHelpers.query(`
                 ALTER TABLE projects 
-                ADD COLUMN IF NOT EXISTS translated_file_path TEXT
+                ADD COLUMN translated_file_path TEXT
             `);
-            console.log('✅ translated_file_path column ready');
+            console.log('✅ translated_file_path column added');
         } catch (error) {
-            console.log('ℹ️ translated_file_path column already exists');
+            if (error.message.includes('already exists')) {
+                console.log('ℹ️ translated_file_path column already exists');
+            } else {
+                console.error('❌ Error adding translated_file_path column:', error.message);
+            }
         }
         
         // Check and add subtotal column if missing
         try {
             await dbHelpers.query(`
                 ALTER TABLE projects 
-                ADD COLUMN IF NOT EXISTS subtotal REAL DEFAULT 0
+                ADD COLUMN subtotal REAL DEFAULT 0
             `);
-            console.log('✅ subtotal column ready');
+            console.log('✅ subtotal column added');
         } catch (error) {
-            console.log('ℹ️ subtotal column already exists');
+            if (error.message.includes('already exists')) {
+                console.log('ℹ️ subtotal column already exists');
+            } else {
+                console.error('❌ Error adding subtotal column:', error.message);
+            }
         }
         
         // Check and add project_management_cost column if missing
         try {
             await dbHelpers.query(`
                 ALTER TABLE projects 
-                ADD COLUMN IF NOT EXISTS project_management_cost REAL DEFAULT 500
+                ADD COLUMN project_management_cost REAL DEFAULT 500
             `);
-            console.log('✅ project_management_cost column ready');
+            console.log('✅ project_management_cost column added');
         } catch (error) {
-            console.log('ℹ️ project_management_cost column already exists');
+            if (error.message.includes('already exists')) {
+                console.log('ℹ️ project_management_cost column already exists');
+            } else {
+                console.error('❌ Error adding project_management_cost column:', error.message);
+            }
         }
         
-        // Update existing projects with calculated subtotals
-        console.log('🔧 Updating existing projects with calculated subtotals...');
-        const projects = await dbHelpers.query(`
-            SELECT id, breakdown, total, project_management_cost 
-            FROM projects 
-            WHERE subtotal IS NULL OR subtotal = 0
-        `);
-        
-        console.log(`📋 Found ${projects.length} projects to update`);
-        
-        for (const project of projects) {
-            try {
-                let breakdown = [];
-                if (project.breakdown) {
-                    breakdown = JSON.parse(project.breakdown);
+        // Update existing projects with calculated subtotals (only if we have projects to update)
+        try {
+            console.log('🔧 Checking for projects that need subtotal updates...');
+            const projects = await dbHelpers.query(`
+                SELECT id, breakdown, total, project_management_cost 
+                FROM projects 
+                WHERE subtotal IS NULL OR subtotal = 0
+                LIMIT 10
+            `);
+            
+            if (projects.length > 0) {
+                console.log(`📋 Found ${projects.length} projects to update`);
+                
+                for (const project of projects) {
+                    try {
+                        let breakdown = [];
+                        if (project.breakdown) {
+                            breakdown = JSON.parse(project.breakdown);
+                        }
+                        
+                        // Calculate subtotal from breakdown
+                        let subtotal = 0;
+                        if (Array.isArray(breakdown)) {
+                            subtotal = breakdown.reduce((sum, item) => {
+                                return sum + parseFloat(item.cost || 0);
+                            }, 0);
+                        }
+                        
+                        // If no breakdown or subtotal is 0, estimate from total
+                        if (subtotal === 0 && project.total) {
+                            const pmc = project.project_management_cost || 500;
+                            subtotal = parseFloat(project.total) - pmc;
+                        }
+                        
+                        // Update the project
+                        await dbHelpers.run(`
+                            UPDATE projects 
+                            SET subtotal = $1, project_management_cost = $2
+                            WHERE id = $3
+                        `, [subtotal, project.project_management_cost || 500, project.id]);
+                        
+                        console.log(`✅ Updated project ${project.id}: subtotal = $${subtotal.toFixed(2)}`);
+                        
+                    } catch (error) {
+                        console.error(`❌ Error updating project ${project.id}:`, error.message);
+                    }
                 }
-                
-                // Calculate subtotal from breakdown
-                let subtotal = 0;
-                if (Array.isArray(breakdown)) {
-                    subtotal = breakdown.reduce((sum, item) => {
-                        return sum + parseFloat(item.cost || 0);
-                    }, 0);
-                }
-                
-                // If no breakdown or subtotal is 0, estimate from total
-                if (subtotal === 0 && project.total) {
-                    const pmc = project.project_management_cost || 500;
-                    subtotal = parseFloat(project.total) - pmc;
-                }
-                
-                // Update the project
-                await dbHelpers.run(`
-                    UPDATE projects 
-                    SET subtotal = $1, project_management_cost = $2
-                    WHERE id = $3
-                `, [subtotal, project.project_management_cost || 500, project.id]);
-                
-                console.log(`✅ Updated project ${project.id}: subtotal = $${subtotal.toFixed(2)}`);
-                
-            } catch (error) {
-                console.error(`❌ Error updating project ${project.id}:`, error.message);
+            } else {
+                console.log('ℹ️ No projects need subtotal updates');
             }
+        } catch (error) {
+            console.error('❌ Error checking for projects to update:', error.message);
         }
         
         console.log('🎉 Database schema initialization completed!');
