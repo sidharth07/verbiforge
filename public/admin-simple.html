@@ -244,7 +244,7 @@
         // Clear storage
         function clearStorage() {
             localStorage.clear();
-            statusDiv.innerHTML = '✅ Storage cleared';
+            document.getElementById('statusInfo').innerHTML = '✅ Storage cleared';
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 1000);

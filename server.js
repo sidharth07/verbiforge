@@ -476,6 +476,25 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Test auth endpoint for debugging
+app.get('/test-auth', requireAuth, async (req, res) => {
+    try {
+        console.log('🧪 Test auth request from user:', req.user.email, 'Role:', req.user.role);
+        res.json({ 
+            success: true, 
+            user: { 
+                id: req.user.id, 
+                email: req.user.email, 
+                role: req.user.role 
+            },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ Test auth error:', error);
+        res.status(500).json({ error: 'Test auth failed' });
+    }
+});
+
 // Database health check endpoint
 app.get('/health/database', async (req, res) => {
     try {
