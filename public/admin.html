@@ -147,13 +147,13 @@
         /* Sidebar */
         .admin-sidebar {
             width: 250px;
-            background: #4a5568;
+            background: linear-gradient(180deg, #4a5568 0%, #2d3748 100%);
             color: white;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
         }
 
         .sidebar-header {
@@ -210,6 +210,9 @@
             flex: 1;
             margin-left: 250px;
             background: #f5f5f5;
+            border-left: 1px solid #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         body {
@@ -1443,9 +1446,22 @@
                     renderProjects();
                     updateStats();
                 } else {
-                    const errorData = await response.json();
-                    console.error('❌ Admin projects error:', errorData);
-                    showError('Failed to load projects: ' + (errorData.error || 'Unknown error'));
+                    // Check if response is HTML (authentication issue)
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('text/html')) {
+                        console.error('❌ Authentication issue - received HTML instead of JSON');
+                        showError('Authentication failed. Please refresh the page and try again.');
+                        return;
+                    }
+                    
+                    try {
+                        const errorData = await response.json();
+                        console.error('❌ Admin projects error:', errorData);
+                        showError('Failed to load projects: ' + (errorData.error || 'Unknown error'));
+                    } catch (jsonError) {
+                        console.error('❌ Could not parse error response:', jsonError);
+                        showError('Failed to load projects: Server error');
+                    }
                 }
             } catch (error) {
                 console.error('❌ Network error loading projects:', error);
