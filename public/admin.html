@@ -4130,11 +4130,23 @@
             console.log('🔧 Setting up admin event listeners...');
             
             // Simple authentication check - use direct localStorage like minimal panel
+            console.log('🔍 DEBUG: Checking localStorage keys...');
+            console.log('🔍 DEBUG: localStorage.getItem("user"):', localStorage.getItem('user'));
+            console.log('🔍 DEBUG: localStorage.getItem("currentUser"):', localStorage.getItem('currentUser'));
+            console.log('🔍 DEBUG: localStorage.getItem("token"):', localStorage.getItem('token'));
+            console.log('🔍 DEBUG: localStorage.getItem("jwtToken"):', localStorage.getItem('jwtToken'));
+            console.log('🔍 DEBUG: All localStorage keys:', Object.keys(localStorage));
+            
             const user = localStorage.getItem('user') || localStorage.getItem('currentUser');
             const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
             
+            console.log('🔍 DEBUG: Final user value:', user);
+            console.log('🔍 DEBUG: Final token value:', token ? 'EXISTS' : 'MISSING');
+            
             if (!user || !token) {
                 console.log('❌ Not authenticated, redirecting to login');
+                console.log('❌ DEBUG: user missing:', !user);
+                console.log('❌ DEBUG: token missing:', !token);
                 window.location.href = 'login.html';
                 return;
             }
