@@ -35,6 +35,33 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <style>
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --text-muted: #a0aec0;
+            --background-white: #ffffff;
+            --background-light: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -45,12 +72,13 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             min-height: 100vh;
             display: flex;
-            background: #f8fafc;
+            background: var(--background-light);
         }
 
+        /* Left Section - Branding */
         .left-section {
-            flex: 0 0 65%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            flex: 0 0 50%;
+            background: var(--primary-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -58,79 +86,103 @@
             overflow: hidden;
         }
 
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.9;
-        }
-
-        .hero-overlay {
+        .left-section::before {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .branding-content {
+            position: relative;
+            z-index: 1;
             text-align: center;
             color: white;
-            padding: 40px;
-        }
-
-        .hero-content h1 {
-            font-size: 4.2em;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero-content p {
-            font-size: 1.5em;
-            margin-bottom: 30px;
-            opacity: 0.95;
+            padding: var(--spacing-3xl);
             max-width: 500px;
-            line-height: 1.6;
         }
 
-        .features-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            max-width: 600px;
-            margin-top: 40px;
+        .logo-section {
+            margin-bottom: var(--spacing-2xl);
         }
 
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 18px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            min-height: 60px;
-        }
-
-        .feature-icon {
-            font-size: 1.5em;
-        }
-
-        .feature-text {
-            font-weight: 500;
-            font-size: 1.1em;
-        }
-
-        .right-section {
-            flex: 0 0 35%;
+        .logo {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
-            background: white;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            margin-bottom: var(--spacing-2xl);
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .highlights {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: rgba(255, 255, 255, 0.1);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .highlight-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .highlight-text {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        /* Right Section - Form */
+        .right-section {
+            flex: 0 0 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-3xl);
+            background: var(--background-white);
         }
 
         .auth-container {
@@ -140,63 +192,176 @@
 
         .auth-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: var(--spacing-2xl);
         }
 
         .auth-header h2 {
-            color: #1a202c;
-            margin-bottom: 8px;
-            font-size: 2.2em;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            font-size: 2.2rem;
             font-weight: 600;
         }
 
         .auth-header p {
-            color: #718096;
-            font-size: 1.1em;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: var(--spacing-lg);
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #2d3748;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
             font-weight: 500;
-            font-size: 14px;
+            font-size: 0.9rem;
         }
 
         .form-group input {
             width: 100%;
-            padding: 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
             transition: all 0.3s ease;
-            background: #f7fafc;
+            background: var(--background-light);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
-            background: white;
+            border-color: var(--primary-color);
+            background: var(--background-white);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .auth-btn {
             width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
             border: none;
-            padding: 18px;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .left-section {
+                flex: 0 0 45%;
+            }
+            
+            .right-section {
+                flex: 0 0 55%;
+                padding: var(--spacing-2xl);
+            }
+            
+            .branding-content {
+                padding: var(--spacing-2xl);
+            }
+            
+            .logo-text {
+                font-size: 2rem;
+            }
+            
+            .tagline {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                background: var(--primary-gradient);
+                min-height: 100vh;
+            }
+
+            .left-section {
+                flex: 0 0 auto;
+                min-height: 200px;
+                background: transparent;
+                position: relative;
+            }
+
+            .left-section::before {
+                display: none;
+            }
+
+            .branding-content {
+                padding: var(--spacing-lg);
+                text-align: center;
+            }
+
+            .logo {
+                margin-bottom: var(--spacing-md);
+            }
+
+            .logo-text {
+                font-size: 1.8rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+                margin-bottom: var(--spacing-lg);
+            }
+
+            .highlights {
+                display: none;
+            }
+
+            .right-section {
+                flex: 1;
+                padding: var(--spacing-2xl) var(--spacing-lg);
+                background: var(--background-white);
+                border-radius: 25px 25px 0 0;
+                margin-top: -20px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .auth-container {
+                max-width: 100%;
+            }
+
+            .auth-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .auth-header p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .right-section {
+                padding: var(--spacing-lg) var(--spacing-md);
+                border-radius: 20px 20px 0 0;
+            }
+
+            .auth-header h2 {
+                font-size: 1.6rem;
+            }
+
+            .form-group input {
+                padding: var(--spacing-md);
+                font-size: 1rem;
+            }
+
+            .auth-btn {
+                padding: var(--spacing-md);
+                font-size: 1rem;
+            }
         }
 
         .auth-btn:hover {
@@ -569,47 +734,47 @@
 
 <body>
     <div class="left-section">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea'/%3E%3Cstop offset='100%25' style='stop-color:%23764ba2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='url(%23bg)'/%3E%3Cg transform='translate(100,100)'%3E%3Ccircle cx='300' cy='200' r='120' fill='rgba(255,255,255,0.1)' stroke='rgba(255,255,255,0.3)' stroke-width='2'/%3E%3Crect x='200' y='150' width='200' height='100' rx='10' fill='rgba(255,255,255,0.2)' stroke='rgba(255,255,255,0.4)' stroke-width='2'/%3E%3Ctext x='300' y='210' text-anchor='middle' fill='white' font-size='24' font-weight='bold'%3EExcel%3C/text%3E%3Cpath d='M150 300 L450 300 M150 320 L450 320 M150 340 L450 340' stroke='rgba(255,255,255,0.6)' stroke-width='3'/%3E%3Ccircle cx='500' cy='150' r='40' fill='rgba(255,255,255,0.15)'/%3E%3Ctext x='500' y='160' text-anchor='middle' fill='white' font-size='16'%3E🌍%3C/text%3E%3Ccircle cx='500' cy='250' r='40' fill='rgba(255,255,255,0.15)'/%3E%3Ctext x='500' y='260' text-anchor='middle' fill='white' font-size='16'%3E📊%3C/text%3E%3Ccircle cx='500' cy='350' r='40' fill='rgba(255,255,255,0.15)'/%3E%3Ctext x='500' y='360' text-anchor='middle' fill='white' font-size='16'%3E💰%3C/text%3E%3C/g%3E%3C/svg%3E"
-            alt="Translation Services" class="hero-image">
-
-        <div class="hero-overlay">
-            <div class="hero-content">
-                <h1>
-                    <svg width="50" height="50" viewBox="0 0 50 50" style="margin-right: 15px; vertical-align: middle;">
-                        <defs>
-                            <linearGradient id="loginLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#667eea"/>
-                                <stop offset="100%" style="stop-color:#764ba2"/>
-                            </linearGradient>
-                        </defs>
-                        <circle cx="25" cy="25" r="22" fill="url(#loginLogoGradient)" stroke="white" stroke-width="4"/>
-                        <text x="13" y="32" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">V</text>
-                        <text x="28" y="32" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">F</text>
-                    </svg>
-                    VerbiForge
-                </h1>
-            <p>Professional translation services with instant pricing and project management</p>
-
-            <div class="features-list">
-                <div class="feature-item">
-                    <span class="feature-icon">🌍</span>
-                    <span class="feature-text">100+ Languages</span>
+        <div class="branding-content">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">VF</div>
+                    <div class="logo-text">VerbiForge</div>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">⚡</span>
-                    <span class="feature-text">Instant Quotes</span>
+            </div>
+            
+            <div class="tagline">
+                Fast, Reliable, Professional Translation
+            </div>
+            
+            <div class="highlights">
+                <div class="highlight-item">
+                    <div class="highlight-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                    </div>
+                    <div class="highlight-text">100+ Languages Supported</div>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📊</span>
-                    <span class="feature-text">Project Tracking</span>
+                
+                <div class="highlight-item">
+                    <div class="highlight-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.5 2.54l2.6 1.53c.56-1.24.9-2.62.9-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.05.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-1.53C16.17 17.98 14.21 19 12 19z"/>
+                        </svg>
+                    </div>
+                    <div class="highlight-text">24-48 Hour Turnaround</div>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🔒</span>
-                    <span class="feature-text">Secure & Confidential</span>
+                
+                <div class="highlight-item">
+                    <div class="highlight-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <div class="highlight-text">Enterprise Security</div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <div class="right-section">
