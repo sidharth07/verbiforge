@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Debug Version</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .debug-log { background: #000; color: #0f0; padding: 15px; border-radius: 8px; font-family: monospace; max-height: 400px; overflow-y: auto; margin: 20px 0; }
+        .content { background: white; padding: 20px; border-radius: 8px; }
+        .btn { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Admin Panel - Debug Version</h1>
+            <p>This version logs every step to identify logout issues</p>
+            <div id="userInfo"></div>
+        </div>
+
+        <div class="debug-log" id="debugLog">
+            <div>🚀 Debug log started...</div>
+        </div>
+
+        <div class="content">
+            <h2>Test Actions</h2>
+            <button class="btn" onclick="testAuth()">🔐 Test Auth</button>
+            <button class="btn" onclick="testAdminAccess()">👑 Test Admin Access</button>
+            <button class="btn" onclick="clearLog()">🗑️ Clear Log</button>
+            <button class="btn" onclick="goToOriginalAdmin()">🔗 Go to Original Admin</button>
+        </div>
+    </div>
+
+    <script>
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span class="${type}">[${timestamp}] ${message}</span>`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            logCount++;
+        }
+
+        function clearLog() {
+            document.getElementById('debugLog').innerHTML = '<div>🚀 Debug log cleared...</div>';
+            logCount = 0;
+        }
+
+        function getToken() {
+            const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
+            log(`🔑 Token found: ${token ? 'YES' : 'NO'}`);
+            if (token) {
+                log(`🔑 Token length: ${token.length}`);
+                log(`🔑 Token preview: ${token.substring(0, 30)}...`);
+            }
+            return token;
+        }
+
+        function getUser() {
+            const user = localStorage.getItem('user') || localStorage.getItem('currentUser');
+            log(`👤 User data found: ${user ? 'YES' : 'NO'}`);
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    log(`👤 User name: ${userData.name}`);
+                    log(`👤 User email: ${userData.email}`);
+                    log(`👤 User role: ${userData.role}`);
+                    return userData;
+                } catch (e) {
+                    log(`❌ Error parsing user data: ${e.message}`, 'error');
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        function showUserInfo() {
+            const user = getUser();
+            const token = getToken();
+            const userInfo = document.getElementById('userInfo');
+            
+            if (user && token) {
+                userInfo.innerHTML = `
+                    <p class="success">✅ Authenticated</p>
+                    <p><strong>User:</strong> ${user.name} (${user.email})</p>
+                    <p><strong>Role:</strong> ${user.role}</p>
+                    <p><strong>Token:</strong> ${token.substring(0, 30)}...</p>
+                `;
+            } else {
+                userInfo.innerHTML = '<p class="error">❌ Not authenticated</p>';
+            }
+        }
+
+        async function testAuth() {
+            log('🔐 Testing authentication...');
+            
+            try {
+                const response = await fetch('/test-auth', {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                log(`🔐 Auth response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Auth successful: ${data.user.email}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Auth failed: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Auth error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminAccess() {
+            log('👑 Testing admin access...');
+            
+            try {
+                const response = await fetch('/admin/projects', {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                
+                log(`👑 Admin response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Admin access successful: ${data.length} projects found`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Admin access failed: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Admin access error: ${error.message}`, 'error');
+            }
+        }
+
+        function goToOriginalAdmin() {
+            log('🔗 Redirecting to original admin panel...');
+            log('⚠️ Watch the console for any errors!', 'warning');
+            
+            // Add a small delay to ensure logs are written
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 1000);
+        }
+
+        // Monitor for page unload events
+        window.addEventListener('beforeunload', function(e) {
+            log('⚠️ Page is about to unload/reload!', 'warning');
+            log('⚠️ This might indicate a logout or redirect', 'warning');
+        });
+
+        window.addEventListener('unload', function(e) {
+            log('⚠️ Page is unloading!', 'warning');
+        });
+
+        // Monitor for errors
+        window.addEventListener('error', function(e) {
+            log(`❌ JavaScript error: ${e.message}`, 'error');
+            log(`❌ Error file: ${e.filename}`, 'error');
+            log(`❌ Error line: ${e.lineno}`, 'error');
+        });
+
+        // Monitor for unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            log(`❌ Unhandled promise rejection: ${e.reason}`, 'error');
+        });
+
+        // Initialize on page load
+        window.onload = function() {
+            log('🚀 Debug admin panel loaded');
+            log(`🌐 Current URL: ${window.location.href}`);
+            log(`🔍 User agent: ${navigator.userAgent.substring(0, 50)}...`);
+            showUserInfo();
+        };
+
+        // Log every 5 seconds to show the page is still alive
+        setInterval(() => {
+            log(`💓 Heartbeat: Page still alive (${logCount} logs)`);
+        }, 5000);
+    </script>
+</body>
+</html>
