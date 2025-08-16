@@ -100,6 +100,18 @@
             </select>
             <button onclick="fixSpecificUserRole()" class="danger">Fix Specific User</button>
         </div>
+        
+        <div class="warning">
+            <h3>🚨 Emergency Role Fix (No Auth Required):</h3>
+            <p>Use this if the above doesn't work:</p>
+            <input type="email" id="emergencyEmail" placeholder="user@example.com" value="sid@verbiforge.com">
+            <select id="emergencyRole">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+                <option value="super_admin" selected>Super Admin</option>
+            </select>
+            <button onclick="emergencyFixRole()" class="danger">🚨 Emergency Fix</button>
+        </div>
     </div>
 
     <script>
@@ -277,6 +289,52 @@
                 } else {
                     const errorData = await response.json();
                     updateStatus(`❌ Failed to fix role: ${JSON.stringify(errorData)}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function emergencyFixRole() {
+            const email = document.getElementById('emergencyEmail').value;
+            const role = document.getElementById('emergencyRole').value;
+            
+            if (!email) {
+                updateStatus('❌ Please enter an email', 'error');
+                return;
+            }
+            
+            updateStatus(`🚨 Emergency fixing ${email} role to ${role}...`);
+            
+            try {
+                const response = await fetch('/emergency-fix-role', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        newRole: role,
+                        secret: 'verbiforge-emergency-2024'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus(`✅ Emergency role fix successful: ${JSON.stringify(data)}`);
+                    
+                    // Update local user data if it's the current user
+                    if (Auth.isAuthenticated()) {
+                        const user = Auth.getUser();
+                        if (user.email === email) {
+                            const updatedUser = { ...user, role: role };
+                            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                            updateUserInfo(`<h4>User Role Fixed!</h4><p>${email} is now ${role}</p>`);
+                        }
+                    }
+                } else {
+                    const errorData = await response.json();
+                    updateStatus(`❌ Emergency fix failed: ${JSON.stringify(errorData)}`, 'error');
                 }
             } catch (error) {
                 updateStatus(`❌ Error: ${error.message}`, 'error');

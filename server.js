@@ -533,6 +533,44 @@ app.post('/fix-user-role', requireAuth, async (req, res) => {
     }
 });
 
+// Emergency role fix endpoint (no auth required)
+app.post('/emergency-fix-role', async (req, res) => {
+    try {
+        const { email, newRole, secret } = req.body;
+        
+        if (!email || !newRole || !secret) {
+            return res.status(400).json({ error: 'Email, newRole, and secret required' });
+        }
+        
+        // Simple secret check (you can change this)
+        if (secret !== 'verbiforge-emergency-2024') {
+            return res.status(403).json({ error: 'Invalid secret' });
+        }
+        
+        console.log(`🚨 Emergency fixing user role: ${email} -> ${newRole}`);
+        
+        const result = await dbHelpers.run(
+            'UPDATE users SET role = $1 WHERE email = $2 RETURNING id, email, name, role',
+            [newRole, email]
+        );
+        
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        console.log(`✅ Emergency updated user role: ${email} -> ${newRole}`);
+        res.json({ 
+            success: true, 
+            message: `Emergency updated ${email} role to ${newRole}`,
+            user: result.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('❌ Error emergency fixing user role:', error);
+        res.status(500).json({ error: 'Failed to emergency fix user role' });
+    }
+});
+
 // Database health check endpoint
 app.get('/health/database', async (req, res) => {
     try {
