@@ -21,6 +21,204 @@
             line-height: 1.6;
             color: #333;
             background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sidebar Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-xl);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            font-size: 1.5em;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-nav {
+            padding: var(--spacing-lg) 0;
+        }
+
+        .nav-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .nav-section-title {
+            padding: 0 var(--spacing-lg) var(--spacing-sm);
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-item-text {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            min-height: 100vh;
+            background: var(--background-light);
+        }
+
+        .main-header {
+            background: var(--background-white);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .main-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95em;
+        }
+
+        .user-role {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .content-wrapper {
+            padding: var(--spacing-xl);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
         }
 
         /* Design System Variables */
@@ -290,88 +488,15 @@
             min-height: 100vh;
         }
 
+        /* Legacy navbar styles - hidden with sidebar layout */
         .navbar {
-            background: var(--primary-gradient);
-            color: white;
-            padding: var(--spacing-md) 0;
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--spacing-lg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-brand {
-            font-size: 1.5em;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-        
-        .nav-brand-icon {
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .nav-user {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-        }
-
-        .nav-user #userName.admin-clickable {
-            cursor: pointer;
-            text-decoration: underline;
-            color: #4facfe;
-            transition: all 0.3s ease;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--radius-sm);
-        }
-
-        .nav-user #userName.admin-clickable:hover {
-            background: rgba(79, 172, 254, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
+            display: none;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: var(--spacing-lg);
+            max-width: none;
+            margin: 0;
+            padding: 0;
             width: 100%;
         }
 
@@ -896,6 +1021,44 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Sidebar */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.collapsed {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
         }
 
         /* Mobile responsiveness */
@@ -1520,62 +1683,148 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="nav-brand">
-                <div class="nav-brand-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                VerbiForge
-            </div>
-            <div class="nav-user">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">👤</div>
-                    <span id="userName" style="font-weight: 600;">Loading...</span>
-                </div>
-                <button class="logout-btn" id="logoutBtn">🔓 Logout</button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="dashboard-header">
-            <h1><span class="dashboard-header-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-                </svg>
-            </span>Dashboard</h1>
-            <p>Manage your translation projects</p>
-        </div>
-
-        <div class="dashboard-tabs">
-            <div class="tabs-left">
-                <button class="tab-btn active" data-tab="projects">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
-                    </svg>
-                    My Projects
-                </button>
-                <button class="tab-btn" data-tab="completed">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                    Completed Projects
-                </button>
-            </div>
-            <div class="tabs-right">
-                <button class="create-project-btn" onclick="switchTab('create')">
-                    <span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
-                    </span>
-                    Create Project
-                </button>
+                    </div>
+                    VerbiForge
+                </a>
             </div>
-        </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="#" class="nav-item active" data-tab="dashboard">
+                        <div class="nav-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-item-text">Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="projects">
+                        <div class="nav-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-item-text">My Projects</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="completed">
+                        <div class="nav-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-item-text">Completed Projects</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="create">
+                        <div class="nav-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-item-text">Create New</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="#" class="nav-item" data-tab="settings">
+                        <div class="nav-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-item-text">Settings</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="help">
+                        <div class="nav-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-item-text">Help</span>
+                    </a>
+                    <a href="#" class="nav-item" id="sidebarLogoutBtn">
+                        <div class="nav-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-item-text">Logout</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="main-header-content">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                        <button class="sidebar-toggle" id="sidebarToggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                            </svg>
+                        </button>
+                        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                    </div>
+                    <div class="user-menu">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-info">
+                            <div class="user-name" id="userName">Loading...</div>
+                            <div class="user-role" id="userRole">User</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="dashboard-header" id="dashboardHeader">
+                    <h1><span class="dashboard-header-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                    </span>Dashboard</h1>
+                    <p>Manage your translation projects</p>
+                </div>
+
+                <div class="dashboard-tabs" id="dashboardTabs">
+                    <div class="tabs-left">
+                        <button class="tab-btn active" data-tab="projects">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                            My Projects
+                        </button>
+                        <button class="tab-btn" data-tab="completed">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            Completed Projects
+                        </button>
+                    </div>
+                    <div class="tabs-right">
+                        <button class="create-project-btn" onclick="switchTab('create')">
+                            <span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                            </span>
+                            Create Project
+                        </button>
+                    </div>
+                </div>
 
         <div id="projectsTab" class="tab-content active">
             <div id="projectsList">
@@ -1705,6 +1954,8 @@
                 </div>
             </div>
         </div>
+            </div>
+        </main>
     </div>
 
     <!-- Results Modal -->
@@ -1917,7 +2168,15 @@
                     const userData = await userResponse.json();
                     console.log('✅ User data:', userData);
                     currentUser = userData.user;
-                    document.getElementById('userName').textContent = currentUser.name;
+                    
+                    // Update sidebar user info
+                    const userNameElement = document.getElementById('userName');
+                    const userAvatarElement = document.getElementById('userAvatar');
+                    const userRoleElement = document.getElementById('userRole');
+                    
+                    if (userNameElement) userNameElement.textContent = currentUser.name;
+                    if (userAvatarElement) userAvatarElement.textContent = currentUser.name.charAt(0).toUpperCase();
+                    if (userRoleElement) userRoleElement.textContent = userData.user.role === 'admin' || userData.user.role === 'super_admin' ? 'Administrator' : 'User';
 
                     // Check if user is admin and make name clickable
                     if (adminResponse.ok) {
@@ -2160,6 +2419,126 @@
                 option.classList.remove('selected');
             });
             document.getElementById(type + 'Option').classList.add('selected');
+        }
+
+        // Sidebar functionality
+        function initializeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const navItems = document.querySelectorAll('.nav-item');
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+
+            // Sidebar toggle for mobile/tablet
+            sidebarToggle.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.toggle('mobile-open');
+                    sidebarOverlay.classList.toggle('active');
+                } else {
+                    sidebar.classList.toggle('collapsed');
+                }
+            });
+
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('mobile-open');
+                sidebarOverlay.classList.remove('active');
+            });
+
+            // Navigation items
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tab = this.getAttribute('data-tab');
+                    
+                    // Update active state
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Handle navigation
+                    if (tab === 'dashboard') {
+                        showDashboard();
+                    } else if (tab === 'projects') {
+                        switchTab('projects');
+                    } else if (tab === 'completed') {
+                        switchTab('completed');
+                    } else if (tab === 'create') {
+                        switchTab('create');
+                    } else if (tab === 'settings') {
+                        showSettings();
+                    } else if (tab === 'help') {
+                        showHelp();
+                    }
+                    
+                    // Close mobile sidebar
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('mobile-open');
+                        sidebarOverlay.classList.remove('active');
+                    }
+                });
+            });
+
+            // Sidebar logout
+            sidebarLogoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('mobile-open');
+                    sidebarOverlay.classList.remove('active');
+                }
+            });
+        }
+
+        function showDashboard() {
+            document.getElementById('pageTitle').textContent = 'Dashboard';
+            document.getElementById('dashboardHeader').style.display = 'block';
+            document.getElementById('dashboardTabs').style.display = 'flex';
+            
+            // Show projects tab by default
+            switchTab('projects');
+        }
+
+        function showSettings() {
+            document.getElementById('pageTitle').textContent = 'Settings';
+            document.getElementById('dashboardHeader').style.display = 'none';
+            document.getElementById('dashboardTabs').style.display = 'none';
+            
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Show settings content (placeholder)
+            const contentWrapper = document.querySelector('.content-wrapper');
+            contentWrapper.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <h2>Settings</h2>
+                    <p>Settings page coming soon...</p>
+                </div>
+            `;
+        }
+
+        function showHelp() {
+            document.getElementById('pageTitle').textContent = 'Help';
+            document.getElementById('dashboardHeader').style.display = 'none';
+            document.getElementById('dashboardTabs').style.display = 'none';
+            
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Show help content (placeholder)
+            const contentWrapper = document.querySelector('.content-wrapper');
+            contentWrapper.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <h2>Help & Support</h2>
+                    <p>Help documentation coming soon...</p>
+            `;
         }
 
         function toggleLanguage(name) {
@@ -2904,8 +3283,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Setting up event listeners...');
             
-            // Logout button
-            document.getElementById('logoutBtn').addEventListener('click', logout);
+            // Initialize sidebar navigation
+            initializeSidebar();
+            
+            // Logout button (legacy - now handled by sidebar)
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
             
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
