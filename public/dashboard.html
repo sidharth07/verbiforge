@@ -831,6 +831,153 @@
             color: var(--text-secondary);
         }
 
+        /* Project Overview Modal Styles */
+        .overview-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .overview-section h3 {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .overview-section h4 {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            padding-bottom: var(--spacing-xs);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .overview-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .project-id {
+            background: var(--primary-gradient);
+            color: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .project-date {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .overview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--background-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .overview-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .overview-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .overview-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        .overview-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--background-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .overview-costs {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .overview-cost-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--background-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .overview-cost-item.total {
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 600;
+        }
+
+        .overview-cost-item.total .overview-label,
+        .overview-cost-item.total .overview-value {
+            color: white;
+        }
+
+        .overview-notes {
+            background: var(--background-light);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .overview-translated {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--background-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .download-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
         .tabs-left {
             display: flex;
             gap: var(--spacing-sm);
@@ -2686,9 +2833,9 @@
             // Initialize filters
             initializeProjectFilters();
             
-            // Load and render completed projects
+            // Load and render completed projects (without create card)
             loadCompletedProjects().then(() => {
-                filterProjects('completed');
+                renderProjectsGrid(completedProjects, false);
             });
         }
 
@@ -3123,13 +3270,17 @@
             renderProjectsGrid(filteredProjects);
         }
 
-        function renderProjectsGrid(projectsToRender) {
+        function renderProjectsGrid(projectsToRender, showCreateCard = true) {
             const projectsGrid = document.getElementById('projectsGrid');
             const createCard = projectsGrid.querySelector('.create-project-card');
             
-            // Clear existing project cards but keep create card
+            // Clear existing project cards
             projectsGrid.innerHTML = '';
-            projectsGrid.appendChild(createCard);
+            
+            // Add create card only if requested (not for completed projects)
+            if (showCreateCard && createCard) {
+                projectsGrid.appendChild(createCard);
+            }
             
             // Add filtered project cards
             projectsToRender.forEach(project => {
@@ -3177,8 +3328,189 @@
         }
 
         function viewProject(projectId) {
-            // Implement project view functionality
-            console.log('Viewing project:', projectId);
+            console.log('🔍 Viewing project:', projectId);
+            
+            // Find the project data
+            const allProjects = [...(projects || []), ...(completedProjects || [])];
+            const project = allProjects.find(p => p.id === projectId);
+            
+            if (!project) {
+                console.error('❌ Project not found:', projectId);
+                return;
+            }
+            
+            console.log('✅ Project found:', project);
+            
+            // Show project overview modal
+            showProjectOverview(project);
+        }
+
+        function showProjectOverview(project) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'projectOverviewModal';
+            
+            const date = new Date(project.createdAt || project.created_at).toLocaleDateString();
+            const status = project.status || 'Unknown';
+            
+            let breakdownHtml = '';
+            if (project.breakdown && Array.isArray(project.breakdown)) {
+                project.breakdown.forEach(item => {
+                    breakdownHtml += `
+                        <div class="overview-detail">
+                            <span class="overview-label">${item.language}:</span>
+                            <span class="overview-value">$${item.cost}</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Project Overview</h2>
+                        <button class="close-btn" onclick="closeProjectOverview()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="overview-section">
+                            <h3>${project.name}</h3>
+                            <div class="overview-meta">
+                                <span class="project-id">${project.projectId || 'N/A'}</span>
+                                <span class="project-date">Created: ${date}</span>
+                                <span class="project-status ${status}">${status}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-grid">
+                            <div class="overview-item">
+                                <span class="overview-label">File Name:</span>
+                                <span class="overview-value">${project.fileName}</span>
+                            </div>
+                            <div class="overview-item">
+                                <span class="overview-label">Word Count:</span>
+                                <span class="overview-value">${(project.wordCount || 0).toLocaleString()}</span>
+                            </div>
+                            <div class="overview-item">
+                                <span class="overview-label">Project Type:</span>
+                                <span class="overview-value">${project.projectType || 'Fusion'}</span>
+                            </div>
+                            <div class="overview-item">
+                                <span class="overview-label">Multiplier:</span>
+                                <span class="overview-value">${project.multiplier || 1}x</span>
+                            </div>
+                        </div>
+                        
+                        ${breakdownHtml ? `
+                        <div class="overview-section">
+                            <h4>Translation Costs</h4>
+                            <div class="overview-breakdown">
+                                ${breakdownHtml}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="overview-section">
+                            <h4>Cost Summary</h4>
+                            <div class="overview-costs">
+                                <div class="overview-cost-item">
+                                    <span class="overview-label">Subtotal:</span>
+                                    <span class="overview-value">$${project.subtotal || 0}</span>
+                                </div>
+                                <div class="overview-cost-item">
+                                    <span class="overview-label">Project Management:</span>
+                                    <span class="overview-value">$${project.projectManagementCost || 0}</span>
+                                </div>
+                                <div class="overview-cost-item total">
+                                    <span class="overview-label">Total:</span>
+                                    <span class="overview-value">$${project.total || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${project.notes ? `
+                        <div class="overview-section">
+                            <h4>Notes</h4>
+                            <div class="overview-notes">
+                                ${project.notes}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${project.status === 'completed' && project.translatedFileName ? `
+                        <div class="overview-section">
+                            <h4>Translated File</h4>
+                            <div class="overview-translated">
+                                <span class="overview-label">File:</span>
+                                <span class="overview-value">${project.translatedFileName}</span>
+                                <button class="download-btn" onclick="downloadTranslatedFile('${project.id}')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                    </svg>
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="modal-actions">
+                        <button class="modal-btn secondary" onclick="closeProjectOverview()">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add event listener for backdrop click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeProjectOverview();
+                }
+            });
+        }
+
+        function closeProjectOverview() {
+            const modal = document.getElementById('projectOverviewModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function downloadTranslatedFile(projectId) {
+            console.log('📥 Downloading translated file for project:', projectId);
+            
+            fetch(`/projects/${projectId}/download-translated`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to download file');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `translated_file_${projectId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                console.log('✅ File downloaded successfully');
+            })
+            .catch(error => {
+                console.error('❌ Error downloading file:', error);
+                alert('Failed to download translated file. Please try again.');
+            });
         }
 
         function toggleLanguage(name) {
