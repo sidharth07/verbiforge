@@ -1052,7 +1052,7 @@ app.get('/debug/schema', requireAuth, async (req, res) => {
 
 
 // Create project for user (admin only)
-app.post('/admin/projects/create', requireAuth, async (req, res) => {
+app.post('/admin/projects/create', requireAuth, upload.single('file'), async (req, res) => {
     try {
         console.log('🔧 Admin creating project for user');
         console.log('🔧 Request body:', req.body);
@@ -1063,11 +1063,74 @@ app.post('/admin/projects/create', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
+        // Handle both file upload and JSON data
+        let projectData;
+        let uploadedFile = null;
+        
+        if (req.file) {
+            // File was uploaded, use form data
+            console.log('🔧 File uploaded:', req.file.originalname);
+            uploadedFile = req.file;
+            
+            const { 
+                name, userId, type, language, description 
+            } = req.body;
+            
+            if (!name || !userId || !type || !language) {
+                return res.status(400).json({ error: 'Missing required fields' });
+            }
+            
+            // Analyze the uploaded file
+            const languages = [language];
+            const wordCount = Math.ceil(req.file.size / 100); // Estimate word count
+            
+            // Get language pricing
+            const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
+            const languagePricing = setting ? JSON.parse(setting.value) : {};
+            
+            // Get multiplier
+            const multiplierSetting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['multiplier']);
+            const globalMultiplier = multiplierSetting ? parseFloat(multiplierSetting.value) : 1.3;
+            
+            // Calculate costs
+            const breakdown = [];
+            let subtotal = 0;
+            const effectiveMultiplier = type === 'pure' ? globalMultiplier : 1.0;
+            
+            languages.forEach(lang => {
+                const basePrice = languagePricing[lang] || 25;
+                const cost = (wordCount * basePrice * effectiveMultiplier) / 100;
+                breakdown.push({ language: lang, cost: cost.toFixed(2) });
+                subtotal += cost;
+            });
+            
+            const projectManagementCost = 500;
+            const total = subtotal + projectManagementCost;
+            
+            projectData = {
+                name,
+                userId,
+                fileName: req.file.originalname,
+                wordCount,
+                breakdown,
+                subtotal,
+                projectManagementCost,
+                total,
+                projectType: type,
+                multiplier: effectiveMultiplier,
+                notes: description || ''
+            };
+        } else {
+            // JSON data was sent
+            console.log('🔧 JSON data received');
+            projectData = req.body;
+        }
+        
         const { 
             name, fileName, wordCount, breakdown, subtotal, 
             projectManagementCost, total, projectType, multiplier, 
             notes, userId 
-        } = req.body;
+        } = projectData;
         
         if (!userId) {
             return res.status(400).json({ error: 'User ID is required' });
@@ -1101,6 +1164,27 @@ app.post('/admin/projects/create', requireAuth, async (req, res) => {
         ]);
         
         console.log('✅ Project created successfully for user');
+        
+        // Store the uploaded file if one was provided
+        if (uploadedFile) {
+            try {
+                console.log('🔧 Storing uploaded file...');
+                const savedFile = await FileManager.saveOriginalFile(uploadedFile, projectId);
+                console.log('✅ File stored:', savedFile);
+                
+                // Update project with file path
+                await dbHelpers.run(`
+                    UPDATE projects 
+                    SET original_file_path = $1 
+                    WHERE id = $2
+                `, [savedFile.filePath, projectId]);
+                
+                console.log('✅ Project updated with file path');
+            } catch (fileError) {
+                console.error('❌ Error storing file:', fileError);
+                // Don't fail the entire request if file storage fails
+            }
+        }
         
         // Send email notification to user
         try {
