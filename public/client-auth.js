@@ -1,7 +1,7 @@
 // Simple client-side auth helper for JWT handling
 (function () {
-  const TOKEN_KEY = 'jwtToken';
-  const USER_KEY = 'currentUser';
+  const TOKEN_KEY = 'token';
+  const USER_KEY = 'user';
   
   // Debug function to log all storage info
   function debugStorage() {
