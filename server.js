@@ -759,6 +759,85 @@ app.post('/fix-translated-files', requireAuth, async (req, res) => {
     }
 });
 
+// Add missing project_id column (admin only)
+app.post('/fix-project-ids', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        console.log('🔧 Adding project_id column to database...');
+        
+        try {
+            // Add project_id column
+            await dbHelpers.query(`
+                ALTER TABLE projects 
+                ADD COLUMN project_id VARCHAR(20)
+            `);
+            console.log('✅ Added project_id column');
+            
+            // Generate project IDs for existing projects
+            const projects = await dbHelpers.all(`
+                SELECT id FROM projects 
+                WHERE project_id IS NULL OR project_id = ''
+            `);
+            
+            console.log('🔍 Found projects without project_id:', projects.length);
+            
+            const fixedProjects = [];
+            const failedProjects = [];
+            
+            for (const project of projects) {
+                try {
+                    const projectId = await generateProjectId();
+                    
+                    await dbHelpers.run(`
+                        UPDATE projects 
+                        SET project_id = $1 
+                        WHERE id = $2
+                    `, [projectId, project.id]);
+                    
+                    fixedProjects.push({
+                        id: project.id,
+                        projectId: projectId
+                    });
+                    
+                    console.log('✅ Fixed project:', project.id, 'with ID:', projectId);
+                } catch (error) {
+                    console.error('❌ Failed to fix project:', project.id, error.message);
+                    failedProjects.push({
+                        id: project.id,
+                        error: error.message
+                    });
+                }
+            }
+            
+            res.json({
+                success: true,
+                message: `Added project_id column and fixed ${fixedProjects.length} projects, ${failedProjects.length} failed`,
+                fixedProjects,
+                failedProjects
+            });
+            
+        } catch (columnError) {
+            if (columnError.message.includes('already exists')) {
+                console.log('ℹ️ project_id column already exists');
+                res.json({
+                    success: true,
+                    message: 'project_id column already exists'
+                });
+            } else {
+                throw columnError;
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Error fixing project IDs:', error);
+        res.status(500).json({ error: 'Failed to fix project IDs: ' + error.message });
+    }
+});
+
 // Check database schema (admin only)
 app.get('/debug/schema', requireAuth, async (req, res) => {
     try {
@@ -998,7 +1077,7 @@ app.post('/projects', requireAuth, async (req, res) => {
             ]);
         } catch (error) {
             // If columns don't exist, try to add them and retry
-            if (error.message.includes('column "subtotal"') || error.message.includes('column "project_management_cost"')) {
+            if (error.message.includes('column "subtotal"') || error.message.includes('column "project_management_cost"') || error.message.includes('column "project_id"')) {
                 console.log('🔧 Database columns missing, attempting to add them...');
                 try {
                     // Add missing columns directly
