@@ -1782,13 +1782,27 @@
         }
 
         function switchAdminTab(tab) {
+            console.log('🔍 Switching to tab:', tab);
+            
             // Update tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tab + 'TabBtn').classList.add('active');
+            const tabBtn = document.getElementById(tab + 'TabBtn');
+            if (tabBtn) {
+                tabBtn.classList.add('active');
+                console.log('✅ Tab button activated:', tab + 'TabBtn');
+            } else {
+                console.error('❌ Tab button not found:', tab + 'TabBtn');
+            }
             
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tab + 'Tab').classList.add('active');
+            const tabContent = document.getElementById(tab + 'Tab');
+            if (tabContent) {
+                tabContent.classList.add('active');
+                console.log('✅ Tab content activated:', tab + 'Tab');
+            } else {
+                console.error('❌ Tab content not found:', tab + 'Tab');
+            }
             
             // Load data for the selected tab
             if (tab === 'users') {
@@ -2684,6 +2698,7 @@
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tab = this.getAttribute('data-admin-tab');
+                    console.log('🔍 Tab clicked:', tab, 'Button:', this.textContent);
                     switchAdminTab(tab);
                 });
             });
