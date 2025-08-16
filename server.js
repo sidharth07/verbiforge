@@ -16,26 +16,38 @@ function generateProjectId() {
     // Get the next available number starting from 700
     return new Promise(async (resolve, reject) => {
         try {
-            // Get the highest project number from existing projects
-            const result = await dbHelpers.get(`
-                SELECT MAX(CAST(SUBSTRING(project_id FROM 1 FOR POSITION('-' IN project_id) - 1) AS INTEGER)) as max_number 
-                FROM projects 
-                WHERE project_id IS NOT NULL AND project_id ~ '^[0-9]+-[A-Z]{2}$'
-            `);
-            
-            let nextNumber = 700;
-            if (result && result.max_number) {
-                nextNumber = Math.max(700, result.max_number + 1);
+            // Check if project_id column exists first
+            try {
+                const result = await dbHelpers.get(`
+                    SELECT MAX(CAST(SUBSTRING(project_id FROM 1 FOR POSITION('-' IN project_id) - 1) AS INTEGER)) as max_number 
+                    FROM projects 
+                    WHERE project_id IS NOT NULL AND project_id ~ '^[0-9]+-[A-Z]{2}$'
+                `);
+                
+                let nextNumber = 700;
+                if (result && result.max_number) {
+                    nextNumber = Math.max(700, result.max_number + 1);
+                }
+                
+                // Generate 2 random uppercase letters
+                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const letter1 = letters[Math.floor(Math.random() * letters.length)];
+                const letter2 = letters[Math.floor(Math.random() * letters.length)];
+                
+                const projectId = `${nextNumber}-${letter1}${letter2}`;
+                console.log('🔢 Generated project ID:', projectId);
+                resolve(projectId);
+            } catch (columnError) {
+                // If project_id column doesn't exist, use fallback
+                console.log('🔢 project_id column not ready, using fallback ID');
+                const timestamp = Date.now();
+                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const letter1 = letters[Math.floor(Math.random() * letters.length)];
+                const letter2 = letters[Math.floor(Math.random() * letters.length)];
+                const fallbackId = `${timestamp}-${letter1}${letter2}`;
+                console.log('🔢 Using fallback project ID:', fallbackId);
+                resolve(fallbackId);
             }
-            
-            // Generate 2 random uppercase letters
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const letter1 = letters[Math.floor(Math.random() * letters.length)];
-            const letter2 = letters[Math.floor(Math.random() * letters.length)];
-            
-            const projectId = `${nextNumber}-${letter1}${letter2}`;
-            console.log('🔢 Generated project ID:', projectId);
-            resolve(projectId);
         } catch (error) {
             console.error('❌ Error generating project ID:', error);
             // Fallback to timestamp-based ID
@@ -1047,12 +1059,8 @@ app.post('/projects', requireAuth, async (req, res) => {
         
         const projectId = uuidv4();
         
-        // Generate a human-readable project ID
-        const humanReadableId = await generateProjectId();
-        
         console.log('🔍 Creating project with data:', {
             projectId,
-            humanReadableId,
             userId: req.user.id,
             name: projectNameToUse,
             fileName,
@@ -1065,6 +1073,9 @@ app.post('/projects', requireAuth, async (req, res) => {
         
         // Try to insert with all columns first
         try {
+            // Generate a human-readable project ID
+            const humanReadableId = await generateProjectId();
+            
             await dbHelpers.run(`
                 INSERT INTO projects (
                     id, user_id, name, file_name, word_count, breakdown, 
@@ -1076,6 +1087,8 @@ app.post('/projects', requireAuth, async (req, res) => {
                 projectType || 'fusion', multiplier || 1.0, notes || '', humanReadableId
             ]);
         } catch (error) {
+            console.log('🔍 Initial insert failed:', error.message);
+            
             // If columns don't exist, try to add them and retry
             if (error.message.includes('column "subtotal"') || error.message.includes('column "project_management_cost"') || error.message.includes('column "project_id"')) {
                 console.log('🔧 Database columns missing, attempting to add them...');
@@ -1105,6 +1118,10 @@ app.post('/projects', requireAuth, async (req, res) => {
                     `);
                     console.log('✅ Added project_id column');
                     
+                    // Generate project ID after adding the column
+                    const humanReadableId = await generateProjectId();
+                    console.log('✅ Generated project ID after schema fix:', humanReadableId);
+                    
                     // Retry the insert
                     await dbHelpers.run(`
                         INSERT INTO projects (
@@ -1116,11 +1133,15 @@ app.post('/projects', requireAuth, async (req, res) => {
                         JSON.stringify(breakdown), subtotal, projectManagementCost, total, 'quote_generated', 
                         projectType || 'fusion', multiplier || 1.0, notes || '', humanReadableId
                     ]);
+                    
+                    console.log('✅ Project created successfully after schema fix');
                 } catch (retryError) {
                     console.error('❌ Failed to add database columns:', retryError);
+                    console.error('❌ Retry error details:', retryError.message);
                     throw new Error('Database schema is not ready. Please try again in a moment.');
                 }
             } else {
+                console.error('❌ Unexpected database error:', error.message);
                 throw error;
             }
         }
