@@ -1386,6 +1386,8 @@ app.put('/projects/:id/submit', requireAuth, async (req, res) => {
 app.get('/admin/check', requireAuth, async (req, res) => {
     try {
         console.log('🔍 Admin check request from user:', req.user.email, 'Role:', req.user.role);
+        console.log('🔍 Admin check - User ID:', req.user.id);
+        console.log('🔍 Admin check - Request headers:', req.headers.authorization ? 'Bearer token present' : 'No token');
         
         // Check if user is admin based on role in users table
         const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
@@ -1397,6 +1399,24 @@ app.get('/admin/check', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('❌ Admin check error:', error);
         res.status(500).json({ error: 'Failed to check admin status' });
+    }
+});
+
+// Simple test endpoint to check authentication
+app.get('/test-auth', requireAuth, async (req, res) => {
+    try {
+        console.log('🧪 Test auth request from user:', req.user.email, 'Role:', req.user.role);
+        res.json({ 
+            success: true, 
+            user: { 
+                id: req.user.id, 
+                email: req.user.email, 
+                role: req.user.role 
+            } 
+        });
+    } catch (error) {
+        console.error('❌ Test auth error:', error);
+        res.status(500).json({ error: 'Test auth failed' });
     }
 });
 
