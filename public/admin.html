@@ -1995,7 +1995,7 @@
                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label for="projectSearch" style="font-weight: 600; color: #333;">🔍 Search Project ID:</label>
-                        <input type="text" id="projectSearch" placeholder="e.g., 700-AS, 701-BT" 
+                        <input type="text" id="projectSearch2" placeholder="e.g., 700-AS, 701-BT" 
                                style="width: 200px; padding: 10px 12px; border: 2px solid #007bff; border-radius: 6px; font-size: 14px;">
                     </div>
                     <button id="searchProjectBtn" 
@@ -4148,9 +4148,7 @@
                 console.log('❌ DEBUG: user missing:', !user);
                 console.log('❌ DEBUG: token missing:', !token);
                 
-                // TEMPORARILY PREVENT REDIRECT TO SEE LOGS
-                console.log('🚫 DEBUG: Redirect blocked for debugging');
-                alert('DEBUG: Would redirect to login. Check console for details.');
+                window.location.href = 'login.html';
                 return;
             }
             
@@ -4236,8 +4234,18 @@
 
             // Enter key support for search - with null check
             const projectSearch = document.getElementById('projectSearch');
+            const projectSearch2 = document.getElementById('projectSearch2');
+            
             if (projectSearch) {
                 projectSearch.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchProjects();
+                    }
+                });
+            }
+            
+            if (projectSearch2) {
+                projectSearch2.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         searchProjects();
                     }
