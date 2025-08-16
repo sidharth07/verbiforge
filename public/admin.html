@@ -4102,7 +4102,10 @@
                     const token = Auth.getToken();
                     console.log('🔑 Token exists:', !!token);
                     
-                    const adminCheckResponse = await fetch('/admin/check', {
+                    const adminCheckUrl = '/admin/check';
+                    console.log('🌐 Calling admin check URL:', adminCheckUrl);
+                    
+                    const adminCheckResponse = await fetch(adminCheckUrl, {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'

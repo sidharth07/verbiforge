@@ -68,7 +68,6 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 
 // File upload configuration
 const storage = multer.diskStorage({
@@ -2638,6 +2637,9 @@ app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to delete contact message: ' + error.message });
     }
 });
+
+// Serve static files (after all API routes)
+app.use(express.static('public'));
 
 // Catch-all route for undefined endpoints
 app.use('*', (req, res) => {
