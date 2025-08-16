@@ -2224,6 +2224,40 @@ app.get('/admin/test-download', requireAuth, async (req, res) => {
     }
 });
 
+// Add missing database columns if they don't exist
+async function ensureDatabaseColumns() {
+    try {
+        console.log('🔧 Checking for missing database columns...');
+        
+        // Check if original_file_path column exists
+        const columnsToAdd = [
+            { name: 'original_file_path', type: 'TEXT' },
+            { name: 'translated_file_path', type: 'TEXT' }
+        ];
+        
+        for (const column of columnsToAdd) {
+            try {
+                await dbHelpers.query(`
+                    ALTER TABLE projects 
+                    ADD COLUMN ${column.name} ${column.type}
+                `);
+                console.log(`✅ Added ${column.name} column`);
+            } catch (columnError) {
+                if (columnError.message.includes('already exists')) {
+                    console.log(`ℹ️ ${column.name} column already exists`);
+                } else {
+                    console.error(`❌ Error adding ${column.name} column:`, columnError.message);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error ensuring database columns:', error);
+    }
+}
+
+// Call this function on server startup
+ensureDatabaseColumns();
+
 // Download project file (admin)
 app.get('/admin/projects/:id/download', requireAuth, async (req, res) => {
     try {

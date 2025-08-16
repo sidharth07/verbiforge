@@ -677,7 +677,7 @@
 
         .search-controls {
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             gap: var(--spacing-md);
             flex-wrap: wrap;
         }
@@ -3954,19 +3954,26 @@
 
         async function loadContacts() {
             try {
+                console.log('🔍 Loading contacts...');
                 const response = await Auth.authFetch('/admin/contacts');
+                console.log('🔍 Contacts response status:', response.status);
+                
                 if (response.ok) {
                     const data = await response.json();
-                    allContacts = data.submissions;
-                    unreadContactsCount = data.unreadCount;
+                    console.log('🔍 Contacts data:', data);
+                    allContacts = data.submissions || [];
+                    unreadContactsCount = data.unreadCount || 0;
+                    console.log('🔍 Processed contacts:', { allContacts: allContacts.length, unreadContactsCount });
                     updateContactsNotification();
                     renderContacts();
                 } else {
-                    showError('Failed to load contact messages');
+                    const errorData = await response.json();
+                    console.error('❌ Failed to load contacts:', errorData);
+                    showError('Failed to load contact messages: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
-                console.error('Error loading contacts:', error);
-                showError('Network error loading contact messages');
+                console.error('❌ Error loading contacts:', error);
+                showError('Network error loading contact messages: ' + error.message);
             }
         }
 
@@ -4927,16 +4934,23 @@
 
         // Load create project page
         async function loadCreateProjectPage() {
-            console.log('🔍 Loading create project page...');
-            
-            // Load users for the dropdown
-            await loadUsersForCreateProject();
-            
-            // Load languages for the dropdown
-            await loadLanguagesForCreateProject();
-            
-            // Setup file upload functionality
-            setupCreateProjectFileUpload();
+            try {
+                console.log('🔍 Loading create project page...');
+                
+                // Load users for the dropdown
+                await loadUsersForCreateProject();
+                
+                // Load languages for the dropdown
+                await loadLanguagesForCreateProject();
+                
+                // Setup file upload functionality
+                setupCreateProjectFileUpload();
+                
+                console.log('✅ Create project page loaded successfully');
+            } catch (error) {
+                console.error('❌ Error loading create project page:', error);
+                CustomModal.error('Error loading create project page: ' + error.message, 'Loading Error');
+            }
         }
 
         // Load users for create project dropdown
