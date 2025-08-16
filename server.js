@@ -549,6 +549,15 @@ app.post('/emergency-fix-role', async (req, res) => {
         
         console.log(`🚨 Emergency fixing user role: ${email} -> ${newRole}`);
         
+        // First check if user exists
+        const existingUser = await dbHelpers.get('SELECT id, email, name, role FROM users WHERE email = $1', [email]);
+        if (!existingUser) {
+            console.log(`❌ User not found: ${email}`);
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        console.log(`👤 Current user:`, existingUser);
+        
         const result = await dbHelpers.run(
             'UPDATE users SET role = $1 WHERE email = $2 RETURNING id, email, name, role',
             [newRole, email]
@@ -567,7 +576,41 @@ app.post('/emergency-fix-role', async (req, res) => {
         
     } catch (error) {
         console.error('❌ Error emergency fixing user role:', error);
-        res.status(500).json({ error: 'Failed to emergency fix user role' });
+        res.status(500).json({ error: 'Failed to emergency fix user role: ' + error.message });
+    }
+});
+
+// Simple role fix endpoint (GET request for easy testing)
+app.get('/fix-role/:email/:role', async (req, res) => {
+    try {
+        const { email, role } = req.params;
+        
+        console.log(`🔧 Simple fixing user role: ${email} -> ${role}`);
+        
+        // First check if user exists
+        const existingUser = await dbHelpers.get('SELECT id, email, name, role FROM users WHERE email = $1', [email]);
+        if (!existingUser) {
+            console.log(`❌ User not found: ${email}`);
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        console.log(`👤 Current user:`, existingUser);
+        
+        const result = await dbHelpers.run(
+            'UPDATE users SET role = $1 WHERE email = $2 RETURNING id, email, name, role',
+            [role, email]
+        );
+        
+        console.log(`✅ Simple updated user role: ${email} -> ${role}`);
+        res.json({ 
+            success: true, 
+            message: `Updated ${email} role to ${role}`,
+            user: result.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('❌ Error simple fixing user role:', error);
+        res.status(500).json({ error: 'Failed to fix user role: ' + error.message });
     }
 });
 
