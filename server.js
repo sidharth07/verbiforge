@@ -2921,6 +2921,7 @@ async function startServer() {
             console.log(`✅ PostgreSQL server running on port ${PORT}`);
             console.log(`🌐 Health check: http://localhost:${PORT}/health`);
             console.log(`🚀 Server started at: ${new Date().toISOString()}`);
+            console.log(`🔧 Admin panels: /admin-fixed.html, /admin-super-simple.html`);
         });
         
     } catch (error) {
