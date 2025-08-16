@@ -2,6 +2,17 @@
 (function () {
   const TOKEN_KEY = 'jwtToken';
   const USER_KEY = 'currentUser';
+  
+  // Debug function to log all storage info
+  function debugStorage() {
+    console.log('🔍 Storage Debug:');
+    console.log('  - localStorage available:', typeof localStorage !== 'undefined');
+    console.log('  - Token exists:', !!localStorage.getItem(TOKEN_KEY));
+    console.log('  - User exists:', !!localStorage.getItem(USER_KEY));
+    console.log('  - Current domain:', window.location.hostname);
+    console.log('  - Current protocol:', window.location.protocol);
+    console.log('  - All localStorage keys:', Object.keys(localStorage));
+  }
 
   function getToken() {
     return localStorage.getItem(TOKEN_KEY);
@@ -78,7 +89,7 @@
     return response;
   }
 
-  window.Auth = { getToken, getUser, setAuth, clearAuth, authFetch, isAuthenticated };
+  window.Auth = { getToken, getUser, setAuth, clearAuth, authFetch, isAuthenticated, debugStorage };
 })();
 
 

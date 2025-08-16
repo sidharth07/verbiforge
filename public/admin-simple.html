@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - VerbiForge</title>
+    <script src="client-auth.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Admin Panel (Simple Version)</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div id="userName">Admin User</div>
+                    <div id="userRole">Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="debug-info" id="debugInfo">
+            Loading debug info...
+        </div>
+
+        <div class="section">
+            <h2>Quick Actions</h2>
+            <button onclick="testAuth()">Test Authentication</button>
+            <button onclick="testServer()">Test Server Connection</button>
+            <button onclick="checkStorage()">Check Local Storage</button>
+            <button onclick="clearStorage()">Clear Storage</button>
+        </div>
+
+        <div class="section">
+            <h2>Status</h2>
+            <div id="statusInfo">Loading status...</div>
+        </div>
+    </div>
+
+    <script>
+        // Simple authentication check
+        function checkAuth() {
+            const token = Auth.getToken();
+            const user = Auth.getUser();
+            const isAuth = Auth.isAuthenticated();
+            
+            console.log('🔍 Auth Check:', { token: !!token, user: !!user, isAuth });
+            
+            if (!isAuth) {
+                console.log('❌ Not authenticated, redirecting to login');
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Update user info
+        function updateUserInfo() {
+            const user = Auth.getUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name || 'Admin User';
+                document.getElementById('userRole').textContent = user.role === 'super_admin' ? 'Super Admin' : 'Administrator';
+                document.getElementById('userAvatar').textContent = (user.name || 'A').charAt(0).toUpperCase();
+            }
+        }
+
+        // Update debug info
+        function updateDebugInfo() {
+            const token = Auth.getToken();
+            const user = Auth.getUser();
+            const isAuth = Auth.isAuthenticated();
+            
+            let debugText = '';
+            debugText += `Authentication: ${isAuth ? '✅ OK' : '❌ FAILED'}\n`;
+            debugText += `Token exists: ${token ? '✅ YES' : '❌ NO'}\n`;
+            debugText += `User exists: ${user ? '✅ YES' : '❌ NO'}\n`;
+            debugText += `User role: ${user ? user.role : 'N/A'}\n`;
+            debugText += `Current URL: ${window.location.href}\n`;
+            debugText += `Domain: ${window.location.hostname}\n`;
+            debugText += `Protocol: ${window.location.protocol}\n`;
+            
+            document.getElementById('debugInfo').textContent = debugText;
+        }
+
+        // Test authentication
+        async function testAuth() {
+            const statusDiv = document.getElementById('statusInfo');
+            statusDiv.innerHTML = 'Testing authentication...';
+            
+            try {
+                const token = Auth.getToken();
+                if (!token) {
+                    statusDiv.innerHTML = '❌ No token found';
+                    return;
+                }
+                
+                const response = await fetch('/test-auth', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = `✅ Auth test successful: ${JSON.stringify(data)}`;
+                } else {
+                    statusDiv.innerHTML = `❌ Auth test failed: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        // Test server connection
+        async function testServer() {
+            const statusDiv = document.getElementById('statusInfo');
+            statusDiv.innerHTML = 'Testing server connection...';
+            
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = `✅ Server OK: ${JSON.stringify(data)}`;
+                } else {
+                    statusDiv.innerHTML = `❌ Server error: ${response.status}`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `❌ Server connection failed: ${error.message}`;
+            }
+        }
+
+        // Check local storage
+        function checkStorage() {
+            const statusDiv = document.getElementById('statusInfo');
+            const token = localStorage.getItem('jwtToken');
+            const user = localStorage.getItem('currentUser');
+            
+            let status = 'Local Storage Check:\n';
+            status += `JWT Token: ${token ? '✅ Present' : '❌ Missing'}\n`;
+            status += `User Data: ${user ? '✅ Present' : '❌ Missing'}\n`;
+            
+            if (token) {
+                status += `Token length: ${token.length}\n`;
+                status += `Token preview: ${token.substring(0, 50)}...\n`;
+            }
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    status += `User role: ${userData.role}\n`;
+                    status += `User email: ${userData.email}\n`;
+                } catch (e) {
+                    status += `User data parse error: ${e.message}\n`;
+                }
+            }
+            
+            statusDiv.innerHTML = status.replace(/\n/g, '<br>');
+        }
+
+        // Clear storage
+        function clearStorage() {
+            localStorage.clear();
+            statusDiv.innerHTML = '✅ Storage cleared';
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
+        }
+
+        // Logout
+        function logout() {
+            Auth.clearAuth();
+            window.location.href = 'login.html';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Simple Admin Panel Loading...');
+            
+            if (!checkAuth()) {
+                return;
+            }
+            
+            updateUserInfo();
+            updateDebugInfo();
+            
+            console.log('✅ Simple Admin Panel Loaded');
+        });
+    </script>
+</body>
+</html>
