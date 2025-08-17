@@ -256,8 +256,11 @@
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 0;
+            padding: 25px 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 80px;
+            display: flex;
+            align-items: center;
         }
 
         .nav-content {
@@ -270,8 +273,15 @@
         }
 
         .nav-brand {
-            font-size: 1.5em;
+            font-size: 2.2em;
             font-weight: bold;
+            margin-left: -20px;
+        }
+
+        .nav-brand svg {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
         }
 
         .nav-user {
@@ -306,6 +316,106 @@
 
         .logout-btn:hover {
             background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Dashboard Layout with Sidebar */
+        .dashboard-layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .dashboard-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #4a5568 0%, #2d3748 100%);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 80px;
+            left: 0;
+            height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h3 {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #4facfe;
+        }
+
+        .sidebar-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: #4facfe;
+        }
+
+        .sidebar-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .sidebar-btn {
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-footer .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+            background: #f8f9fa;
+            min-height: calc(100vh - 80px);
         }
 
         .container {
@@ -553,28 +663,62 @@
             </div>
             <div class="nav-user">
                 <span id="userName">Loading...</span>
-                <button class="logout-btn" id="logoutBtn">Logout</button>
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h3>User Dashboard</h3>
+            <p>Manage your projects</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <button class="sidebar-btn active" data-tab="projects" onclick="switchTab('projects')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                My Projects
+            </button>
+            
+            <button class="sidebar-btn" data-tab="completed" onclick="switchTab('completed')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                Completed Projects
+            </button>
+            
+            <button class="sidebar-btn" data-tab="create" onclick="switchTab('create')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Create Project
+            </button>
+        </div>
+        
+        <div class="sidebar-footer">
+            <button class="sidebar-btn" id="superAdminBtn" style="display: none;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Super Admin
+            </button>
+            
+            <button class="sidebar-btn" id="logoutBtn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                </svg>
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
         <div class="dashboard-header">
             <h1>Dashboard</h1>
             <p>Manage your translation projects</p>
-        </div>
-
-        <div class="dashboard-tabs">
-            <div class="tabs-left">
-                <button class="tab-btn active" data-tab="projects">My Projects</button>
-                <button class="tab-btn" data-tab="completed">Completed Projects</button>
-            </div>
-            <div class="tabs-right">
-                <button class="create-project-btn" onclick="switchTab('create')">
-                    <span>+</span>
-                    Create Project
-                </button>
-            </div>
         </div>
 
         <div id="projectsTab" class="tab-content active">
@@ -884,15 +1028,14 @@
                     currentUser = userData.user;
                     document.getElementById('userName').textContent = currentUser.name;
 
-                    // Check if user is admin and make name clickable
+                    // Check if user is admin and show super admin button
                     if (adminResponse.ok) {
                         const adminData = await adminResponse.json();
                         console.log('👑 Admin data:', adminData);
                         if (adminData.isAdmin) {
-                            const userNameElement = document.getElementById('userName');
-                            userNameElement.classList.add('admin-clickable');
-                            userNameElement.title = 'Click to access Admin Panel';
-                            userNameElement.onclick = () => window.location.href = 'admin.html';
+                            const superAdminBtn = document.getElementById('superAdminBtn');
+                            superAdminBtn.style.display = 'block';
+                            superAdminBtn.onclick = () => window.location.href = 'admin.html';
                         }
                     }
 
@@ -917,10 +1060,10 @@
         function switchTab(tab) {
             console.log('🔍 Switching to tab:', tab);
             
-            // Remove active class from all tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
+            // Remove active class from all sidebar buttons
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
                 btn.classList.remove('active');
-                console.log('🔍 Removed active from tab button:', btn.textContent);
+                console.log('🔍 Removed active from sidebar button:', btn.textContent.trim());
             });
             
             // Remove active class from all tab content
@@ -929,13 +1072,13 @@
                 console.log('🔍 Removed active from tab content:', content.id);
             });
 
-            // Add active class to selected tab button
-            const selectedTabBtn = document.querySelector(`[data-tab="${tab}"]`);
-            if (selectedTabBtn) {
-                selectedTabBtn.classList.add('active');
-                console.log('✅ Added active to tab button:', selectedTabBtn.textContent);
+            // Add active class to selected sidebar button
+            const selectedSidebarBtn = document.querySelector(`[data-tab="${tab}"]`);
+            if (selectedSidebarBtn) {
+                selectedSidebarBtn.classList.add('active');
+                console.log('✅ Added active to sidebar button:', selectedSidebarBtn.textContent.trim());
             } else {
-                console.log('❌ Tab button not found for:', tab);
+                console.log('❌ Sidebar button not found for:', tab);
             }
             
             // Add active class to selected tab content
