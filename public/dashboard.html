@@ -506,8 +506,9 @@
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
         }
 
         .project-card {
@@ -862,11 +863,13 @@
                                     <input type="radio" name="projectType" value="fusion" checked style="margin-right: 8px;">
                                     <strong>Fusion</strong>
                                     <div style="font-size: 12px; color: #666; margin-top: 4px;">Standard</div>
+                                    <div style="font-size: 11px; color: #999; margin-top: 2px;">AI + human refinement</div>
                                 </label>
                                 <label style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; background: white;">
                                     <input type="radio" name="projectType" value="pure" style="margin-right: 8px;">
                                     <strong>Pure</strong>
                                     <div style="font-size: 12px; color: #666; margin-top: 4px;">Premium</div>
+                                    <div style="font-size: 11px; color: #999; margin-top: 2px;">100% human translation</div>
                                 </label>
                             </div>
                         </div>
@@ -898,9 +901,9 @@
                             </div>
                         </div>
 
-                        <div style="margin-top: 30px;">
+                        <div style="margin-top: 30px; text-align: center;">
                             <button id="analyzeBtn"
-                                style="background: #333; color: white; border: none; padding: 12px 24px; border-radius: 4px; font-size: 14px; cursor: pointer; width: 100%; transition: background 0.2s;">
+                                style="background: #333; color: white; border: none; padding: 12px 24px; border-radius: 4px; font-size: 14px; cursor: pointer; width: 200px; transition: background 0.2s;">
                                 Submit Project
                             </button>
                         </div>
@@ -2028,6 +2031,15 @@
         function attachProjectButtonListeners() {
             console.log('🔧 Attaching project button listeners...');
             
+            // View details buttons
+            document.querySelectorAll('.view-details-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const projectId = this.getAttribute('data-project-id');
+                    console.log('🔧 View details clicked:', projectId);
+                    showProjectDetails(projectId);
+                });
+            });
+            
             // Submit project buttons
             document.querySelectorAll('.submit-project-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -2047,6 +2059,90 @@
             });
             
             console.log('✅ Project button listeners attached');
+        }
+
+        function showProjectDetails(projectId) {
+            console.log('🔍 Showing project details for:', projectId);
+            
+            // Find the project data
+            const allProjects = [...(window.activeProjects || []), ...(window.completedProjects || [])];
+            const project = allProjects.find(p => p.id == projectId);
+            
+            if (!project) {
+                console.error('❌ Project not found:', projectId);
+                return;
+            }
+            
+            const date = new Date(project.createdAt).toLocaleDateString();
+            
+            let breakdownHtml = '';
+            if (project.breakdown && project.breakdown.length > 0) {
+                breakdownHtml = `
+                    <div class="cost-breakdown">
+                        <h4 style="margin-bottom: 12px; color: #333;">Translation Costs:</h4>
+                        ${project.breakdown.map(item => `
+                            <div class="cost-item">
+                                <span>${item.language}</span>
+                                <span>$${item.cost}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            const modalContent = `
+                <div class="detail-row">
+                    <span class="detail-label">Project Name:</span>
+                    <span class="detail-value">${project.name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Project ID:</span>
+                    <span class="detail-value">${project.projectId || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Created Date:</span>
+                    <span class="detail-value">${date}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">File Name:</span>
+                    <span class="detail-value">${project.fileName}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Word Count:</span>
+                    <span class="detail-value">${(project.wordCount || 0).toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Project Type:</span>
+                    <span class="detail-value">${(project.projectType || 'fusion') === 'pure' ? 'Pure' : 'Fusion'}${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value" style="color: ${getStatusColor(project.status)};">${getStatusText(project.status)}</span>
+                </div>
+                ${project.eta ? `
+                    <div class="detail-row">
+                        <span class="detail-label">ETA:</span>
+                        <span class="detail-value">${project.eta} working days</span>
+                    </div>
+                ` : ''}
+                ${breakdownHtml}
+                <div class="detail-row">
+                    <span class="detail-label">Subtotal:</span>
+                    <span class="detail-value">$${project.subtotal || '0.00'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Project Management:</span>
+                    <span class="detail-value">$${project.projectManagementCost || '500.00'}</span>
+                </div>
+                <div class="total-cost">Total: $${project.total}</div>
+            `;
+            
+            document.getElementById('projectDetailsContent').innerHTML = modalContent;
+            document.getElementById('projectDetailsModal').style.display = 'block';
+        }
+
+        function closeProjectDetailsModal() {
+            document.getElementById('projectDetailsModal').style.display = 'none';
         }
 
         // Add event listeners after DOM is loaded
@@ -2124,6 +2220,22 @@
                     e.preventDefault();
                     e.stopPropagation();
                     closeModal();
+                });
+            }
+            
+            // Close project details modal button
+            const closeProjectDetailsBtn = document.getElementById('closeProjectDetailsBtn');
+            if (closeProjectDetailsBtn) {
+                closeProjectDetailsBtn.addEventListener('click', closeProjectDetailsModal);
+            }
+            
+            // Close project details modal when clicking outside
+            const projectDetailsModal = document.getElementById('projectDetailsModal');
+            if (projectDetailsModal) {
+                projectDetailsModal.addEventListener('click', function(e) {
+                    if (e.target === projectDetailsModal) {
+                        closeProjectDetailsModal();
+                    }
                 });
                 console.log('✅ Close modal button 2 listener attached');
                 closeModalBtn2.style.pointerEvents = 'auto';
