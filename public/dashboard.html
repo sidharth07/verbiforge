@@ -2346,6 +2346,8 @@
                 
                 // Get current user data from localStorage
                 const currentUser = Auth.getCurrentUser();
+                console.log('👤 Current user from localStorage:', currentUser);
+                
                 if (currentUser) {
                     document.getElementById('accountName').value = currentUser.name || '';
                     document.getElementById('accountEmail').value = currentUser.email || '';
@@ -2354,18 +2356,22 @@
                 }
                 
                 // Load user profile data from server
-                const profileResponse = await Auth.authFetch('/profile');
-                if (profileResponse.ok) {
-                    const profileData = await profileResponse.json();
-                    console.log('📊 Profile data:', profileData);
-                    
-                    document.getElementById('accountName').value = profileData.name || currentUser?.name || '';
-                    document.getElementById('accountEmail').value = profileData.email || currentUser?.email || '';
-                    document.getElementById('accountCompany').value = profileData.company || '';
-                    document.getElementById('accountType').textContent = profileData.role || currentUser?.role || 'User';
-                    document.getElementById('accountCreated').textContent = profileData.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A';
-                } else {
-                    console.log('⚠️ Profile API failed, using local data');
+                try {
+                    const profileResponse = await Auth.authFetch('/profile');
+                    if (profileResponse.ok) {
+                        const profileData = await profileResponse.json();
+                        console.log('📊 Profile data from server:', profileData);
+                        
+                        document.getElementById('accountName').value = profileData.name || currentUser?.name || '';
+                        document.getElementById('accountEmail').value = profileData.email || currentUser?.email || '';
+                        document.getElementById('accountCompany').value = profileData.company || '';
+                        document.getElementById('accountType').textContent = profileData.role || currentUser?.role || 'User';
+                        document.getElementById('accountCreated').textContent = profileData.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A';
+                    } else {
+                        console.log('⚠️ Profile API failed, using local data');
+                    }
+                } catch (profileError) {
+                    console.log('⚠️ Profile API not available, using local data:', profileError);
                 }
                 
                 // Load project statistics
@@ -2616,6 +2622,9 @@
             const closeProjectDetailsBtn = document.getElementById('closeProjectDetailsBtn');
             if (closeProjectDetailsBtn) {
                 closeProjectDetailsBtn.addEventListener('click', closeProjectDetailsModal);
+                console.log('✅ Project details close button listener attached');
+            } else {
+                console.error('❌ Project details close button not found');
             }
             
             // Close project details modal when clicking outside
@@ -2626,11 +2635,9 @@
                         closeProjectDetailsModal();
                     }
                 });
-                console.log('✅ Close modal button 2 listener attached');
-                closeModalBtn2.style.pointerEvents = 'auto';
-                closeModalBtn2.style.zIndex = '9999';
+                console.log('✅ Project details modal outside click listener attached');
             } else {
-                console.error('❌ Close modal button 2 not found');
+                console.error('❌ Project details modal not found');
             }
             
             // Language removal buttons (delegated event listener)

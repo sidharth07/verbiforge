@@ -2701,6 +2701,138 @@ app.delete('/admin/contacts/:id', requireAuth, async (req, res) => {
     }
 });
 
+// Profile endpoints
+app.get('/profile', requireAuth, async (req, res) => {
+    try {
+        console.log('👤 Fetching profile for user:', req.user.email);
+        
+        const user = await dbHelpers.get('SELECT * FROM users WHERE email = $1', [req.user.email]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        const profileData = {
+            name: user.name,
+            email: user.email,
+            company: user.company || '',
+            role: user.role || 'user',
+            created_at: user.created_at
+        };
+        
+        console.log('✅ Profile data retrieved:', profileData);
+        res.json(profileData);
+        
+    } catch (error) {
+        console.error('❌ Error fetching profile:', error);
+        res.status(500).json({ error: 'Failed to fetch profile: ' + error.message });
+    }
+});
+
+app.put('/profile/update', requireAuth, async (req, res) => {
+    try {
+        console.log('👤 Updating profile for user:', req.user.email);
+        
+        const { name, company } = req.body;
+        
+        if (!name || name.trim() === '') {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+        
+        await dbHelpers.run(
+            'UPDATE users SET name = $1, company = $2 WHERE email = $3',
+            [name.trim(), company ? company.trim() : '', req.user.email]
+        );
+        
+        console.log('✅ Profile updated successfully');
+        res.json({ message: 'Profile updated successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error updating profile:', error);
+        res.status(500).json({ error: 'Failed to update profile: ' + error.message });
+    }
+});
+
+app.put('/profile/change-password', requireAuth, async (req, res) => {
+    try {
+        console.log('🔐 Changing password for user:', req.user.email);
+        
+        const { currentPassword, newPassword } = req.body;
+        
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: 'Current password and new password are required' });
+        }
+        
+        if (newPassword.length < 6) {
+            return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+        }
+        
+        // Verify current password
+        const user = await dbHelpers.get('SELECT password FROM users WHERE email = $1', [req.user.email]);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+        if (!isValidPassword) {
+            return res.status(400).json({ error: 'Current password is incorrect' });
+        }
+        
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        // Update password
+        await dbHelpers.run(
+            'UPDATE users SET password = $1 WHERE email = $2',
+            [hashedPassword, req.user.email]
+        );
+        
+        console.log('✅ Password changed successfully');
+        res.json({ message: 'Password changed successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error changing password:', error);
+        res.status(500).json({ error: 'Failed to change password: ' + error.message });
+    }
+});
+
+app.get('/notifications/preferences', requireAuth, async (req, res) => {
+    try {
+        console.log('🔔 Fetching notification preferences for user:', req.user.email);
+        
+        // For now, return default preferences
+        // In the future, this could be stored in a separate table
+        const preferences = {
+            projectUpdates: true,
+            newMessages: true,
+            completedProjects: true
+        };
+        
+        console.log('✅ Notification preferences retrieved');
+        res.json(preferences);
+        
+    } catch (error) {
+        console.error('❌ Error fetching notification preferences:', error);
+        res.status(500).json({ error: 'Failed to fetch notification preferences: ' + error.message });
+    }
+});
+
+app.put('/notifications/preferences', requireAuth, async (req, res) => {
+    try {
+        console.log('🔔 Updating notification preferences for user:', req.user.email);
+        
+        const { projectUpdates, newMessages, completedProjects } = req.body;
+        
+        // For now, just return success
+        // In the future, this could be stored in a separate table
+        console.log('✅ Notification preferences updated');
+        res.json({ message: 'Notification preferences updated successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error updating notification preferences:', error);
+        res.status(500).json({ error: 'Failed to update notification preferences: ' + error.message });
+    }
+});
+
 // Catch-all route for undefined endpoints
 app.use('*', (req, res) => {
     console.error('❌ 404 - Route not found:', req.originalUrl);
