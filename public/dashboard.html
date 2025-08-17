@@ -422,6 +422,7 @@
             padding: 30px;
             background: #f8f9fa;
             min-height: calc(100vh - 80px);
+            width: calc(100vw - 280px);
         }
 
         .container {
@@ -512,7 +513,7 @@
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             padding: 20px 0;
             justify-items: start;
@@ -528,6 +529,7 @@
             flex-direction: column;
             height: 100%;
             min-height: 200px;
+            width: 100%;
         }
 
         .project-card:hover {
@@ -846,7 +848,12 @@
         </div>
         
         <div class="sidebar-footer">
-            <!-- Super Admin button removed -->
+            <button class="sidebar-btn" id="superAdminBtn" style="display: none;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Super Admin
+            </button>
             
             <button class="sidebar-btn" id="logoutBtn">
                 <svg viewBox="0 0 24 24">
@@ -1304,11 +1311,15 @@
                     currentUser = userData.user;
                     document.getElementById('userName').textContent = currentUser.name;
 
-                    // Check if user is admin (for future use)
+                    // Check if user is admin and show super admin button
                     if (adminResponse.ok) {
                         const adminData = await adminResponse.json();
                         console.log('👑 Admin data:', adminData);
-                        // Super Admin button removed from UI
+                        if (adminData.isAdmin) {
+                            const superAdminBtn = document.getElementById('superAdminBtn');
+                            superAdminBtn.style.display = 'block';
+                            superAdminBtn.onclick = () => window.location.href = 'admin.html';
+                        }
                     }
 
                     loadLanguages();
