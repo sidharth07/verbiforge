@@ -2224,114 +2224,106 @@
         async function showProjectDetails(projectId) {
             console.log('🔍 Showing project details for:', projectId);
             
-            // Find the project data from both active and completed projects
-            const allProjects = [];
-            
-            // Get active projects
+            // Get all projects from the main endpoint
             try {
-                const activeResponse = await Auth.authFetch('/projects');
-                if (activeResponse.ok) {
-                    const activeProjects = await activeResponse.json();
-                    allProjects.push(...activeProjects);
-                }
-            } catch (error) {
-                console.error('Error loading active projects:', error);
-            }
-            
-            // Get completed projects
-            try {
-                const completedResponse = await Auth.authFetch('/projects/completed');
-                if (completedResponse.ok) {
-                    const completedProjects = await completedResponse.json();
-                    allProjects.push(...completedProjects);
-                }
-            } catch (error) {
-                console.error('Error loading completed projects:', error);
-            }
-            
-            const project = allProjects.find(p => p.id == projectId);
-            
-            if (!project) {
-                console.error('❌ Project not found:', projectId);
-                CustomModal.error('Project not found');
-                return;
-            }
-            
-            const date = new Date(project.createdAt || project.created_at).toLocaleDateString();
-            
-            // Create detailed cost breakdown
-            let breakdownHtml = '';
-            let subtotal = 0;
-            if (project.breakdown && project.breakdown.length > 0) {
-                // Calculate subtotal from breakdown
-                subtotal = project.breakdown.reduce((sum, item) => sum + parseFloat(item.cost || 0), 0);
-                
-                breakdownHtml = `
-                    <div class="cost-breakdown">
-                        <h4 style="margin-bottom: 12px; color: #333; font-size: 16px;">Translation Costs Breakdown:</h4>
-                        ${project.breakdown.map(item => `
-                            <div class="cost-item">
-                                <span style="font-weight: 500;">${item.language}</span>
-                                <span style="color: #28a745; font-weight: 600;">$${parseFloat(item.cost || 0).toFixed(2)}</span>
+                const response = await Auth.authFetch('/projects');
+                if (response.ok) {
+                    const projects = await response.json();
+                    console.log('📊 All projects:', projects);
+                    
+                    const project = projects.find(p => p.id == projectId);
+                    
+                    if (!project) {
+                        console.error('❌ Project not found:', projectId);
+                        CustomModal.error('Project not found');
+                        return;
+                    }
+                    
+                    const date = new Date(project.createdAt || project.created_at).toLocaleDateString();
+                    
+                    // Create detailed cost breakdown
+                    let breakdownHtml = '';
+                    let subtotal = 0;
+                    if (project.breakdown && project.breakdown.length > 0) {
+                        // Calculate subtotal from breakdown
+                        subtotal = project.breakdown.reduce((sum, item) => sum + parseFloat(item.cost || 0), 0);
+                        
+                        breakdownHtml = `
+                            <div class="cost-breakdown">
+                                <h4 style="margin-bottom: 12px; color: #333; font-size: 16px;">Translation Costs Breakdown:</h4>
+                                ${project.breakdown.map(item => `
+                                    <div class="cost-item">
+                                        <span style="font-weight: 500;">${item.language}</span>
+                                        <span style="color: #28a745; font-weight: 600;">$${parseFloat(item.cost || 0).toFixed(2)}</span>
+                                    </div>
+                                `).join('')}
                             </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else {
-                // Fallback: use project.subtotal if breakdown is not available
-                subtotal = parseFloat(project.subtotal || 0);
+                        `;
+                    } else {
+                        // Fallback: use project.subtotal if breakdown is not available
+                        subtotal = parseFloat(project.subtotal || 0);
+                    }
+                    
+                    const modalContent = `
+                        <div class="detail-row">
+                            <span class="detail-label">Project Name:</span>
+                            <span class="detail-value">${project.name}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Project ID:</span>
+                            <span class="detail-value">${project.projectId || project.project_id || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Created Date:</span>
+                            <span class="detail-value">${date}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">File Name:</span>
+                            <span class="detail-value">${project.fileName || project.file_name}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Word Count:</span>
+                            <span class="detail-value">${(project.wordCount || project.word_count || 0).toLocaleString()}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Project Type:</span>
+                            <span class="detail-value">${(project.projectType || project.project_type || 'fusion') === 'pure' ? 'Pure' : 'Fusion'}${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value" style="color: ${getStatusColor(project.status)};">${getStatusText(project.status)}</span>
+                        </div>
+                        ${project.eta ? `
+                            <div class="detail-row">
+                                <span class="detail-label">ETA:</span>
+                                <span class="detail-value">${project.eta} working days</span>
+                            </div>
+                        ` : ''}
+                        ${breakdownHtml}
+                        <div class="detail-row" style="border-top: 2px solid #eee; padding-top: 12px; margin-top: 12px;">
+                            <span class="detail-label" style="font-weight: 600;">Subtotal:</span>
+                            <span class="detail-value" style="font-weight: 600;">$${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label" style="font-weight: 600;">Project Management:</span>
+                            <span class="detail-value" style="font-weight: 600;">$${parseFloat(project.projectManagementCost || project.project_management_cost || 500).toFixed(2)}</span>
+                        </div>
+                        <div class="total-cost">Total: $${parseFloat(project.total).toFixed(2)}</div>
+                    `;
+                    
+                    document.getElementById('projectDetailsContent').innerHTML = modalContent;
+                    document.getElementById('projectDetailsModal').style.display = 'block';
+                    
+                } else {
+                    console.error('❌ Failed to load projects');
+                    CustomModal.error('Failed to load project details');
+                }
+            } catch (error) {
+                console.error('❌ Error loading project details:', error);
+                CustomModal.error('Error loading project details');
             }
-            
-            const modalContent = `
-                <div class="detail-row">
-                    <span class="detail-label">Project Name:</span>
-                    <span class="detail-value">${project.name}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Project ID:</span>
-                    <span class="detail-value">${project.projectId || project.project_id || 'N/A'}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Created Date:</span>
-                    <span class="detail-value">${date}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">File Name:</span>
-                    <span class="detail-value">${project.fileName || project.file_name}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Word Count:</span>
-                    <span class="detail-value">${(project.wordCount || project.word_count || 0).toLocaleString()}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Project Type:</span>
-                    <span class="detail-value">${(project.projectType || project.project_type || 'fusion') === 'pure' ? 'Pure' : 'Fusion'}${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Status:</span>
-                    <span class="detail-value" style="color: ${getStatusColor(project.status)};">${getStatusText(project.status)}</span>
-                </div>
-                ${project.eta ? `
-                    <div class="detail-row">
-                        <span class="detail-label">ETA:</span>
-                        <span class="detail-value">${project.eta} working days</span>
-                    </div>
-                ` : ''}
-                ${breakdownHtml}
-                <div class="detail-row" style="border-top: 2px solid #eee; padding-top: 12px; margin-top: 12px;">
-                    <span class="detail-label" style="font-weight: 600;">Subtotal:</span>
-                    <span class="detail-value" style="font-weight: 600;">$${subtotal.toFixed(2)}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label" style="font-weight: 600;">Project Management:</span>
-                    <span class="detail-value" style="font-weight: 600;">$${parseFloat(project.projectManagementCost || project.project_management_cost || 500).toFixed(2)}</span>
-                </div>
-                <div class="total-cost">Total: $${parseFloat(project.total).toFixed(2)}</div>
-            `;
-            
-            document.getElementById('projectDetailsContent').innerHTML = modalContent;
-            document.getElementById('projectDetailsModal').style.display = 'block';
         }
+
 
         function closeProjectDetailsModal() {
             console.log('🔍 Closing project details modal');
