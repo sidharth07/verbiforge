@@ -513,10 +513,11 @@
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 25px;
             padding: 20px 0;
-            justify-items: start;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .project-card {
@@ -529,7 +530,7 @@
             flex-direction: column;
             height: 100%;
             min-height: 250px;
-            width: 100%;
+            max-width: 350px;
         }
 
         .project-card:hover {
