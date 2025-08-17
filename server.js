@@ -2711,11 +2711,19 @@ app.get('/profile', requireAuth, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         
+        // Determine role display
+        let roleDisplay = 'User';
+        if (user.role === 'admin') {
+            roleDisplay = 'Admin';
+        } else if (user.role === 'super_admin') {
+            roleDisplay = 'Super Admin';
+        }
+        
         const profileData = {
             name: user.name,
             email: user.email,
-            company: user.company || '',
-            role: user.role || 'user',
+            company: '', // Company field not in users table
+            role: roleDisplay,
             created_at: user.created_at
         };
         
@@ -2738,9 +2746,10 @@ app.put('/profile/update', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Name is required' });
         }
         
+        // Only update name since company field doesn't exist in users table
         await dbHelpers.run(
-            'UPDATE users SET name = $1, company = $2 WHERE email = $3',
-            [name.trim(), company ? company.trim() : '', req.user.email]
+            'UPDATE users SET name = $1 WHERE email = $2',
+            [name.trim(), req.user.email]
         );
         
         console.log('✅ Profile updated successfully');

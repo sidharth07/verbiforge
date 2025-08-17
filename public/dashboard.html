@@ -995,11 +995,7 @@
                                 style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background: #f8f9fa; color: #666;">
                         </div>
 
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Company Name</label>
-                            <input type="text" id="accountCompany" placeholder="Enter company name (optional)"
-                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                        </div>
+
 
                         <div style="margin-top: 25px;">
                             <button id="updateProfileBtn"
@@ -2369,10 +2365,9 @@
                         const profileData = await profileResponse.json();
                         console.log('📊 Profile data from server:', profileData);
                         
-                        document.getElementById('accountName').value = profileData.name || currentUser?.name || '';
-                        document.getElementById('accountEmail').value = profileData.email || currentUser?.email || '';
-                        document.getElementById('accountCompany').value = profileData.company || '';
-                        document.getElementById('accountType').textContent = profileData.role || currentUser?.role || 'User';
+                                            document.getElementById('accountName').value = profileData.name || currentUser?.name || '';
+                    document.getElementById('accountEmail').value = profileData.email || currentUser?.email || '';
+                    document.getElementById('accountType').textContent = profileData.role || currentUser?.role || 'User';
                         document.getElementById('accountCreated').textContent = profileData.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A';
                     } else {
                         console.log('⚠️ Profile API failed, using local data');
@@ -2382,17 +2377,25 @@
                 }
                 
                 // Load project statistics
-                const projectsResponse = await Auth.authFetch('/projects');
-                if (projectsResponse.ok) {
-                    const projects = await projectsResponse.json();
-                    const totalProjects = projects.length;
-                    const completedProjects = projects.filter(p => p.status === 'completed').length;
-                    
-                    document.getElementById('totalProjects').textContent = totalProjects;
-                    document.getElementById('completedProjects').textContent = completedProjects;
-                    console.log('📊 Project stats:', { totalProjects, completedProjects });
-                } else {
-                    console.log('⚠️ Projects API failed, setting defaults');
+                try {
+                    const projectsResponse = await Auth.authFetch('/projects');
+                    if (projectsResponse.ok) {
+                        const projects = await projectsResponse.json();
+                        console.log('📊 All projects:', projects);
+                        
+                        const totalProjects = projects.length;
+                        const completedProjects = projects.filter(p => p.status === 'completed').length;
+                        
+                        document.getElementById('totalProjects').textContent = totalProjects;
+                        document.getElementById('completedProjects').textContent = completedProjects;
+                        console.log('📊 Project stats:', { totalProjects, completedProjects });
+                    } else {
+                        console.log('⚠️ Projects API failed, setting defaults');
+                        document.getElementById('totalProjects').textContent = '0';
+                        document.getElementById('completedProjects').textContent = '0';
+                    }
+                } catch (projectsError) {
+                    console.log('⚠️ Projects API not available, setting defaults:', projectsError);
                     document.getElementById('totalProjects').textContent = '0';
                     document.getElementById('completedProjects').textContent = '0';
                 }
@@ -2434,7 +2437,6 @@
         async function updateProfile() {
             try {
                 const name = document.getElementById('accountName').value.trim();
-                const company = document.getElementById('accountCompany').value.trim();
                 
                 if (!name) {
                     CustomModal.error('Please enter your full name');
@@ -2447,8 +2449,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        name: name,
-                        company: company
+                        name: name
                     })
                 });
                 
