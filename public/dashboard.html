@@ -513,8 +513,8 @@
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
             padding: 20px 0;
             justify-items: start;
         }
@@ -522,13 +522,13 @@
         .project-card {
             background: white;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
             display: flex;
             flex-direction: column;
             height: 100%;
-            min-height: 200px;
+            min-height: 250px;
             width: 100%;
         }
 
@@ -1930,34 +1930,34 @@
                 html += `
                     <div class="project-card">
                         <div class="project-header">
-                            <div class="project-name" style="font-size: 16px; margin-bottom: 5px;">${project.name}</div>
-                            <div class="project-date" style="font-size: 12px; color: #666;">${date}</div>
+                            <div class="project-name" style="font-size: 20px; margin-bottom: 8px; font-weight: 600;">${project.name}</div>
+                            <div class="project-date" style="font-size: 14px; color: #666;">${date}</div>
                         </div>
                         
                         <div class="project-details" style="margin: 10px 0; flex: 1;">
-                            <div class="project-detail" style="margin-bottom: 5px;">
-                                <span style="font-size: 12px;">File:</span>
-                                <span style="font-size: 12px; color: #666;">${project.fileName}</span>
+                            <div class="project-detail" style="margin-bottom: 8px;">
+                                <span style="font-size: 14px;">File:</span>
+                                <span style="font-size: 14px; color: #666;">${project.fileName}</span>
                             </div>
-                            <div class="project-detail" style="margin-bottom: 5px;">
-                                <span style="font-size: 12px;">Words:</span>
-                                <span style="font-size: 12px; color: #666;">${(project.wordCount || 0).toLocaleString()}</span>
+                            <div class="project-detail" style="margin-bottom: 8px;">
+                                <span style="font-size: 14px;">Words:</span>
+                                <span style="font-size: 14px; color: #666;">${(project.wordCount || 0).toLocaleString()}</span>
                             </div>
-                            <div class="project-detail" style="margin-bottom: 5px;">
-                                <span style="font-size: 12px;">Type:</span>
-                                <span style="font-size: 12px; color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
-                                    ${(project.projectType || 'fusion') === 'pure' ? 'Pure' : 'Fusion'}
+                            <div class="project-detail" style="margin-bottom: 8px;">
+                                <span style="font-size: 14px;">Type:</span>
+                                <span style="font-size: 14px; color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                                    ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
-                            <div class="project-detail" style="margin-bottom: 5px;">
-                                <span style="font-size: 12px;">Status:</span>
-                                <span style="font-size: 12px; color: ${getStatusColor(project.status)};">
+                            <div class="project-detail" style="margin-bottom: 8px;">
+                                <span style="font-size: 14px;">Status:</span>
+                                <span style="font-size: 14px; color: ${getStatusColor(project.status)};">
                                     ${getStatusText(project.status)}
                                 </span>
                             </div>
                         </div>
                         
-                        <div class="project-total" style="font-size: 18px; margin: 10px 0;">$${project.total}</div>
+                        <div class="project-total" style="font-size: 22px; margin: 15px 0; font-weight: 600; color: #28a745;">$${project.total}</div>
                         
                         <div class="project-actions">
                             <button class="view-details-btn" data-project-id="${project.id}">
@@ -2264,18 +2264,25 @@
             
             // Create detailed cost breakdown
             let breakdownHtml = '';
+            let subtotal = 0;
             if (project.breakdown && project.breakdown.length > 0) {
+                // Calculate subtotal from breakdown
+                subtotal = project.breakdown.reduce((sum, item) => sum + parseFloat(item.cost || 0), 0);
+                
                 breakdownHtml = `
                     <div class="cost-breakdown">
                         <h4 style="margin-bottom: 12px; color: #333; font-size: 16px;">Translation Costs Breakdown:</h4>
                         ${project.breakdown.map(item => `
                             <div class="cost-item">
                                 <span style="font-weight: 500;">${item.language}</span>
-                                <span style="color: #28a745; font-weight: 600;">$${parseFloat(item.cost).toFixed(2)}</span>
+                                <span style="color: #28a745; font-weight: 600;">$${parseFloat(item.cost || 0).toFixed(2)}</span>
                             </div>
                         `).join('')}
                     </div>
                 `;
+            } else {
+                // Fallback: use project.subtotal if breakdown is not available
+                subtotal = parseFloat(project.subtotal || 0);
             }
             
             const modalContent = `
@@ -2316,7 +2323,7 @@
                 ${breakdownHtml}
                 <div class="detail-row" style="border-top: 2px solid #eee; padding-top: 12px; margin-top: 12px;">
                     <span class="detail-label" style="font-weight: 600;">Subtotal:</span>
-                    <span class="detail-value" style="font-weight: 600;">$${parseFloat(project.subtotal || 0).toFixed(2)}</span>
+                    <span class="detail-value" style="font-weight: 600;">$${subtotal.toFixed(2)}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label" style="font-weight: 600;">Project Management:</span>
