@@ -400,7 +400,7 @@
         }
 
         .sidebar-footer .sidebar-btn {
-            justify-content: center;
+            justify-content: flex-start;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 6px;
             margin-bottom: 10px;
@@ -609,6 +609,99 @@
             z-index: 1000;
         }
 
+        .project-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .project-details-modal .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 0;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .project-details-modal .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-details-modal .modal-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .project-details-modal .modal-body {
+            padding: 24px;
+        }
+
+        .project-details-modal .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .project-details-modal .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .project-details-modal .detail-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .project-details-modal .detail-value {
+            color: #666;
+        }
+
+        .project-details-modal .cost-breakdown {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .project-details-modal .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .project-details-modal .cost-item:last-child {
+            border-bottom: none;
+        }
+
+        .project-details-modal .total-cost {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            padding: 16px;
+            background: white;
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+
         .modal.show {
             display: flex;
             align-items: center;
@@ -738,7 +831,7 @@
         </div>
 
         <div id="createTab" class="tab-content">
-            <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="max-width: 75%; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;">Create New Project</h2>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
@@ -823,6 +916,19 @@
                     </div>
                     <p style="font-size: 14px; color: #666;">Analyzing file...</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Details Modal -->
+    <div id="projectDetailsModal" class="project-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Project Details</h2>
+                <button class="close-btn" id="closeProjectDetailsBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="projectDetailsContent">
+                <!-- Project details will be populated here -->
             </div>
         </div>
     </div>
@@ -1646,7 +1752,6 @@
                         <div class="project-header">
                             <div class="project-name">${project.name}</div>
                             <div class="project-date">${date}</div>
-                            <div class="project-id" style="font-size: 0.8em; color: #666; font-weight: 600; margin-top: 5px;">${project.projectId || 'N/A'}</div>
                         </div>
                         
                         <div class="project-details">
@@ -1679,20 +1784,13 @@
                             ` : ''}
                         </div>
                         
-                        <div style="margin-bottom: 15px; flex: 1;">
-                            <h4 style="margin-bottom: 10px; font-size: 0.9em; color: #666;">Translation Costs:</h4>
-                            ${breakdownHtml}
-                            <div class="project-detail" style="border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
-                                <span>Subtotal:</span>
-                                <span>$${project.subtotal || '0.00'}</span>
-                            </div>
-                            <div class="project-detail">
-                                <span>Project Management:</span>
-                                <span>$${project.projectManagementCost || '500.00'}</span>
-                            </div>
-                        </div>
-                        
                         <div class="project-total">$${project.total}</div>
+                        
+                        <div class="project-actions" style="margin-top: 15px;">
+                            <button class="view-details-btn" data-project-id="${project.id}" 
+                                    style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; width: 100%; margin-bottom: 8px;">
+                                View Details
+                            </button>
                         
                         ${containerId === 'completedProjectsList' ? `
                             <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
