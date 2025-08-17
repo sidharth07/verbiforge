@@ -261,6 +261,11 @@
             height: 80px;
             display: flex;
             align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
         }
 
         .nav-content {
@@ -413,6 +418,7 @@
         .dashboard-main {
             flex: 1;
             margin-left: 280px;
+            margin-top: 80px;
             padding: 30px;
             background: #f8f9fa;
             min-height: calc(100vh - 80px);
@@ -800,12 +806,7 @@
         </div>
         
         <div class="sidebar-footer">
-            <button class="sidebar-btn" id="superAdminBtn" style="display: none;">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-                Super Admin
-            </button>
+            <!-- Super Admin button removed -->
             
             <button class="sidebar-btn" id="logoutBtn">
                 <svg viewBox="0 0 24 24">
@@ -1267,15 +1268,11 @@
                     currentUser = userData.user;
                     document.getElementById('userName').textContent = currentUser.name;
 
-                    // Check if user is admin and show super admin button
+                    // Check if user is admin (for future use)
                     if (adminResponse.ok) {
                         const adminData = await adminResponse.json();
                         console.log('👑 Admin data:', adminData);
-                        if (adminData.isAdmin) {
-                            const superAdminBtn = document.getElementById('superAdminBtn');
-                            superAdminBtn.style.display = 'block';
-                            superAdminBtn.onclick = () => window.location.href = 'admin.html';
-                        }
+                        // Super Admin button removed from UI
                     }
 
                     loadLanguages();
@@ -2300,16 +2297,28 @@
             try {
                 console.log('🔍 Loading account data...');
                 
-                // Load user profile data
+                // Get current user data from localStorage
+                const currentUser = Auth.getCurrentUser();
+                if (currentUser) {
+                    document.getElementById('accountName').value = currentUser.name || '';
+                    document.getElementById('accountEmail').value = currentUser.email || '';
+                    document.getElementById('accountType').textContent = currentUser.role || 'User';
+                    document.getElementById('accountCreated').textContent = currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString() : 'N/A';
+                }
+                
+                // Load user profile data from server
                 const profileResponse = await Auth.authFetch('/profile');
                 if (profileResponse.ok) {
                     const profileData = await profileResponse.json();
+                    console.log('📊 Profile data:', profileData);
                     
-                    document.getElementById('accountName').value = profileData.name || '';
-                    document.getElementById('accountEmail').value = profileData.email || '';
+                    document.getElementById('accountName').value = profileData.name || currentUser?.name || '';
+                    document.getElementById('accountEmail').value = profileData.email || currentUser?.email || '';
                     document.getElementById('accountCompany').value = profileData.company || '';
-                    document.getElementById('accountType').textContent = profileData.role || 'User';
+                    document.getElementById('accountType').textContent = profileData.role || currentUser?.role || 'User';
                     document.getElementById('accountCreated').textContent = profileData.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A';
+                } else {
+                    console.log('⚠️ Profile API failed, using local data');
                 }
                 
                 // Load project statistics
@@ -2321,15 +2330,28 @@
                     
                     document.getElementById('totalProjects').textContent = totalProjects;
                     document.getElementById('completedProjects').textContent = completedProjects;
+                    console.log('📊 Project stats:', { totalProjects, completedProjects });
+                } else {
+                    console.log('⚠️ Projects API failed, setting defaults');
+                    document.getElementById('totalProjects').textContent = '0';
+                    document.getElementById('completedProjects').textContent = '0';
                 }
                 
-                // Load notification preferences
-                const notificationsResponse = await Auth.authFetch('/notifications/preferences');
-                if (notificationsResponse.ok) {
-                    const prefs = await notificationsResponse.json();
-                    document.getElementById('projectUpdates').checked = prefs.projectUpdates || false;
-                    document.getElementById('newMessages').checked = prefs.newMessages || false;
-                    document.getElementById('completedProjects').checked = prefs.completedProjects || false;
+                // Load notification preferences (optional)
+                try {
+                    const notificationsResponse = await Auth.authFetch('/notifications/preferences');
+                    if (notificationsResponse.ok) {
+                        const prefs = await notificationsResponse.json();
+                        document.getElementById('projectUpdates').checked = prefs.projectUpdates || false;
+                        document.getElementById('newMessages').checked = prefs.newMessages || false;
+                        document.getElementById('completedProjects').checked = prefs.completedProjects || false;
+                    }
+                } catch (error) {
+                    console.log('⚠️ Notifications API not available, using defaults');
+                    // Set default notification preferences
+                    document.getElementById('projectUpdates').checked = true;
+                    document.getElementById('newMessages').checked = true;
+                    document.getElementById('completedProjects').checked = true;
                 }
                 
                 console.log('✅ Account data loaded successfully');
@@ -2337,8 +2359,13 @@
             } catch (error) {
                 console.error('❌ Error loading account data:', error);
                 // Set default values if API calls fail
-                document.getElementById('accountType').textContent = 'User';
-                document.getElementById('accountCreated').textContent = 'N/A';
+                const currentUser = Auth.getCurrentUser();
+                if (currentUser) {
+                    document.getElementById('accountName').value = currentUser.name || '';
+                    document.getElementById('accountEmail').value = currentUser.email || '';
+                    document.getElementById('accountType').textContent = currentUser.role || 'User';
+                    document.getElementById('accountCreated').textContent = 'N/A';
+                }
                 document.getElementById('totalProjects').textContent = '0';
                 document.getElementById('completedProjects').textContent = '0';
             }
