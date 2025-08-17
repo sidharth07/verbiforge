@@ -512,9 +512,10 @@
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             padding: 20px 0;
+            justify-items: start;
         }
 
         .project-card {
@@ -576,9 +577,29 @@
 
         .project-actions {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
             margin-top: auto;
             flex-shrink: 0;
+            width: 100%;
+        }
+
+        .view-details-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .view-details-btn:hover {
+            background: #555;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .delete-btn {
@@ -708,6 +729,25 @@
             background: white;
             border-radius: 6px;
             margin-top: 16px;
+        }
+
+        .project-details-modal .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .project-details-modal .close-btn:hover {
+            color: #333;
         }
 
         .modal.show {
@@ -1912,48 +1952,41 @@
                         
                         <div class="project-total" style="font-size: 18px; margin: 10px 0;">$${project.total}</div>
                         
-                        <div class="project-actions" style="margin-top: auto;">
-                            <button class="view-details-btn" data-project-id="${project.id}" 
-                                    style="background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; margin-bottom: 8px;">
+                        <div class="project-actions">
+                            <button class="view-details-btn" data-project-id="${project.id}">
                                 View Details
                             </button>
                         
                         ${containerId === 'completedProjectsList' ? `
-                            <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
-                                ${project.translatedFileName ? `
-                                    <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
-                                            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
-                                        <span style="font-size: 16px;">📥</span>
-                                        Download Translated File
-                                    </button>
-                                ` : `
-                                    <div style="background: linear-gradient(135deg, #ffc107 0%, #ffb74d 100%); color: #856404; padding: 12px 20px; border-radius: 6px; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3); border: 1px solid #ffeaa7;">
-                                        <span style="font-size: 16px;">⏳</span>
-                                        Files on the way
-                                    </div>
-                                `}
-                            </div>
+                            ${project.translatedFileName ? `
+                                <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
+                                        style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
+                                    Download File
+                                </button>
+                            ` : `
+                                <div style="background: #ffc107; color: #856404; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-align: center; border: 1px solid #ffeaa7;">
+                                    Files on the way
+                                </div>
+                            `}
                         ` : `
-                            <div class="project-actions" style="display: flex; justify-content: center; gap: 10px;">
-                                ${project.status === 'quote_generated' ? `
-                                    <button class="submit-project-btn" data-project-id="${project.id}" 
-                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
-                                        Submit Project
-                                    </button>
-                                ` : ''}
-                                ${project.translatedFileName ? `
-                                    <a href="/projects/${project.id}/download-translated" 
-                                       style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-block;">
-                                       Download Translated
-                                    </a>
-                                ` : ''}
-                                ${project.status === 'quote_generated' ? `
-                                    <button class="delete-project-btn" data-project-id="${project.id}" 
-                                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500;">
-                                        Delete
-                                    </button>
-                                ` : ''}
-                            </div>
+                            ${project.status === 'quote_generated' ? `
+                                <button class="submit-project-btn" data-project-id="${project.id}" 
+                                        style="background: #667eea; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
+                                    Submit Project
+                                </button>
+                            ` : ''}
+                            ${project.translatedFileName ? `
+                                <a href="/projects/${project.id}/download-translated" 
+                                   style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; display: block; text-align: center; transition: all 0.3s ease;">
+                                   Download File
+                                </a>
+                            ` : ''}
+                            ${project.status === 'quote_generated' ? `
+                                <button class="delete-project-btn" data-project-id="${project.id}" 
+                                        style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
+                                    Delete
+                                </button>
+                            ` : ''}
                         `}
                     </div>
                 `;
@@ -2290,7 +2323,14 @@
         }
 
         function closeProjectDetailsModal() {
-            document.getElementById('projectDetailsModal').style.display = 'none';
+            console.log('🔍 Closing project details modal');
+            const modal = document.getElementById('projectDetailsModal');
+            if (modal) {
+                modal.style.display = 'none';
+                console.log('✅ Project details modal closed');
+            } else {
+                console.error('❌ Project details modal not found');
+            }
         }
 
         async function loadAccountData() {
