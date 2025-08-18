@@ -1908,9 +1908,16 @@
 
                 console.log('📥 Server response:', response);
                 console.log('📥 Response status:', response.status);
+                const contentType = response.headers.get('content-type') || '';
 
                 if (response.ok) {
-                    const result = await response.json();
+                    let result;
+                    if (contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        const text = await response.text();
+                        result = { message: text };
+                    }
                     console.log('✅ Project saved successfully:', result);
                     CustomModal.success('Project saved successfully!');
                     closeModal();
@@ -1918,14 +1925,24 @@
                     switchTab('projects');
                     loadProjects();
                 } else {
-                    const data = await response.json();
-                    console.error('❌ Server error:', data);
-                    CustomModal.error('Error saving project: ' + data.error);
-                    showError(data.error);
+                    let serverMessage = 'Unknown error';
+                    try {
+                        if (contentType.includes('application/json')) {
+                            const data = await response.json();
+                            serverMessage = data.error || JSON.stringify(data);
+                        } else {
+                            serverMessage = await response.text();
+                        }
+                    } catch (e) {
+                        console.warn('Failed to parse error body:', e);
+                    }
+                    console.error('❌ Server error:', serverMessage);
+                    CustomModal.error('Error saving project: ' + serverMessage);
+                    showError(serverMessage);
                 }
             } catch (error) {
                 console.error('❌ Network error:', error);
-                CustomModal.error('Network error saving project: ' + error.message);
+                CustomModal.error('Network error saving project: ' + (error?.message || 'Request failed'));
                 showError('Error saving project');
             }
         }
