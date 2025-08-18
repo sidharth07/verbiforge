@@ -512,8 +512,8 @@
         }
 
         .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: flex;
+            flex-wrap: wrap;
             gap: 20px;
             padding: 20px 0;
             width: 100%;
@@ -549,6 +549,12 @@
             height: 100%;
             min-height: 238px;
             width: 100%;
+        }
+
+        /* Ensure cards align horizontally within the grid with spacing */
+        .projects-grid .project-card {
+            width: calc(25% - 20px);
+            min-width: 260px;
         }
 
         .project-card:hover {
