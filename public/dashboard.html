@@ -2041,9 +2041,10 @@
                                     ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
-+                            <div class="status-row">
-+                                <span class="status-pill">${getStatusText(project.status)}</span>
-+                            </div>
+                        </div>
+                        
+                        <div class="status-row" style="text-align: center; margin-bottom: 12px;">
+                            <span class="status-pill">${getStatusText(project.status)}</span>
                         </div>
                         
                         <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
