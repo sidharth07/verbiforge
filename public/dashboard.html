@@ -2030,15 +2030,15 @@
                          
                          <div style="margin-top: 6px; margin-bottom: 12px;">
                              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                 <span>File:</span>
+                                 <span style="font-weight:600;">File:</span>
                                  <span>${project.fileName}</span>
                              </div>
                              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                 <span>Words:</span>
+                                 <span style="font-weight:600;">Words:</span>
                                  <span>${(project.wordCount || 0).toLocaleString()}</span>
                              </div>
                              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                 <span>Type:</span>
+                                 <span style="font-weight:600;">Type:</span>
                                  <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
                                      ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                  </span>
@@ -2046,12 +2046,12 @@
                          </div>
                          
                          <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 10px;">$${project.total}</div>
-                         <div class="status-row" style="text-align: center; margin-bottom: 8px;">
+                         <div class="status-row" style="text-align: center; margin-bottom: 4px;">
                              <span class="status-pill">${getStatusText(project.status)}</span>
                          </div>
                          </div>
                          
-                         <div class="project-actions" style="border-top: none; padding-top: 0; margin-top: 8px;">
+                         <div class="project-actions" style="border-top: none; padding-top: 0; margin-top: 2px;">
                              <button class="view-details-btn btn btn-full btn-primary" data-project-id="${project.id}">View Details</button>
                          </div>
                      </div>
