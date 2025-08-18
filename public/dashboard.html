@@ -2404,10 +2404,38 @@
                     document.getElementById('projectDetailsContent').innerHTML = modalContent;
                     document.getElementById('projectDetailsModal').style.display = 'block';
                     
-                } else {
-                    console.error('❌ Failed to load projects');
-                    CustomModal.error('Failed to load project details');
-                }
+                    // Ensure modal can be closed reliably
+                    const pdModal = document.getElementById('projectDetailsModal');
+                    const pdClose = document.getElementById('closeProjectDetailsBtn');
+                    if (pdClose) {
+                        const closeHandler = function(e){
+                            e.preventDefault();
+                            e.stopPropagation();
+                            closeProjectDetailsModal();
+                        };
+                        pdClose.onclick = closeHandler;
+                    }
+                    if (pdModal) {
+                        const outsideHandler = function(e){
+                            if (e.target === pdModal) {
+                                closeProjectDetailsModal();
+                            }
+                        };
+                        // add once to avoid stacking multiple listeners
+                        pdModal.addEventListener('click', outsideHandler, { once: true });
+                    }
+                    const escHandler = function(e){
+                        if (e.key === 'Escape') {
+                            closeProjectDetailsModal();
+                            document.removeEventListener('keydown', escHandler);
+                        }
+                    };
+                    document.addEventListener('keydown', escHandler);
+                     
+                 } else {
+                     console.error('❌ Failed to load projects');
+                     CustomModal.error('Failed to load project details');
+                 }
             } catch (error) {
                 console.error('❌ Error loading project details:', error);
                 CustomModal.error('Error loading project details');
