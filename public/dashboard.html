@@ -1898,7 +1898,7 @@
                 return;
             }
 
-            // STEP-BY-STEP TEST - Let's find what's breaking it
+            // TEST WITH FLEX - Adding flex container inside
             let html = '<div style="padding: 20px; background: #f0f0f0;">';
 
             projects.forEach((project, index) => {
@@ -1906,7 +1906,10 @@
                     <div style="background: white; border: 2px solid red; padding: 15px; margin: 10px; display: inline-block; width: 250px; text-align: center;">
                         <h3>${project.name}</h3>
                         <p>$${project.total}</p>
-                        <p>${project.fileName}</p>
+                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                            <span>File:</span>
+                            <span>${project.fileName}</span>
+                        </div>
                         <button style="background: blue; color: white; padding: 5px 10px; border: none;">TEST</button>
                     </div>
                 `;
