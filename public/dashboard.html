@@ -802,11 +802,12 @@
             min-height: 460px;
         }
 
+        .card-content { display: flex; flex-direction: column; min-height: 260px; }
         .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 9999px; background: #f3f4f6; color: #374151; font-size: 12px; font-weight: 600; }
         .status-row { margin-top: 8px; }
 
         /* Action rows and buttons - refined */
-        .project-actions { border-top: 1px solid #eee; padding-top: 12px; margin-top: auto; }
+        .project-actions { border-top: 1px solid #eee; padding-top: 12px; margin-top: 12px; }
         .action-row { display: flex; gap: 8px; margin-top: 8px; }
         .btn {
             display: inline-flex;
@@ -2002,57 +2003,58 @@
 
                 html += `
                     <div class="project-card">
+                        <div class="card-content">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 8px;">
-                            <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <div style="font-size: 0.9em; color: #666;">${date}</div>
-                                ${`
-                                <div class="kebab-wrap">
-                                    <button class="kebab-btn" data-project-id="${project.id}" aria-haspopup="true" aria-expanded="false" aria-label="Actions">⋮</button>
-                                    <div class="action-menu" data-project-id="${project.id}">
-                                        ${project.status === 'quote_generated' ? `
-                                            <button class="menu-item submit-project-btn" data-project-id="${project.id}">Submit project</button>
-                                            <button class="menu-item delete-project-btn" data-project-id="${project.id}">Delete</button>
-                                        ` : `
-                                            ${project.translatedFileName ? `
-                                                <button class="menu-item" onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')">Download file</button>
-                                            ` : `
-                                                <button class="menu-item" disabled>No file available</button>
-                                            `}
-                                        `}
-                                    </div>
-                                </div>
-                                `}
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>File:</span>
-                                <span>${project.fileName}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>Words:</span>
-                                <span>${(project.wordCount || 0).toLocaleString()}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>Type:</span>
-                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
-                                    ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="status-row" style="text-align: center; margin-bottom: 12px;">
-                            <span class="status-pill">${getStatusText(project.status)}</span>
-                        </div>
-                        
-                        <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
-                        
-                        <div class="project-actions">
-                            <button class="view-details-btn btn btn-full btn-primary" data-project-id="${project.id}">View Details</button>
-                        </div>
-                    </div>
+                             <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
+                             <div style="display: flex; align-items: center; gap: 8px;">
+                                 <div style="font-size: 0.9em; color: #666;">${date}</div>
+                                 ${`
+                                 <div class="kebab-wrap">
+                                     <button class="kebab-btn" data-project-id="${project.id}" aria-haspopup="true" aria-expanded="false" aria-label="Actions">⋮</button>
+                                     <div class="action-menu" data-project-id="${project.id}">
+                                         ${project.status === 'quote_generated' ? `
+                                             <button class="menu-item submit-project-btn" data-project-id="${project.id}">Submit project</button>
+                                             <button class="menu-item delete-project-btn" data-project-id="${project.id}">Delete</button>
+                                         ` : `
+                                             ${project.translatedFileName ? `
+                                                 <button class="menu-item" onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')">Download file</button>
+                                             ` : `
+                                                 <button class="menu-item" disabled>No file available</button>
+                                             `}
+                                         `}
+                                     </div>
+                                 </div>
+                                 `}
+                             </div>
+                         </div>
+                         
+                         <div style="margin-bottom: 15px;">
+                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
+                                 <span>File:</span>
+                                 <span>${project.fileName}</span>
+                             </div>
+                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
+                                 <span>Words:</span>
+                                 <span>${(project.wordCount || 0).toLocaleString()}</span>
+                             </div>
+                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
+                                 <span>Type:</span>
+                                 <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                                     ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
+                                 </span>
+                             </div>
+                         </div>
+                         
+                         <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
+                         <div class="status-row" style="text-align: center; margin-bottom: 12px;">
+                             <span class="status-pill">${getStatusText(project.status)}</span>
+                         </div>
+                         </div>
+                         
+                         <div class="project-actions">
+                             <button class="view-details-btn btn btn-full btn-primary" data-project-id="${project.id}">View Details</button>
+                         </div>
+                     </div>
                 `;
             });
 
