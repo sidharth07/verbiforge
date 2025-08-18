@@ -1912,19 +1912,21 @@
                 const contentType = response.headers.get('content-type') || '';
 
                 if (response.ok) {
-                    let result;
-                    if (contentType.includes('application/json')) {
-                        result = await response.json();
-                    } else {
-                        const text = await response.text();
-                        result = { message: text };
+                    try {
+                        if (contentType.includes('application/json')) {
+                            // Safely attempt to parse JSON if present
+                            try { await response.json(); } catch (_) {}
+                        }
+                        console.log('✅ Project saved successfully');
+                        try { CustomModal.success('Project saved successfully!'); } catch (_) {}
+                        try { closeModal(); } catch (_) {}
+                        try { resetCreateForm(); } catch (_) {}
+                        try { switchTab('projects'); } catch (_) {}
+                        try { loadProjects(); } catch (_) {}
+                    } catch (noop) {
+                        console.warn('Post-save UI update warning:', noop);
                     }
-                    console.log('✅ Project saved successfully:', result);
-                    CustomModal.success('Project saved successfully!');
-                    closeModal();
-                    resetCreateForm();
-                    switchTab('projects');
-                    loadProjects();
+                    return;
                 } else {
                     let serverMessage = 'Unknown error';
                     try {
