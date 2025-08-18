@@ -1898,14 +1898,14 @@
                 return;
             }
 
-            // ULTIMATE SIMPLE SOLUTION - Basic HTML
-            let html = '<div style="background: red; padding: 20px;">';
+            // FIXED WIDTH SOLUTION - Cards will wrap properly
+            let html = '<div style="background: red; padding: 20px; width: 100%;">';
 
             projects.forEach((project, index) => {
                 const date = new Date(project.createdAt).toLocaleDateString();
 
                 html += `
-                    <div style="background: blue; border: 3px solid yellow; padding: 20px; margin: 10px; display: inline-block; width: 300px; vertical-align: top;">
+                    <div style="background: blue; border: 3px solid yellow; padding: 20px; margin: 10px; display: inline-block; width: 250px; vertical-align: top; box-sizing: border-box;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                             <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
                             <div style="font-size: 0.9em; color: #666;">${date}</div>
