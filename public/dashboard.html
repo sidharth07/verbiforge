@@ -799,7 +799,11 @@
             flex: 0 0 288px;
             min-width: 288px;
             max-width: 288px;
+            min-height: 460px;
         }
+
+        .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 9999px; background: #f3f4f6; color: #374151; font-size: 12px; font-weight: 600; }
+        .status-row { margin-top: 8px; }
 
         /* Action rows and buttons - refined */
         .project-actions { border-top: 1px solid #eee; padding-top: 12px; margin-top: auto; }
@@ -2037,6 +2041,9 @@
                                     ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
++                            <div class="status-row">
++                                <span class="status-pill">${getStatusText(project.status)}</span>
++                            </div>
                         </div>
                         
                         <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
