@@ -1891,7 +1891,8 @@
             }
 
             // Get notes from the textarea
-            const notes = document.getElementById('projectNotes').value.trim();
+            const notesEl = document.getElementById('projectNotes');
+            const notes = notesEl ? (notesEl.value || '').trim() : '';
             const projectData = {
                 ...currentAnalysis,
                 notes: notes
@@ -1931,7 +1932,8 @@
                             const data = await response.json();
                             serverMessage = data.error || JSON.stringify(data);
                         } else {
-                            serverMessage = await response.text();
+                            const txt = await response.text();
+                            serverMessage = txt?.slice(0, 500) || 'Non-JSON error';
                         }
                     } catch (e) {
                         console.warn('Failed to parse error body:', e);
