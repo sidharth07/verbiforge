@@ -779,7 +779,7 @@
         .btn { border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; }
         .btn-full { width: 100%; }
         .btn-sm { padding: 8px 10px; font-size: 12px; flex: 1; }
-        .btn-primary { background: #4a5568; color: white; }
+        .btn-primary { background: #2d3748; color: white; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-success { background: #28a745; color: white; }
         .btn-secondary { background: #f1f3f5; color: #333; }
@@ -803,7 +803,7 @@
         }
 
         .card-content { display: flex; flex-direction: column; min-height: 260px; }
-        .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 9999px; background: #4a5568; color: #fff; font-size: 12px; font-weight: 600; }
+        .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 9999px; background: #2d3748; color: #fff; font-size: 12px; font-weight: 600; }
         .status-row { margin-top: 8px; }
 
         /* Action rows and buttons - refined */
@@ -827,8 +827,8 @@
         .btn:hover { background: #f9fafb; }
         .btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-primary { background: #4a5568; color: #fff; border-color: #2d3748; }
-        .btn-primary:hover { background: #2d3748; }
+        .btn-primary { background: #2d3748; color: #fff; border-color: #4a5568; }
+        .btn-primary:hover { background: #4a5568; }
         .btn-success { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
         .btn-success:hover { background: #dcfce7; }
         .btn-danger { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
@@ -2004,7 +2004,7 @@
                 html += `
                     <div class="project-card">
                         <div class="card-content">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 8px;">
                              <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
                              <div style="display: flex; align-items: center; gap: 8px;">
                                  <div style="font-size: 0.9em; color: #666;">${date}</div>
@@ -2028,7 +2028,7 @@
                              </div>
                          </div>
                          
-                         <div style="margin-bottom: 15px;">
+                         <div style="margin-top: 6px; margin-bottom: 12px;">
                              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
                                  <span>File:</span>
                                  <span>${project.fileName}</span>
@@ -2045,13 +2045,13 @@
                              </div>
                          </div>
                          
-                         <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
-                         <div class="status-row" style="text-align: center; margin-bottom: 12px;">
+                         <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 10px;">$${project.total}</div>
+                         <div class="status-row" style="text-align: center; margin-bottom: 8px;">
                              <span class="status-pill">${getStatusText(project.status)}</span>
                          </div>
                          </div>
                          
-                         <div class="project-actions">
+                         <div class="project-actions" style="border-top: none; padding-top: 0; margin-top: 8px;">
                              <button class="view-details-btn btn btn-full btn-primary" data-project-id="${project.id}">View Details</button>
                          </div>
                      </div>
