@@ -214,7 +214,7 @@
         /* Main Content */
         .admin-main {
             flex: 1;
-            margin-left: 250px;
+            margin-left: 0;
             padding: 30px;
             background: #f8f9fa;
             min-height: 100vh;
@@ -224,6 +224,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #f5f5f5;
             min-height: 100vh;
+            padding-left: 250px; /* account for fixed sidebar */
         }
         
         .navbar {
@@ -778,8 +779,9 @@
 
         /* MacBook / medium screens */
         @media (max-width: 1366px) {
+            body { padding-left: 220px; }
             .admin-sidebar { width: 220px; }
-            .admin-main { margin-left: 220px; padding: 24px; }
+            .admin-main { margin-left: 0; padding: 24px; }
             .container { max-width: 1100px; }
             .projects-table th, .projects-table td { padding: 10px 12px; }
             .section-header { padding: 16px; }
@@ -787,6 +789,8 @@
 
         /* Narrow laptops */
         @media (max-width: 1200px) {
+            body { padding-left: 200px; }
+            .admin-sidebar { width: 200px; }
             .container { max-width: 980px; }
             .projects-table { font-size: 0.95em; }
             .projects-table th, .projects-table td { padding: 8px 10px; }
@@ -797,6 +801,27 @@
         .table-wrapper { width: 100%; overflow-x: auto; }
         .projects-table { table-layout: auto; }
         .projects-table th, .projects-table td { white-space: nowrap; }
+
+        /* Tablet and below: collapsible sidebar */
+        @media (max-width: 992px) {
+            body { padding-left: 0; }
+            .admin-sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .admin-sidebar.open { transform: translateX(0); }
+            .admin-main { padding: 20px; }
+            .nav-content { padding: 0 12px; }
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        @media (max-width: 992px) {
+            .sidebar-toggle { display: inline-flex; align-items: center; gap: 6px; }
+        }
     </style>
 </head>
 <body>
@@ -894,8 +919,9 @@
         
         <!-- Main Content -->
         <div class="admin-main">
-            <div class="admin-header">
+            <div class="admin-header" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
                 <h1>Admin Panel</h1>
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰ Menu</button>
                 <p>Manage projects and language pricing</p>
             </div>
         
@@ -3857,5 +3883,16 @@
             window.location.href = '/login.html';
         }
     </script>
-</body>
-</html>
++    <script>
++        (function(){
++            const toggleBtn = document.getElementById('sidebarToggle');
++            const sidebar = document.querySelector('.admin-sidebar');
++            if (toggleBtn && sidebar) {
++                toggleBtn.addEventListener('click', function(){
++                    sidebar.classList.toggle('open');
++                });
++            }
++        })();
++    </script>
+ </body>
+ </html>
