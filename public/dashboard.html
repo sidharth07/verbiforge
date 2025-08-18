@@ -1898,19 +1898,31 @@
                 return;
             }
 
-            // TEST WITH FLEX - Adding flex container inside
+            // TEST WITH MULTIPLE FLEX CONTAINERS - More complex content
             let html = '<div style="padding: 20px; background: #f0f0f0;">';
 
             projects.forEach((project, index) => {
+                const date = new Date(project.createdAt).toLocaleDateString();
+                
                 html += `
                     <div style="background: white; border: 2px solid red; padding: 15px; margin: 10px; display: inline-block; width: 250px; text-align: center;">
-                        <h3>${project.name}</h3>
-                        <p>$${project.total}</p>
-                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <h3>${project.name}</h3>
+                            <span>${date}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 5px 0;">
                             <span>File:</span>
                             <span>${project.fileName}</span>
                         </div>
-                        <button style="background: blue; color: white; padding: 5px 10px; border: none;">TEST</button>
+                        <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                            <span>Words:</span>
+                            <span>${(project.wordCount || 0).toLocaleString()}</span>
+                        </div>
+                        <div style="font-size: 1.2em; font-weight: bold; color: #28a745; margin: 10px 0;">$${project.total}</div>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <button style="background: blue; color: white; padding: 5px 10px; border: none;">View Details</button>
+                            <button style="background: green; color: white; padding: 5px 10px; border: none;">Download</button>
+                        </div>
                     </div>
                 `;
             });
