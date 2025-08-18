@@ -2033,42 +2033,9 @@
                         
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <button class="view-details-btn btn btn-full btn-primary" data-project-id="${project.id}">View Details</button>
-                        
-                        ${containerId === 'completedProjectsList' ? `
-                            ${project.translatedFileName ? `
-                                <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
-                                        style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Download File
-                                </button>
-                            ` : `
-                                <div style="background: #ffc107; color: #856404; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-align: center; border: 1px solid #ffeaa7;">
-                                    Files on the way
-                                </div>
-                            `}
-                        ` : `
-                            ${project.status === 'quote_generated' ? `
-                                <button class="submit-project-btn" data-project-id="${project.id}" 
-                                        style="background: #667eea; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Submit Project
-                                </button>
-                            ` : ''}
-                            ${project.translatedFileName ? `
-                                <a href="/projects/${project.id}/download-translated" 
-                                   style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; display: block; text-align: center; transition: all 0.3s ease;">
-                                   Download File
-                                </a>
-                            ` : ''
-                            }
-                            ${project.status === 'quote_generated' ? `
-                                <button class="delete-project-btn" data-project-id="${project.id}" 
-                                        style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Delete
-                                </button>
-                            ` : ''}
-                        `}
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
             });
 
             html += '</div>';
