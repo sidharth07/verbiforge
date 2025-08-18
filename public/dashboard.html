@@ -784,6 +784,21 @@
         .btn-secondary { background: #f1f3f5; color: #333; }
         .btn:hover { filter: brightness(0.95); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Cards layout */
+        .cards-container { display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch; }
+        .project-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            flex: 0 0 250px;
+            min-width: 250px;
+            max-width: 250px;
+        }
     </style>
 </head>
 
@@ -1911,13 +1926,13 @@
             }
 
             // FULL PROJECT CARDS - Using the working 250px width approach
-            let html = '<div style="padding: 20px; display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">';
+            let html = '<div class="cards-container" style="padding: 20px;">';
 
             projects.forEach((project, index) => {
                 const date = new Date(project.createdAt).toLocaleDateString();
 
                 html += `
-                    <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; box-sizing: border-box; flex: 0 0 250px; max-width: 250px; min-width: 250px;">
+                    <div class="project-card">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                             <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
                             <div style="font-size: 0.9em; color: #666;">${date}</div>
