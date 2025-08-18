@@ -1948,34 +1948,34 @@
                 html += `
                     <div class="project-card">
                         <div class="project-header">
-                            <div class="project-name" style="font-size: 20px; margin-bottom: 8px; font-weight: 600;">${project.name}</div>
-                            <div class="project-date" style="font-size: 14px; color: #666;">${date}</div>
+                            <div class="project-name">${project.name}</div>
+                            <div class="project-date">${date}</div>
                         </div>
                         
-                        <div class="project-details" style="margin: 10px 0; flex: 1;">
-                            <div class="project-detail" style="margin-bottom: 8px;">
-                                <span style="font-size: 14px;">File:</span>
-                                <span style="font-size: 14px; color: #666;">${project.fileName}</span>
+                        <div class="project-details">
+                            <div class="project-detail">
+                                <span>File:</span>
+                                <span>${project.fileName}</span>
                             </div>
-                            <div class="project-detail" style="margin-bottom: 8px;">
-                                <span style="font-size: 14px;">Words:</span>
-                                <span style="font-size: 14px; color: #666;">${(project.wordCount || 0).toLocaleString()}</span>
+                            <div class="project-detail">
+                                <span>Words:</span>
+                                <span>${(project.wordCount || 0).toLocaleString()}</span>
                             </div>
-                            <div class="project-detail" style="margin-bottom: 8px;">
-                                <span style="font-size: 14px;">Type:</span>
-                                <span style="font-size: 14px; color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                            <div class="project-detail">
+                                <span>Type:</span>
+                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
                                     ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
-                            <div class="project-detail" style="margin-bottom: 8px;">
-                                <span style="font-size: 14px;">Status:</span>
-                                <span style="font-size: 14px; color: ${getStatusColor(project.status)};">
+                            <div class="project-detail">
+                                <span>Status:</span>
+                                <span style="color: ${getStatusColor(project.status)};">
                                     ${getStatusText(project.status)}
                                 </span>
                             </div>
                         </div>
                         
-                        <div class="project-total" style="font-size: 22px; margin: 15px 0; font-weight: 600; color: #28a745;">$${project.total}</div>
+                        <div class="project-total">$${project.total}</div>
                         
                         <div class="project-actions">
                             <button class="view-details-btn" data-project-id="${project.id}">
