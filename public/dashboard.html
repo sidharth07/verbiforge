@@ -848,6 +848,21 @@
         .action-menu.open { display: block; }
         .menu-item { width: 100%; text-align: left; padding: 8px 10px; border-radius: 6px; border: none; background: transparent; cursor: pointer; font-size: 13px; color: #374151; }
         .menu-item:hover { background: #f3f4f6; }
+
+        /* Responsive breakpoints */
+        @media (min-width: 1400px) {
+            .project-card { flex: 0 0 300px; min-width: 300px; max-width: 300px; }
+        }
+        @media (max-width: 1199.98px) {
+            .project-card { flex: 0 0 280px; min-width: 280px; max-width: 280px; }
+        }
+        @media (max-width: 991.98px) {
+            .project-card { flex: 0 0 320px; min-width: 320px; max-width: 320px; }
+        }
+        @media (max-width: 767.98px) {
+            .cards-container { gap: 16px; }
+            .project-card { flex: 0 0 100%; min-width: 100%; max-width: 100%; }
+        }
     </style>
 </head>
 
