@@ -1918,7 +1918,7 @@
         function renderProjects(projects, containerId = 'projectsList') {
             const container = document.getElementById(containerId);
 
-            console.log('Rendering projects:', projects, 'in container:', containerId); // Debug log
+            console.log('Rendering projects:', projects, 'in container:', containerId);
 
             if (projects.length === 0) {
                 const emptyMessage = containerId === 'completedProjectsList' 
@@ -1933,89 +1933,26 @@
                 return;
             }
 
-            let html = '<div class="projects-grid">';
+            // SIMPLE TEST LAYOUT - Force horizontal display
+            let html = '<div style="display: flex; flex-wrap: wrap; gap: 20px; width: 100%; border: 3px solid green;">';
 
             projects.forEach(project => {
                 const date = new Date(project.createdAt).toLocaleDateString();
 
-                let breakdownHtml = '';
-                project.breakdown.forEach(item => {
-                    breakdownHtml += `
-                        <div class="project-detail">
-                            <span>${item.language}</span>
-                            <span>$${item.cost}</span>
-                        </div>
-                    `;
-                });
-
                 html += `
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-name">${project.name}</div>
-                            <div class="project-date">${date}</div>
+                    <div style="background: white; border: 2px solid orange; border-radius: 8px; padding: 20px; width: 300px; flex-shrink: 0; min-height: 250px;">
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">${project.name}</div>
+                        <div style="color: #666; margin-bottom: 15px;">${date}</div>
+                        <div style="margin-bottom: 15px;">
+                            <div>File: ${project.fileName}</div>
+                            <div>Words: ${(project.wordCount || 0).toLocaleString()}</div>
+                            <div>Type: ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}</div>
+                            <div>Status: ${getStatusText(project.status)}</div>
                         </div>
-                        
-                        <div class="project-details">
-                            <div class="project-detail">
-                                <span>File:</span>
-                                <span>${project.fileName}</span>
-                            </div>
-                            <div class="project-detail">
-                                <span>Words:</span>
-                                <span>${(project.wordCount || 0).toLocaleString()}</span>
-                            </div>
-                            <div class="project-detail">
-                                <span>Type:</span>
-                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
-                                    ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
-                                </span>
-                            </div>
-                            <div class="project-detail">
-                                <span>Status:</span>
-                                <span style="color: ${getStatusColor(project.status)};">
-                                    ${getStatusText(project.status)}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="project-total">$${project.total}</div>
-                        
-                        <div class="project-actions">
-                            <button class="view-details-btn" data-project-id="${project.id}">
-                                View Details
-                            </button>
-                        
-                        ${containerId === 'completedProjectsList' ? `
-                            ${project.translatedFileName ? `
-                                <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
-                                        style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Download File
-                                </button>
-                            ` : `
-                                <div style="background: #ffc107; color: #856404; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-align: center; border: 1px solid #ffeaa7;">
-                                    Files on the way
-                                </div>
-                            `}
-                        ` : `
-                            ${project.status === 'quote_generated' ? `
-                                <button class="submit-project-btn" data-project-id="${project.id}" 
-                                        style="background: #667eea; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Submit Project
-                                </button>
-                            ` : ''}
-                            ${project.translatedFileName ? `
-                                <a href="/projects/${project.id}/download-translated" 
-                                   style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; display: block; text-align: center; transition: all 0.3s ease;">
-                                   Download File
-                                </a>
-                            ` : ''}
-                            ${project.status === 'quote_generated' ? `
-                                <button class="delete-project-btn" data-project-id="${project.id}" 
-                                        style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Delete
-                                </button>
-                            ` : ''}
-                        `}
+                        <div style="font-size: 20px; font-weight: bold; color: #28a745; text-align: center; margin-bottom: 15px;">$${project.total}</div>
+                        <button style="background: #333; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%;" data-project-id="${project.id}">
+                            View Details
+                        </button>
                     </div>
                 `;
             });
