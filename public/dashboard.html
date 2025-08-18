@@ -522,7 +522,7 @@
             align-items: stretch !important;
         }
 
-        /* Individual Project Card */
+        /* Individual Project Card - Consolidated */
         .project-card {
             background: white !important;
             border-radius: 8px !important;
@@ -534,7 +534,10 @@
             min-height: 250px !important;
             width: 300px !important;
             flex: 0 0 300px !important;
+            max-width: 300px !important;
             margin: 0 !important;
+            border: 2px solid blue !important;
+            background: rgba(0, 0, 255, 0.1) !important;
         }
 
         .project-card:hover {
@@ -603,25 +606,10 @@
             max-width: none !important;
         }
 
-        #projectsList .project-card,
-        #completedProjectsList .project-card {
-            flex: 0 0 300px !important;
-            width: 300px !important;
-            max-width: 300px !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-        }
-
         /* Debug styles to ensure layout works */
         .projects-grid {
             border: 2px solid red !important;
             background: rgba(255, 0, 0, 0.1) !important;
-        }
-
-        .project-card {
-            border: 2px solid blue !important;
-            background: rgba(0, 0, 255, 0.1) !important;
         }
 
         .view-details-btn {
