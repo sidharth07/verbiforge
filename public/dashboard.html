@@ -1986,15 +1986,23 @@
                             <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <div style="font-size: 0.9em; color: #666;">${date}</div>
-                                ${project.status === 'quote_generated' ? `
+                                ${`
                                 <div class="kebab-wrap">
                                     <button class="kebab-btn" data-project-id="${project.id}" aria-haspopup="true" aria-expanded="false" aria-label="Actions">⋮</button>
                                     <div class="action-menu" data-project-id="${project.id}">
-                                        <button class="menu-item submit-project-btn" data-project-id="${project.id}">Submit project</button>
-                                        <button class="menu-item delete-project-btn" data-project-id="${project.id}">Delete</button>
+                                        ${project.status === 'quote_generated' ? `
+                                            <button class="menu-item submit-project-btn" data-project-id="${project.id}">Submit project</button>
+                                            <button class="menu-item delete-project-btn" data-project-id="${project.id}">Delete</button>
+                                        ` : `
+                                            ${project.translatedFileName ? `
+                                                <button class="menu-item" onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')">Download file</button>
+                                            ` : `
+                                                <button class="menu-item" disabled>No file available</button>
+                                            `}
+                                        `}
                                     </div>
                                 </div>
-                                ` : ''}
+                                `}
                             </div>
                         </div>
                         
