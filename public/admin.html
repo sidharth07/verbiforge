@@ -215,12 +215,9 @@
         .admin-main {
             flex: 1;
             margin-left: 250px;
-            background: #f5f5f5;
-            border-left: 1px solid #e2e8f0;
+            padding: 30px;
+            background: #f8f9fa;
             min-height: 100vh;
-            padding: 20px;
-            margin-top: 0;
-            padding-top: 0;
         }
 
         body {
@@ -778,6 +775,28 @@
                 margin: 10px;
             }
         }
+
+        /* MacBook / medium screens */
+        @media (max-width: 1366px) {
+            .admin-sidebar { width: 220px; }
+            .admin-main { margin-left: 220px; padding: 24px; }
+            .container { max-width: 1100px; }
+            .projects-table th, .projects-table td { padding: 10px 12px; }
+            .section-header { padding: 16px; }
+        }
+
+        /* Narrow laptops */
+        @media (max-width: 1200px) {
+            .container { max-width: 980px; }
+            .projects-table { font-size: 0.95em; }
+            .projects-table th, .projects-table td { padding: 8px 10px; }
+            .admin-header h1 { font-size: 22px; }
+        }
+
+        /* Improve table responsiveness */
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        .projects-table { table-layout: auto; }
+        .projects-table th, .projects-table td { white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -1093,10 +1112,11 @@
             </div>
             
             <div id="projectsContent" style="display: none;">
+                <div class="table-wrapper">
                 <table class="projects-table">
                     <thead>
                         <tr>
-                            <th>Project</th>
+                            <th>Project ID</th>
                             <th>User</th>
                             <th>File</th>
                             <th>Languages</th>
@@ -1112,6 +1132,7 @@
                         <!-- Projects will be populated here -->
                     </tbody>
                 </table>
+                </div>
             </div>
             
             <div id="emptyState" class="empty-state" style="display: none;">
@@ -1223,9 +1244,11 @@
                     </div>
                     
                     <div id="usersTable" style="display: none;">
+                        <div class="table-wrapper">
                         <table class="projects-table">
                             <thead>
                                 <tr>
+                                    <th>User ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Joined</th>
@@ -1238,6 +1261,7 @@
                                 <!-- Users will be populated here -->
                             </tbody>
                         </table>
+                        </div>
                     </div>
                     
                     <div id="usersEmpty" class="empty-state" style="display: none;">
@@ -1307,9 +1331,11 @@
                     </div>
                     
                     <div id="adminsTable" style="display: none;">
+                        <div class="table-wrapper">
                         <table class="projects-table">
                             <thead>
                                 <tr>
+                                    <th>Admin ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Role</th>
@@ -1322,6 +1348,7 @@
                                 <!-- Admins will be populated here -->
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1341,9 +1368,11 @@
                     </div>
                     
                     <div id="contactsTable" style="display: none;">
+                        <div class="table-wrapper">
                         <table class="projects-table">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Company</th>
@@ -1357,6 +1386,7 @@
                                 <!-- Contact messages will be populated here -->
                             </tbody>
                         </table>
+                        </div>
                     </div>
                     
                     <div id="contactsEmpty" class="empty-state" style="display: none;">
@@ -2589,6 +2619,7 @@
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
+                    <td>${user.id}</td>
                     <td>${user.name}</td>
                     <td>${user.email}</td>
                     <td>${joinedDate}</td>
@@ -2665,6 +2696,7 @@
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
+                    <td>${admin.id}</td>
                     <td>${admin.name}</td>
                     <td>${admin.email}</td>
                     <td>
@@ -2905,8 +2937,9 @@
                 row.innerHTML = `
                     <td>
                         ${!contact.isRead ? '<span class="unread-indicator"></span>' : ''}
-                        ${contact.name}
+                        ${contact.id}
                     </td>
+                    <td>${contact.name}</td>
                     <td>${contact.email}</td>
                     <td>${contact.company || '-'}</td>
                     <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${contact.subject}</td>
