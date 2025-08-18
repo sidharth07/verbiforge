@@ -599,6 +599,8 @@
             flex-direction: row !important;
             flex-wrap: wrap !important;
             gap: 20px !important;
+            width: 100% !important;
+            max-width: none !important;
         }
 
         #projectsList .project-card,
@@ -607,6 +609,19 @@
             width: 300px !important;
             max-width: 300px !important;
             margin: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* Debug styles to ensure layout works */
+        .projects-grid {
+            border: 2px solid red !important;
+            background: rgba(255, 0, 0, 0.1) !important;
+        }
+
+        .project-card {
+            border: 2px solid blue !important;
+            background: rgba(0, 0, 255, 0.1) !important;
         }
 
         .view-details-btn {
