@@ -834,6 +834,15 @@
         @media (max-width: 1200px) {
             .revenue-grid { grid-template-columns: 1fr !important; }
         }
+
+        @media (max-width: 1280px) {
+            /* Top stats blocks */
+            .admin-main > .projects-section [style*="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))"] { grid-template-columns: 1fr !important; }
+            /* Users/Projects/Languages small grids */
+            .admin-main [style*="grid-template-columns: 1fr 1fr;"] { grid-template-columns: 1fr !important; }
+            /* Three-column pricing row */
+            .admin-main [style*="grid-template-columns: 1fr 1fr 1fr;"] { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body>
