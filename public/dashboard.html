@@ -2079,8 +2079,8 @@
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
                                 <span style="font-weight:600;">Type:</span>
-                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
-                                    ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
+                                <span style="color: ${(((project.projectType || project.project_type || 'fusion') + '').toLowerCase()) === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                                    ${(((project.projectType || project.project_type || 'fusion') + '').toLowerCase()) === 'pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
                         </div>
