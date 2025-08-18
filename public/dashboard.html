@@ -829,6 +829,25 @@
         .btn-danger:hover { background: #fee2e2; }
         .btn-secondary { background: #ffffff; color: #374151; border-color: #e5e7eb; }
         .btn-secondary:hover { background: #f9fafb; }
+
+        /* Kebab menu */
+        .kebab-wrap { position: relative; }
+        .kebab-btn {
+            width: 32px; height: 32px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid #e5e7eb; background: #fff; color: #374151;
+            border-radius: 6px; cursor: pointer;
+        }
+        .kebab-btn:hover { background: #f9fafb; }
+        .action-menu {
+            position: absolute; top: 36px; right: 0;
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            min-width: 160px; padding: 6px; display: none; z-index: 10;
+        }
+        .action-menu.open { display: block; }
+        .menu-item { width: 100%; text-align: left; padding: 8px 10px; border-radius: 6px; border: none; background: transparent; cursor: pointer; font-size: 13px; color: #374151; }
+        .menu-item:hover { background: #f3f4f6; }
     </style>
 </head>
 
@@ -1963,9 +1982,20 @@
 
                 html += `
                     <div class="project-card">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 8px;">
                             <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
-                            <div style="font-size: 0.9em; color: #666;">${date}</div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="font-size: 0.9em; color: #666;">${date}</div>
+                                ${project.status === 'quote_generated' ? `
+                                <div class="kebab-wrap">
+                                    <button class="kebab-btn" data-project-id="${project.id}" aria-haspopup="true" aria-expanded="false" aria-label="Actions">⋮</button>
+                                    <div class="action-menu" data-project-id="${project.id}">
+                                        <button class="menu-item submit-project-btn" data-project-id="${project.id}">Submit project</button>
+                                        <button class="menu-item delete-project-btn" data-project-id="${project.id}">Delete</button>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
                         </div>
                         
                         <div style="margin-bottom: 15px;">
@@ -1983,12 +2013,12 @@
                                     ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>Status:</span>
-                                <span style="color: ${getStatusColor(project.status)};">
-                                    ${getStatusText(project.status)}
-                                </span>
-                            </div>
+                            ${project.status !== 'quote_generated' ? `
+                                <div class="action-row">
+                                    <button class="btn btn-secondary btn-sm" disabled>${getStatusText(project.status)}</button>
+                                    <button class="btn btn-secondary btn-sm" disabled>—</button>
+                                </div>
+                            ` : ''}
                         </div>
                         
                         <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
@@ -2235,6 +2265,29 @@
                     console.log('🔧 View details clicked:', projectId);
                     showProjectDetails(projectId);
                 });
+            });
+            
+            // Kebab toggle
+            document.addEventListener('click', function(e) {
+                const kebab = e.target.closest('.kebab-btn');
+                const anyWrap = e.target.closest('.kebab-wrap');
+                // Close all menus first
+                document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('open'));
+                document.querySelectorAll('.kebab-btn[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded','false'));
+                if (kebab) {
+                    const wrap = kebab.closest('.kebab-wrap');
+                    const menu = wrap && wrap.querySelector('.action-menu');
+                    if (menu) {
+                        menu.classList.add('open');
+                        kebab.setAttribute('aria-expanded','true');
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else if (anyWrap) {
+                    // clicks inside wrap but not on button should keep it open
+                    const menu = anyWrap.querySelector('.action-menu');
+                    if (menu) menu.classList.add('open');
+                }
             });
             
             // Submit project buttons
