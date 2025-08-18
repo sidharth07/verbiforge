@@ -514,10 +514,11 @@
         /* Project Cards Container - CSS Grid Layout */
         .projects-grid {
             display: grid !important;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 300px)) !important;
             gap: 20px !important;
             width: 100% !important;
             padding: 20px 0 !important;
+            justify-content: start !important;
         }
 
         /* Individual Project Card - Grid Item */
@@ -542,10 +543,11 @@
         #projectsList .projects-grid,
         #completedProjectsList .projects-grid {
             display: grid !important;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 300px)) !important;
             gap: 20px !important;
             width: 100% !important;
             padding: 20px 0 !important;
+            justify-content: start !important;
         }
 
         #projectsList .project-card,
