@@ -1898,14 +1898,81 @@
                 return;
             }
 
-            // MINIMAL TEST - Just project names to isolate the issue
-            let html = '<div style="padding: 20px; background: #f0f0f0;">';
+            // FULL PROJECT CARDS - Using the working inline-block approach
+            let html = '<div style="padding: 20px;">';
 
             projects.forEach((project, index) => {
+                const date = new Date(project.createdAt).toLocaleDateString();
+
                 html += `
-                    <div style="background: white; border: 2px solid blue; padding: 15px; margin: 10px; display: inline-block; width: 200px; text-align: center;">
-                        <strong>${project.name}</strong><br>
-                        $${project.total}
+                    <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); margin: 10px; display: inline-block; width: 280px; vertical-align: top; box-sizing: border-box;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                            <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
+                            <div style="font-size: 0.9em; color: #666;">${date}</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
+                                <span>File:</span>
+                                <span>${project.fileName}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
+                                <span>Words:</span>
+                                <span>${(project.wordCount || 0).toLocaleString()}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
+                                <span>Type:</span>
+                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
+                                    ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
+                                <span>Status:</span>
+                                <span style="color: ${getStatusColor(project.status)};">
+                                    ${getStatusText(project.status)}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button style="background: #333; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;" data-project-id="${project.id}">
+                                View Details
+                            </button>
+                        
+                        ${containerId === 'completedProjectsList' ? `
+                            ${project.translatedFileName ? `
+                                <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
+                                        style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
+                                    Download File
+                                </button>
+                            ` : `
+                                <div style="background: #ffc107; color: #856404; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-align: center; border: 1px solid #ffeaa7;">
+                                    Files on the way
+                                </div>
+                            `}
+                        ` : `
+                            ${project.status === 'quote_generated' ? `
+                                <button class="submit-project-btn" data-project-id="${project.id}" 
+                                        style="background: #667eea; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
+                                    Submit Project
+                                </button>
+                            ` : ''}
+                            ${project.translatedFileName ? `
+                                <a href="/projects/${project.id}/download-translated" 
+                                   style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; display: block; text-align: center; transition: all 0.3s ease;">
+                                   Download File
+                                </a>
+                            ` : ''
+                            }
+                            ${project.status === 'quote_generated' ? `
+                                <button class="delete-project-btn" data-project-id="${project.id}" 
+                                        style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
+                                    Delete
+                                </button>
+                            ` : ''}
+                        `}
                     </div>
                 `;
             });
