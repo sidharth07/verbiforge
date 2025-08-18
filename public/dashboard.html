@@ -511,64 +511,7 @@
             font-weight: bold;
         }
 
-        /* Project Cards Container - Working Inline Style Conversion */
-        .projects-grid {
-            display: flex !important;
-            flex-wrap: wrap !important;
-            gap: 20px !important;
-            width: 100% !important;
-            border: 5px solid red !important;
-            background: yellow !important;
-            min-height: 200px !important;
-        }
 
-        /* Individual Project Card - Working Inline Style Conversion */
-        .project-card {
-            background: blue !important;
-            border: 5px solid green !important;
-            border-radius: 8px !important;
-            padding: 20px !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
-            transition: transform 0.2s !important;
-            display: flex !important;
-            flex-direction: column !important;
-            min-height: 250px !important;
-            width: 300px !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-        }
-
-        .project-card:hover {
-            transform: translateY(-2px) !important;
-        }
-
-        /* Force flex layout with higher specificity */
-        #projectsList .projects-grid,
-        #completedProjectsList .projects-grid {
-            display: flex !important;
-            flex-wrap: wrap !important;
-            gap: 20px !important;
-            width: 100% !important;
-        }
-
-        #projectsList .project-card,
-        #completedProjectsList .project-card {
-            width: 300px !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-            flex-basis: 300px !important;
-            max-width: 300px !important;
-            min-width: 300px !important;
-        }
-
-        /* Override any universal resets */
-        .project-card {
-            flex-shrink: 0 !important;
-            flex-basis: 300px !important;
-            max-width: 300px !important;
-            min-width: 300px !important;
-            margin: 0 !important;
-        }
 
         .project-header {
             display: flex;
@@ -1955,34 +1898,35 @@
                 return;
             }
 
-            let html = '<div class="projects-grid">';
+            // BULLETPROOF HORIZONTAL LAYOUT - Using inline styles that we know work
+            let html = '<div style="display: flex; flex-wrap: wrap; gap: 20px; width: 100%; padding: 20px 0;">';
 
             projects.forEach(project => {
                 const date = new Date(project.createdAt).toLocaleDateString();
 
                 html += `
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-name">${project.name}</div>
-                            <div class="project-date">${date}</div>
+                    <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); transition: transform 0.2s; display: flex; flex-direction: column; min-height: 250px; width: 300px; flex-shrink: 0; margin: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                            <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
+                            <div style="font-size: 0.9em; color: #666;">${date}</div>
                         </div>
                         
-                        <div class="project-details">
-                            <div class="project-detail">
+                        <div style="margin-bottom: 15px; flex: 1;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
                                 <span>File:</span>
                                 <span>${project.fileName}</span>
                             </div>
-                            <div class="project-detail">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
                                 <span>Words:</span>
                                 <span>${(project.wordCount || 0).toLocaleString()}</span>
                             </div>
-                            <div class="project-detail">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
                                 <span>Type:</span>
                                 <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
                                     ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
-                            <div class="project-detail">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
                                 <span>Status:</span>
                                 <span style="color: ${getStatusColor(project.status)};">
                                     ${getStatusText(project.status)}
@@ -1990,10 +1934,10 @@
                             </div>
                         </div>
                         
-                        <div class="project-total">$${project.total}</div>
+                        <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px; flex-shrink: 0;">$${project.total}</div>
                         
-                        <div class="project-actions">
-                            <button class="view-details-btn" data-project-id="${project.id}">
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; flex-shrink: 0; width: 100%;">
+                            <button style="background: #333; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;" data-project-id="${project.id}">
                                 View Details
                             </button>
                         
