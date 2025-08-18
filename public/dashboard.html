@@ -1898,84 +1898,12 @@
                 return;
             }
 
-            // FIXED WIDTH SOLUTION - Cards will wrap properly
-            let html = '<div style="background: red; padding: 20px; width: 100%;">';
-
-            projects.forEach((project, index) => {
-                const date = new Date(project.createdAt).toLocaleDateString();
-
-                html += `
-                    <div style="background: blue; border: 3px solid yellow; padding: 20px; margin: 10px; display: inline-block; width: 250px; vertical-align: top; box-sizing: border-box;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                            <div style="font-size: 1.2em; font-weight: bold; color: #333;">${project.name}</div>
-                            <div style="font-size: 0.9em; color: #666;">${date}</div>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px; flex: 1;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>File:</span>
-                                <span>${project.fileName}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>Words:</span>
-                                <span>${(project.wordCount || 0).toLocaleString()}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>Type:</span>
-                                <span style="color: ${(project.projectType || 'fusion') === 'pure' ? '#ffd700' : '#4facfe'}; font-weight: 600;">
-                                    ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
-                                </span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;">
-                                <span>Status:</span>
-                                <span style="color: ${getStatusColor(project.status)};">
-                                    ${getStatusText(project.status)}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px; flex-shrink: 0;">$${project.total}</div>
-                        
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; flex-shrink: 0; width: 100%;">
-                            <button style="background: #333; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;" data-project-id="${project.id}">
-                                View Details
-                            </button>
-                        
-                        ${containerId === 'completedProjectsList' ? `
-                            ${project.translatedFileName ? `
-                                <button onclick="downloadTranslatedFile('${project.id}', '${project.translatedFileName}')" 
-                                        style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Download File
-                                </button>
-                            ` : `
-                                <div style="background: #ffc107; color: #856404; padding: 8px 12px; border-radius: 4px; font-size: 12px; text-align: center; border: 1px solid #ffeaa7;">
-                                    Files on the way
-                                </div>
-                            `}
-                        ` : `
-                            ${project.status === 'quote_generated' ? `
-                                <button class="submit-project-btn" data-project-id="${project.id}" 
-                                        style="background: #667eea; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Submit Project
-                                </button>
-                            ` : ''}
-                            ${project.translatedFileName ? `
-                                <a href="/projects/${project.id}/download-translated" 
-                                   style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; display: block; text-align: center; transition: all 0.3s ease;">
-                                   Download File
-                                </a>
-                            ` : ''}
-                            ${project.status === 'quote_generated' ? `
-                                <button class="delete-project-btn" data-project-id="${project.id}" 
-                                        style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; transition: all 0.3s ease;">
-                                    Delete
-                                </button>
-                            ` : ''}
-                        `}
-                    </div>
-                `;
-            });
-
+            // SIMPLE TEST - Just basic divs
+            let html = '<div style="background: red; padding: 20px;">';
+            html += '<h1 style="color: white;">TESTING LAYOUT</h1>';
+            html += '<div style="background: green; color: white; padding: 10px; margin: 5px; display: inline-block;">CARD 1</div>';
+            html += '<div style="background: green; color: white; padding: 10px; margin: 5px; display: inline-block;">CARD 2</div>';
+            html += '<div style="background: green; color: white; padding: 10px; margin: 5px; display: inline-block;">CARD 3</div>';
             html += '</div>';
             container.innerHTML = html;
             
