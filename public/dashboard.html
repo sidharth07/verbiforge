@@ -511,15 +511,16 @@
             font-weight: bold;
         }
 
-        /* Project Cards Container - Working Horizontal Layout */
+        /* Project Cards Container - CSS Grid Layout */
         .projects-grid {
-            display: flex !important;
-            flex-wrap: wrap !important;
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
             gap: 20px !important;
             width: 100% !important;
+            padding: 20px 0 !important;
         }
 
-        /* Individual Project Card - Working Styles */
+        /* Individual Project Card - Grid Item */
         .project-card {
             background: white !important;
             border-radius: 8px !important;
@@ -529,13 +530,29 @@
             display: flex !important;
             flex-direction: column !important;
             min-height: 250px !important;
-            width: 300px !important;
-            flex-shrink: 0 !important;
+            width: 100% !important;
             margin: 0 !important;
         }
 
         .project-card:hover {
             transform: translateY(-2px) !important;
+        }
+
+        /* Force grid layout with higher specificity */
+        #projectsList .projects-grid,
+        #completedProjectsList .projects-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+            gap: 20px !important;
+            width: 100% !important;
+            padding: 20px 0 !important;
+        }
+
+        #projectsList .project-card,
+        #completedProjectsList .project-card {
+            width: 100% !important;
+            max-width: none !important;
+            min-width: 300px !important;
         }
 
         .project-header {
