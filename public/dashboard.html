@@ -511,17 +511,15 @@
             font-weight: bold;
         }
 
-        /* Project Cards Container - CSS Grid Layout */
+        /* Project Cards Container - Working Inline Style Conversion */
         .projects-grid {
-            display: grid !important;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 300px)) !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
             gap: 20px !important;
             width: 100% !important;
-            padding: 20px 0 !important;
-            justify-content: start !important;
         }
 
-        /* Individual Project Card - Grid Item */
+        /* Individual Project Card - Working Inline Style Conversion */
         .project-card {
             background: white !important;
             border-radius: 8px !important;
@@ -531,7 +529,8 @@
             display: flex !important;
             flex-direction: column !important;
             min-height: 250px !important;
-            width: 100% !important;
+            width: 300px !important;
+            flex-shrink: 0 !important;
             margin: 0 !important;
         }
 
@@ -539,22 +538,20 @@
             transform: translateY(-2px) !important;
         }
 
-        /* Force grid layout with higher specificity */
+        /* Force flex layout with higher specificity */
         #projectsList .projects-grid,
         #completedProjectsList .projects-grid {
-            display: grid !important;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 300px)) !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
             gap: 20px !important;
             width: 100% !important;
-            padding: 20px 0 !important;
-            justify-content: start !important;
         }
 
         #projectsList .project-card,
         #completedProjectsList .project-card {
-            width: 100% !important;
-            max-width: none !important;
-            min-width: 300px !important;
+            width: 300px !important;
+            flex-shrink: 0 !important;
+            margin: 0 !important;
         }
 
         .project-header {
