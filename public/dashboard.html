@@ -1898,7 +1898,7 @@
                 return;
             }
 
-            // TEST WITH MULTIPLE FLEX CONTAINERS - More complex content
+            // TEST WITH CONDITIONAL LOGIC - Adding the conditional buttons
             let html = '<div style="padding: 20px; background: #f0f0f0;">';
 
             projects.forEach((project, index) => {
@@ -1921,7 +1921,11 @@
                         <div style="font-size: 1.2em; font-weight: bold; color: #28a745; margin: 10px 0;">$${project.total}</div>
                         <div style="display: flex; flex-direction: column; gap: 5px;">
                             <button style="background: blue; color: white; padding: 5px 10px; border: none;">View Details</button>
-                            <button style="background: green; color: white; padding: 5px 10px; border: none;">Download</button>
+                            ${containerId === 'completedProjectsList' ? `
+                                <button style="background: green; color: white; padding: 5px 10px; border: none;">Download File</button>
+                            ` : `
+                                <button style="background: orange; color: white; padding: 5px 10px; border: none;">Submit Project</button>
+                            `}
                         </div>
                     </div>
                 `;
