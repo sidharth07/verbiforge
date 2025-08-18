@@ -2037,17 +2037,11 @@
                                     ${(project.projectType || 'fusion') === 'Pure' ? 'Pure' : 'Fusion'}
                                 </span>
                             </div>
-                            ${project.status !== 'quote_generated' ? `
-                                <div class="action-row">
-                                    <button class="btn btn-secondary btn-sm" disabled>${getStatusText(project.status)}</button>
-                                    <button class="btn btn-secondary btn-sm" disabled>—</button>
-                                </div>
-                            ` : ''}
                         </div>
                         
                         <div style="font-size: 1.3em; font-weight: bold; color: #28a745; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 15px;">$${project.total}</div>
                         
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div class="project-actions">
                             <button class="view-details-btn btn btn-full btn-primary" data-project-id="${project.id}">View Details</button>
                         </div>
                     </div>
