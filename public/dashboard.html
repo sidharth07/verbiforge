@@ -1949,7 +1949,12 @@
 
         function closeModal() {
             console.log('🔧 Close Modal function called');
-            document.getElementById('resultsModal').classList.remove('show');
+            const modalEl = document.getElementById('resultsModal');
+            if (modalEl && modalEl.classList) {
+                modalEl.classList.remove('show');
+            } else {
+                console.warn('resultsModal element not found when trying to close');
+            }
         }
 
         function resetCreateForm() {
@@ -2863,6 +2868,15 @@
             }
 
             console.log('✅ Event listeners set up successfully');
+        });
+
+        // Also wire up radio changes for project type selection
+        document.querySelectorAll('input[name="projectType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    selectProjectType(this.value);
+                }
+            });
         });
     </script>
 
