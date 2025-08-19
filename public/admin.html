@@ -1146,10 +1146,6 @@
                     <thead>
                         <tr>
                             <th>Project ID</th>
-                            <th>User</th>
-                            <th>File</th>
-                            <th>Languages</th>
-                            <th>Words</th>
                             <th>Total Cost</th>
                             <th>Status</th>
                             <th>ETA (Days)</th>
@@ -1842,17 +1838,6 @@
                         </div>
                         <div style="font-size: 0.8em; color: #666; font-weight: 600;">${project.projectId || 'N/A'}</div>
                     </td>
-                    <td>
-                        <div>${project.userName}</div>
-                        <div style="font-size: 0.8em; color: #666;">${project.userEmail}</div>
-                    </td>
-                    <td>
-                        <div style="font-size: 0.9em;">${project.fileName}</div>
-                    </td>
-                    <td>
-                        <div class="languages-list">${languages}</div>
-                    </td>
-                    <td>${project.wordCount.toLocaleString()}</td>
                     <td style="font-weight: 600;">$${project.total}</td>
                     <td>
                         ${project.status === 'quote_generated' ? `
