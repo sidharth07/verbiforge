@@ -832,7 +832,10 @@
         }
 
         /* Revenue card grid responsiveness */
-        @media (max-width: 1440px) { .revenue-grid { grid-template-columns: 1fr !important; } }
+        @media (max-width: 1600px) { 
+            .revenue-grid { grid-template-columns: 1fr !important; }
+            .revenue-card { min-width: 300px !important; }
+        }
 
         @media (max-width: 1280px) {
             /* Top stats blocks */
@@ -1024,7 +1027,7 @@
                     </div>
                     
                     <!-- Revenue Stats -->
-                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #dc3545;">
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #dc3545; min-width: 320px;">
                          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
                              <div>
                                  <h3 style="margin: 0; color: #333; font-size: 1.1em;">💰 Revenue</h3>
@@ -3902,17 +3905,6 @@
             localStorage.removeItem('userId');
             window.location.href = '/login.html';
         }
-    </script>
-+    <script>
-+        (function(){
-+            const toggleBtn = document.getElementById('sidebarToggle');
-+            const sidebar = document.querySelector('.admin-sidebar');
-+            if (toggleBtn && sidebar) {
-+                toggleBtn.addEventListener('click', function(){
-+                    sidebar.classList.toggle('open');
-+                });
-+            }
-+        })();
-+    </script>
- </body>
- </html>
+        </script>
+</body>
+</html>
