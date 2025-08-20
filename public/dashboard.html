@@ -364,9 +364,9 @@
             background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
             position: fixed;
-            top: 0;
+            top: 72px; /* Position below the header */
             left: 0;
-            height: 100vh;
+            height: calc(100vh - 72px); /* Adjust height to account for header */
             display: flex;
             flex-direction: column;
             z-index: 100;
@@ -552,9 +552,10 @@
         .dashboard-main {
             flex: 1;
             margin-left: 238px; /* Updated to match reduced sidebar width */
+            margin-top: 72px; /* Add top margin to account for header */
             padding: 30px;
             background: #f8f9fa;
-            min-height: 100vh;
+            min-height: calc(100vh - 72px); /* Adjust height to account for header */
             width: calc(100vw - 238px); /* Updated to match reduced sidebar width */
         }
 
