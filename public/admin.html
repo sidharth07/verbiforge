@@ -1906,26 +1906,40 @@
             }
         };
 
-        // Check admin access and load data
-        checkAdminAccess();
-        
-        // Check for new contact messages every 30 seconds
-        setInterval(loadContactsCount, 30000);
+        // Check admin access and load data when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Admin panel DOM loaded, checking authentication...');
+            checkAdminAccess();
+            
+            // Check for new contact messages every 30 seconds
+            setInterval(loadContactsCount, 30000);
+        });
 
         async function checkAdminAccess() {
             try {
+                console.log('🔍 Checking admin access...');
+                console.log('🔑 Current token:', Auth.getToken());
+                console.log('👤 Current user:', Auth.getUser());
+                
                 const [userResponse, adminResponse] = await Promise.all([
                     Auth.authFetch('/me'),
                     Auth.authFetch('/admin/check')
                 ]);
 
+                console.log('📥 User response status:', userResponse.status);
+                console.log('📥 Admin response status:', adminResponse.status);
+                
                 if (!userResponse.ok) {
+                    console.error('❌ User authentication failed:', userResponse.status);
                     window.location.href = 'login.html';
                     return;
                 }
 
                 const userData = await userResponse.json();
                 const adminData = await adminResponse.json();
+                
+                console.log('✅ User data:', userData);
+                console.log('✅ Admin data:', adminData);
 
                 if (!adminData.isAdmin) {
                     CustomModal.error('Access denied. Admin privileges required.');
@@ -1935,7 +1949,8 @@
                     return;
                 }
 
-                document.getElementById('adminName').textContent = userData.user.name;
+                // Set admin name - element removed from header but keeping for potential future use
+                console.log('Admin user:', userData.user.name);
                 isSuperAdmin = adminData.isSuperAdmin;
                 
                 // Show admin management tab only for super admin
