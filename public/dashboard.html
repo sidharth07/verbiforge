@@ -3846,8 +3846,14 @@
             });
 
             // Close modal buttons
-            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-            document.getElementById('closeModalBtn2').addEventListener('click', closeModal);
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeModal);
+            }
+            const closeModalBtn2Element = document.getElementById('closeModalBtn2');
+            if (closeModalBtn2Element) {
+                closeModalBtn2Element.addEventListener('click', closeModal);
+            }
             
             // Save project button
             const saveProjectBtn = document.getElementById('saveProjectBtn');
@@ -3885,17 +3891,7 @@
                 console.error('❌ Modal close button not found');
             }
             
-            // Close modal button 2
-            const closeModalBtn2 = document.getElementById('closeModalBtn2');
-            console.log('🔍 Looking for closeModalBtn2:', closeModalBtn2);
-            if (closeModalBtn2) {
-                closeModalBtn2.addEventListener('click', function(e) {
-                    console.log('🔧 Close modal button 2 clicked!');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeModal();
-                });
-            }
+            // Close modal button 2 - already handled above
             
             // Close project details modal button
             const closeProjectDetailsBtn = document.getElementById('closeProjectDetailsBtn');
