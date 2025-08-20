@@ -1415,7 +1415,9 @@
                     const userData = await userResponse.json();
                     console.log('✅ User data:', userData);
                     currentUser = userData.user;
-                    document.getElementById('userName').textContent = currentUser.name;
+                    // Remove "Super Admin" from the display name if present
+                    const displayName = currentUser.name.replace(/Super Admin/gi, '').trim();
+                    document.getElementById('userName').textContent = displayName;
 
                     // Check if user is admin and show super admin button
                     if (adminResponse.ok) {
