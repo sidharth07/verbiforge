@@ -68,6 +68,15 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
 app.use(express.static('public', {
     etag: false,
     lastModified: false,
