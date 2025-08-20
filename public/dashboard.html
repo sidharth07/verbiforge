@@ -314,6 +314,8 @@
             border-radius: 6px;
             transition: all 0.3s ease;
             text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .clickable-user-name:hover {
@@ -1432,12 +1434,14 @@
                     console.log('✅ User data:', userData);
                     currentUser = userData.user;
                     // Remove "Super Admin" from the display name if present
-                    const displayName = currentUser.name.replace(/Super Admin/gi, '').trim();
+                    const displayName = currentUser.name ? currentUser.name.replace(/Super Admin/gi, '').trim() : 'User';
                     const userNameElement = document.getElementById('userName');
                     userNameElement.textContent = displayName;
+                    console.log('👤 Set user name to:', displayName);
                     
                     // Add click event to open My Account page
                     userNameElement.addEventListener('click', function() {
+                        console.log('👤 User name clicked, switching to account tab');
                         switchTab('account');
                     });
 
