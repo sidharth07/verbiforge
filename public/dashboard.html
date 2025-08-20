@@ -1415,6 +1415,17 @@
 
         // Check authentication on page load
         checkAuth();
+        
+        // Debug: Set a test user name after 2 seconds to see if the element works
+        setTimeout(() => {
+            const userNameElement = document.getElementById('userName');
+            if (userNameElement) {
+                console.log('🧪 Test: Setting user name to "Test User"');
+                userNameElement.textContent = 'Test User';
+            } else {
+                console.log('🧪 Test: User name element not found');
+            }
+        }, 2000);
 
         async function checkAuth() {
             console.log('🔍 Checking authentication...');
@@ -1434,12 +1445,23 @@
                 if (userResponse.ok) {
                     const userData = await userResponse.json();
                     console.log('✅ User data:', userData);
-                    currentUser = userData.user;
+                    console.log('✅ User data keys:', Object.keys(userData));
+                    
+                    // Check if user data has different structure
+                    currentUser = userData.user || userData;
                     console.log('👤 Current user object:', currentUser);
+                    console.log('👤 User object keys:', Object.keys(currentUser));
                     console.log('👤 User name property:', currentUser.name);
+                    console.log('👤 User email property:', currentUser.email);
                     
                     // Remove "Super Admin" from the display name if present
-                    const displayName = currentUser.name ? currentUser.name.replace(/Super Admin/gi, '').trim() : 'User';
+                    let displayName = 'User';
+                    if (currentUser.name) {
+                        displayName = currentUser.name.replace(/Super Admin/gi, '').trim();
+                    } else if (currentUser.email) {
+                        displayName = currentUser.email.split('@')[0]; // Use email prefix as name
+                    }
+                    console.log('👤 Final display name:', displayName);
                     const userNameElement = document.getElementById('userName');
                     console.log('👤 Found userName element:', userNameElement);
                     
