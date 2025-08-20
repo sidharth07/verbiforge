@@ -1359,6 +1359,510 @@
                 padding: 6px 12px;
             }
         }
+        
+        /* Modern Create Project UI */
+        .create-project-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .create-project-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f1f5f9;
+        }
+        
+        .create-project-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .create-project-header .header-icon {
+            width: 48px;
+            height: 48px;
+            fill: #667eea;
+            margin-bottom: 16px;
+        }
+        
+        .create-project-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .create-project-header p {
+            color: #64748b;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .create-project-form {
+            margin-bottom: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        
+        .form-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-input {
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            background: #fafafa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .upload-zone:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+        
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .upload-content {
+            pointer-events: none;
+        }
+        
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            fill: #9ca3af;
+            margin-bottom: 16px;
+        }
+        
+        .upload-content h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .upload-content p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .file-name {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .file-name.show {
+            display: block;
+        }
+        
+        /* Project Type Cards */
+        .project-type-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .type-card {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .type-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .type-card-content {
+            padding: 24px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            background: white;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .type-card:hover .type-card-content {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+        
+        .type-card input[type="radio"]:checked + .type-card-content {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+        
+        .type-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .type-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+        
+        .fusion-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .pure-icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .type-info h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .type-subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .type-description {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        /* Language Selector */
+        .language-selector {
+            position: relative;
+        }
+        
+        .language-dropdown {
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fafafa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .language-dropdown:hover {
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .language-dropdown.active {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .dropdown-arrow {
+            width: 20px;
+            height: 20px;
+            fill: #6b7280;
+            transition: transform 0.2s ease;
+        }
+        
+        .language-dropdown.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .language-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .language-options.show {
+            display: block;
+        }
+        
+        .language-search {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #fafafa;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .language-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .language-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .language-option:hover {
+            background: #f8fafc;
+        }
+        
+        .language-option.selected {
+            background: #f0f4ff;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .selected-languages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .language-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f0f4ff;
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #e0e7ff;
+        }
+        
+        .language-tag .remove-btn {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        .btn-primary, .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+        
+        .btn-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        
+        /* Error and Loading States */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #fecaca;
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        .loading-state p {
+            color: #6b7280;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design for Create Project */
+        @media (max-width: 768px) {
+            .create-project-container {
+                padding: 16px;
+            }
+            
+            .create-project-card {
+                padding: 24px;
+                border-radius: 16px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .project-type-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 
@@ -1463,92 +1967,120 @@
         </div>
 
         <div id="createTab" class="tab-content">
-            <div style="max-width: 75%; margin: 0; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;">Create New Project</h2>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-                    <!-- Left Column -->
-                    <div>
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Project Name</label>
-                            <input type="text" id="projectName" placeholder="Enter project name"
-                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                        </div>
-
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Upload File</label>
-                            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; text-align: center; background: #f8f9fa;">
-                                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
-                                <label for="fileInput"
-                                    style="background: white; padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: inline-block; font-size: 14px;">
-                                    Choose Excel File
-                                </label>
-                                <p id="fileName" style="margin-top: 8px; color: #666; font-size: 12px;"></p>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Project Type</label>
-                            <div style="display: flex; gap: 10px;">
-                                <label style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; background: white;">
-                                    <input type="radio" name="projectType" value="fusion" checked style="margin-right: 8px;">
-                                    <strong>Fusion</strong>
-                                    <div style="font-size: 12px; color: #666; margin-top: 4px;">Standard</div>
-                                    <div style="font-size: 11px; color: #999; margin-top: 2px;">AI + human refinement</div>
-                                </label>
-                                <label style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; background: white;">
-                                    <input type="radio" name="projectType" value="pure" style="margin-right: 8px;">
-                                    <strong>Pure</strong>
-                                    <div style="font-size: 12px; color: #666; margin-top: 4px;">Premium</div>
-                                    <div style="font-size: 11px; color: #999; margin-top: 2px;">100% human translation</div>
-                                </label>
-                            </div>
-                        </div>
+            <div class="create-project-container">
+                <div class="create-project-card">
+                    <div class="create-project-header">
+                        <svg viewBox="0 0 24 24" class="header-icon">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                        </svg>
+                        <h2>Create New Project</h2>
+                        <p>Set up your translation project with all the details</p>
                     </div>
 
-                    <!-- Right Column -->
-                    <div>
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Select Languages</label>
-                            <div style="position: relative;">
-                                <div id="languageDropdown"
-                                    style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; cursor: pointer; background: white; display: flex; justify-content: space-between; align-items: center; min-height: 40px;">
-                                    <span id="selectedLanguagesText" style="color: #666; font-size: 14px;">Choose languages...</span>
-                                    <span id="dropdownArrow" style="color: #666; font-size: 12px;">▼</span>
+                    <form class="create-project-form">
+                        <div class="form-grid">
+                            <!-- Left Column -->
+                            <div class="form-column">
+                                <div class="form-group">
+                                    <label for="projectName">Project Name</label>
+                                    <input type="text" id="projectName" placeholder="Marketing Survey – Q4 2025" class="form-input">
                                 </div>
-                                <div id="languageOptions"
-                                    style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 4px 4px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                    <div style="padding: 8px; border-bottom: 1px solid #eee; background: #f8f9fa;">
-                                        <input type="text" id="languageSearch" placeholder="Search languages..."
-                                            style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
-                                    </div>
-                                    <div id="languageList">
-                                        <!-- Language options loaded by JavaScript -->
+
+                                <div class="form-group">
+                                    <label>Upload File</label>
+                                    <div class="upload-zone" id="uploadZone">
+                                        <input type="file" id="fileInput" accept=".xlsx,.xls" class="file-input">
+                                        <div class="upload-content">
+                                            <svg viewBox="0 0 24 24" class="upload-icon">
+                                                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                                            </svg>
+                                            <h4>Click or drag file to upload</h4>
+                                            <p>Supports Excel files (.xlsx, .xls)</p>
+                                        </div>
+                                        <div id="fileName" class="file-name"></div>
                                     </div>
                                 </div>
+
+                                <div class="form-group">
+                                    <label>Project Type</label>
+                                    <div class="project-type-cards">
+                                        <label class="type-card" data-type="fusion">
+                                            <input type="radio" name="projectType" value="fusion" checked>
+                                            <div class="type-card-content">
+                                                <div class="type-icon fusion-icon">
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.5 2.54l2.6 1.53c.56-1.24.9-2.62.9-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.05.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-1.53C16.17 17.98 14.21 19 12 19z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="type-info">
+                                                    <h4>Fusion</h4>
+                                                    <p class="type-subtitle">Standard</p>
+                                                    <p class="type-description">AI + human refinement</p>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <label class="type-card" data-type="pure">
+                                            <input type="radio" name="projectType" value="pure">
+                                            <div class="type-card-content">
+                                                <div class="type-icon pure-icon">
+                                                    <svg viewBox="0 0 24 24">
+                                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="type-info">
+                                                    <h4>Pure</h4>
+                                                    <p class="type-subtitle">Premium</p>
+                                                    <p class="type-description">100% human translation</p>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
-                            <div id="selectedLanguagesTags" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
-                                <!-- Selected language tags -->
+
+                            <!-- Right Column -->
+                            <div class="form-column">
+                                <div class="form-group">
+                                    <label>Select Languages</label>
+                                    <div class="language-selector">
+                                        <div id="languageDropdown" class="language-dropdown">
+                                            <span id="selectedLanguagesText">Choose languages...</span>
+                                            <svg viewBox="0 0 24 24" id="dropdownArrow" class="dropdown-arrow">
+                                                <path d="M7 10l5 5 5-5z"/>
+                                            </svg>
+                                        </div>
+                                        <div id="languageOptions" class="language-options">
+                                            <div class="language-search">
+                                                <input type="text" id="languageSearch" placeholder="Search languages..." class="search-input">
+                                            </div>
+                                            <div id="languageList" class="language-list">
+                                                <!-- Language options loaded by JavaScript -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="selectedLanguagesTags" class="selected-languages">
+                                        <!-- Selected language tags -->
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="button" id="cancelBtn" class="btn-secondary">Cancel</button>
+                                    <button type="button" id="analyzeBtn" class="btn-primary">
+                                        <svg viewBox="0 0 24 24" class="btn-icon">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                        </svg>
+                                        Submit Project
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                    </form>
 
-                        <div style="margin-top: 30px; text-align: center;">
-                            <button id="analyzeBtn"
-                                style="background: #333; color: white; border: none; padding: 12px 24px; border-radius: 4px; font-size: 14px; cursor: pointer; width: 200px; transition: background 0.2s;">
-                                Submit Project
-                            </button>
-                        </div>
+                    <div id="error" class="error-message"></div>
+                    <div id="loading" class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Analyzing file...</p>
                     </div>
-                </div>
-
-                <div id="error"
-                    style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin: 15px 0; display: none; font-size: 14px;">
-                </div>
-                <div id="loading" style="text-align: center; padding: 15px; display: none;">
-                    <div
-                        style="border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 0 auto 8px;">
-                    </div>
-                    <p style="font-size: 14px; color: #666;">Analyzing file...</p>
                 </div>
             </div>
         </div>
@@ -3396,24 +3928,59 @@
                 }
             });
 
+            // Modern file upload functionality
+            const fileInput = document.getElementById('fileInput');
+            const uploadZone = document.getElementById('uploadZone');
+            const fileName = document.getElementById('fileName');
+
             // File input change
-            document.getElementById('fileInput').addEventListener('change', function() {
+            fileInput.addEventListener('change', function() {
                 const file = this.files[0];
                 if (file) {
-                    document.getElementById('fileName').textContent = file.name;
+                    fileName.textContent = file.name;
+                    fileName.classList.add('show');
                 }
             });
 
-            // Language dropdown
-            document.getElementById('languageDropdown').addEventListener('click', function() {
-                const options = document.getElementById('languageOptions');
-                const arrow = document.getElementById('dropdownArrow');
+            // Drag and drop functionality
+            uploadZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            uploadZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+
+            uploadZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    fileName.textContent = files[0].name;
+                    fileName.classList.add('show');
+                }
+            });
+
+            // Click to upload
+            uploadZone.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // Modern language dropdown
+            const languageDropdown = document.getElementById('languageDropdown');
+            const languageOptions = document.getElementById('languageOptions');
+            const dropdownArrow = document.getElementById('dropdownArrow');
+
+            languageDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isOpen = languageOptions.classList.contains('show');
                 
-                if (options.style.display === 'none' || !options.style.display) {
-                    options.style.display = 'block';
-                    arrow.style.transform = 'rotate(180deg)';
-                    this.style.borderColor = '#4facfe';
-                    this.style.borderRadius = '8px 8px 0 0';
+                if (!isOpen) {
+                    languageOptions.classList.add('show');
+                    languageDropdown.classList.add('active');
                     document.getElementById('languageSearch').focus();
                 } else {
                     hideLanguageDropdown();
@@ -3430,6 +3997,43 @@
                 if (!e.target.closest('#languageDropdown')) {
                     hideLanguageDropdown();
                 }
+            });
+
+            // Cancel button functionality
+            const cancelBtn = document.getElementById('cancelBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    // Clear form
+                    document.getElementById('projectName').value = '';
+                    document.getElementById('fileInput').value = '';
+                    document.getElementById('fileName').textContent = '';
+                    document.getElementById('fileName').classList.remove('show');
+                    document.getElementById('selectedLanguagesTags').innerHTML = '';
+                    document.getElementById('selectedLanguagesText').textContent = 'Choose languages...';
+                    
+                    // Reset project type to Fusion
+                    document.querySelector('input[name="projectType"][value="fusion"]').checked = true;
+                    
+                    // Hide language dropdown
+                    hideLanguageDropdown();
+                    
+                    // Switch to projects tab
+                    switchTab('projects');
+                });
+            }
+
+            // Project type card selection
+            document.querySelectorAll('.type-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Update visual state
+                    document.querySelectorAll('.type-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
             });
             
             // Account page buttons
@@ -3459,6 +4063,23 @@
                 }
             });
         });
+
+        // Hide language dropdown function
+        function hideLanguageDropdown() {
+            const languageOptions = document.getElementById('languageOptions');
+            const languageDropdown = document.getElementById('languageDropdown');
+            const dropdownArrow = document.getElementById('dropdownArrow');
+            
+            if (languageOptions) {
+                languageOptions.classList.remove('show');
+            }
+            if (languageDropdown) {
+                languageDropdown.classList.remove('active');
+            }
+            if (dropdownArrow) {
+                dropdownArrow.style.transform = 'rotate(0deg)';
+            }
+        }
     </script>
 
     <style>
