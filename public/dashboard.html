@@ -3026,6 +3026,7 @@
             document.getElementById('projectName').value = '';
             document.getElementById('fileInput').value = '';
             document.getElementById('fileName').textContent = '';
+            document.getElementById('fileName').classList.remove('show');
             selectedLanguages = [];
             selectedProjectType = 'fusion';
             renderLanguages();
@@ -3811,6 +3812,12 @@
         // Add event listeners after DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Setting up event listeners...');
+            
+            // Initialize file name display
+            const fileNameElement = document.getElementById('fileName');
+            if (fileNameElement) {
+                fileNameElement.classList.remove('show');
+            }
             
             // Logout button
             document.getElementById('logoutBtn').addEventListener('click', logout);
