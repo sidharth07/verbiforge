@@ -2724,12 +2724,8 @@
             renderLanguages();
         }
 
-        document.getElementById('fileInput').onchange = function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('fileName').textContent = file.name;
-            }
-        };
+        // File input change handler - moved to addEventListener in DOMContentLoaded
+        // This was causing conflicts with the proper event handler
 
         async function analyzeFile() {
             console.log('🚀 analyzeFile function called!');
@@ -3947,14 +3943,17 @@
 
             // File input change
             fileInput.addEventListener('change', function() {
+                console.log('🔍 File input change event triggered');
                 const file = this.files[0];
                 if (file) {
                     fileName.textContent = file.name;
                     fileName.classList.add('show');
-                    console.log('File selected:', file.name);
+                    console.log('✅ File selected and displayed:', file.name);
+                    console.log('🔍 File name element classes:', fileName.className);
                 } else {
                     fileName.textContent = '';
                     fileName.classList.remove('show');
+                    console.log('❌ No file selected, hiding file name');
                 }
             });
 
@@ -3977,7 +3976,8 @@
                     fileInput.files = files;
                     fileName.textContent = files[0].name;
                     fileName.classList.add('show');
-                    console.log('File dropped:', files[0].name);
+                    console.log('✅ File dropped and displayed:', files[0].name);
+                    console.log('🔍 File name element classes:', fileName.className);
                 }
             });
 
