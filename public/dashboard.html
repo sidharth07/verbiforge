@@ -283,7 +283,7 @@
             margin: 0 auto;
             padding: 0 20px;
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             width: 100%;
         }
@@ -291,7 +291,8 @@
         .nav-brand {
             font-size: 2.2em;
             font-weight: bold;
-            margin-left: -20px;
+            flex: 1;
+            text-align: center;
         }
 
         .nav-brand svg {
@@ -934,7 +935,7 @@
                 VerbiForge
             </div>
             <div class="nav-user">
-                <span id="userName" class="clickable-user-name">User Name</span>
+                <span id="userName" class="clickable-user-name">Loading...</span>
             </div>
         </div>
     </nav>
@@ -1441,14 +1442,23 @@
                     const displayName = currentUser.name ? currentUser.name.replace(/Super Admin/gi, '').trim() : 'User';
                     const userNameElement = document.getElementById('userName');
                     console.log('👤 Found userName element:', userNameElement);
-                    userNameElement.textContent = displayName;
-                    console.log('👤 Set user name to:', displayName);
                     
-                    // Add click event to open My Account page
-                    userNameElement.addEventListener('click', function() {
-                        console.log('👤 User name clicked, switching to account tab');
-                        switchTab('account');
-                    });
+                    if (userNameElement) {
+                        userNameElement.textContent = displayName;
+                        console.log('👤 Set user name to:', displayName);
+                        
+                        // Remove any existing click listeners to prevent duplicates
+                        userNameElement.replaceWith(userNameElement.cloneNode(true));
+                        const newUserNameElement = document.getElementById('userName');
+                        
+                        // Add click event to open My Account page
+                        newUserNameElement.addEventListener('click', function() {
+                            console.log('👤 User name clicked, switching to account tab');
+                            switchTab('account');
+                        });
+                    } else {
+                        console.error('❌ User name element not found!');
+                    }
 
                     // Check if user is admin and show super admin button
                     if (adminResponse.ok) {
@@ -1469,6 +1479,12 @@
                 }
             } catch (error) {
                 console.error('❌ Authentication error:', error);
+                // Set a fallback user name if authentication fails
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    userNameElement.textContent = 'Guest User';
+                    console.log('👤 Set fallback user name: Guest User');
+                }
                 window.location.href = 'login.html';
             }
         }
