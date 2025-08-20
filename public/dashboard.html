@@ -283,8 +283,9 @@
             margin: 0 auto;
             padding: 0 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            width: 100%;
         }
 
         .nav-brand {
@@ -933,7 +934,7 @@
                 VerbiForge
             </div>
             <div class="nav-user">
-                <span id="userName" class="clickable-user-name">Loading...</span>
+                <span id="userName" class="clickable-user-name">User Name</span>
             </div>
         </div>
     </nav>
@@ -1433,9 +1434,13 @@
                     const userData = await userResponse.json();
                     console.log('✅ User data:', userData);
                     currentUser = userData.user;
+                    console.log('👤 Current user object:', currentUser);
+                    console.log('👤 User name property:', currentUser.name);
+                    
                     // Remove "Super Admin" from the display name if present
                     const displayName = currentUser.name ? currentUser.name.replace(/Super Admin/gi, '').trim() : 'User';
                     const userNameElement = document.getElementById('userName');
+                    console.log('👤 Found userName element:', userNameElement);
                     userNameElement.textContent = displayName;
                     console.log('👤 Set user name to:', displayName);
                     
