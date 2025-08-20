@@ -33,6 +33,14 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    
+    <!-- Staging Title Script -->
+    <script>
+        // Check if we're on staging and update title
+        if (window.location.hostname === 'staging.verbiforge.com') {
+            document.title = 'VerbiForge - Staging';
+        }
+    </script>
     <style>
         * {
             margin: 0;

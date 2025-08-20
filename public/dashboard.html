@@ -6,6 +6,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - VerbiForge</title>
+    
+    <!-- Staging Title Script -->
+    <script>
+        // Check if we're on staging and update title
+        if (window.location.hostname === 'staging.verbiforge.com') {
+            document.title = 'Dashboard - VerbiForge - Staging';
+        }
+    </script>
+    
     <script src="client-auth.js"></script>
     <style>
         * {
