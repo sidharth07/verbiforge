@@ -119,13 +119,14 @@
         }
 
         .custom-modal-btn.primary {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: #3e3e3e;
             color: white;
         }
 
         .custom-modal-btn.primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+            box-shadow: 0 8px 20px rgba(62, 62, 62, 0.3);
+            background: #2a2a2a;
         }
 
         .custom-modal-btn.secondary {
@@ -138,13 +139,14 @@
         }
 
         .custom-modal-btn.danger {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
+            background: #3e3e3e;
             color: white;
         }
 
         .custom-modal-btn.danger:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
+            box-shadow: 0 8px 20px rgba(62, 62, 62, 0.3);
+            background: #2a2a2a;
         }
         
         /* Admin Layout */
@@ -1080,16 +1082,16 @@
                 <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     <h3 style="margin: 0 0 20px 0; color: #333; font-size: 1.3em;">Quick Actions</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-                        <button onclick="switchAdminTab('create-project')" style="background: #2d3748; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
+                        <button onclick="switchAdminTab('create-project')" style="background: #3e3e3e; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
                             Create New Project
                         </button>
-                        <button onclick="switchAdminTab('users')" style="background: #2d3748; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
+                        <button onclick="switchAdminTab('users')" style="background: #3e3e3e; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
                             Manage Users
                         </button>
-                        <button onclick="switchAdminTab('languages')" style="background: #2d3748; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
+                        <button onclick="switchAdminTab('languages')" style="background: #3e3e3e; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
                             Language Pricing
                         </button>
-                        <button onclick="switchAdminTab('contacts')" style="background: #2d3748; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
+                        <button onclick="switchAdminTab('contacts')" style="background: #3e3e3e; color: white; border: none; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.3s ease;">
                             View Messages
                         </button>
                     </div>
@@ -1132,11 +1134,11 @@
                                style="width: 200px; padding: 10px 12px; border: 2px solid #007bff; border-radius: 6px; font-size: 14px;">
                     </div>
                     <button id="searchProjectBtn" 
-                            style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                            style="background: #3e3e3e; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                         Search
                     </button>
                     <button id="clearSearchBtn" 
-                            style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                            style="background: #3e3e3e; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                         Clear
                     </button>
 
@@ -1221,7 +1223,7 @@
                                     <span style="color: #666; font-weight: 500; font-size: 12px;">¢/word</span>
                                 </div>
                                 <button id="addNewLanguageBtn" 
-                                        style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                        style="background: #3e3e3e; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
                                     ✨ Add
                                 </button>
                             </div>
@@ -1241,7 +1243,7 @@
                                     <span style="color: #666; font-weight: 500; font-size: 12px;">x</span>
                                 </div>
                                 <button id="updateMultiplierBtn" 
-                                        style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                        style="background: #3e3e3e; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
                                     Update
                                 </button>
                             </div>
@@ -1326,7 +1328,7 @@
                             </div>
                             <div style="display: flex; align-items: end;">
                                 <button id="createUserBtn" 
-                                        style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%;">
+                                        style="background: #3e3e3e; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%;">
                                     ✨ Create User
                                 </button>
                             </div>
@@ -1352,7 +1354,7 @@
                             <input type="email" id="newAdminEmail" placeholder="Email Address" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                             <input type="text" id="newAdminName" placeholder="Full Name" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                             <input type="password" id="newAdminPassword" placeholder="Temporary Password" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                            <button id="createAdminBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                            <button id="createAdminBtn" style="background: #3e3e3e; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
                                 Create Admin
                             </button>
                         </div>
@@ -1446,7 +1448,7 @@
                         <select id="userSelect" style="flex: 1; min-width: 250px; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
                             <option value="">Select a user...</option>
                         </select>
-                        <button id="loadUsersBtn" style="background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                        <button id="loadUsersBtn" style="background: #3e3e3e; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
                             Load Users
                         </button>
                     </div>
@@ -1513,7 +1515,7 @@
                         
                         <!-- Analyze Button -->
                         <div style="text-align: center;">
-                            <button id="analyzeProjectBtn" style="background: #28a745; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">
+                            <button id="analyzeProjectBtn" style="background: #3e3e3e; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">
                                 Analyze Project
                             </button>
                         </div>
@@ -1529,10 +1531,10 @@
                             </div>
                             
                             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-                                <button id="saveProjectBtn" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                <button id="saveProjectBtn" style="background: #3e3e3e; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
                                     Save Project
                                 </button>
-                                <button id="resetProjectBtn" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                                <button id="resetProjectBtn" style="background: #3e3e3e; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
                                     Reset
                                 </button>
                             </div>
@@ -1565,10 +1567,10 @@
                     <option value="in_progress">In Progress</option>
                     <option value="resolved">Resolved</option>
                 </select>
-                <button id="updateContactStatusBtn" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                <button id="updateContactStatusBtn" style="background: #3e3e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
                     Update Status
                 </button>
-                <button id="deleteContactBtn" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                <button id="deleteContactBtn" style="background: #3e3e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
                     Delete
                 </button>
             </div>
@@ -1591,7 +1593,7 @@
                 <h3 style="margin-bottom: 15px;">📤 Upload Translated File</h3>
                 <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
                     <input type="file" id="translatedFileInput" accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" style="flex: 1;">
-                    <button id="uploadTranslatedFileBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                    <button id="uploadTranslatedFileBtn" style="background: #3e3e3e; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
                         Upload
                     </button>
                 </div>
@@ -2062,7 +2064,7 @@
                 ` : ''}
                 
                 <div style="display: flex; gap: 10px;">
-                    <button class="action-btn download download-original-btn" data-project-id="${project.id}" data-file-name="${project.fileName}" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">
+                    <button class="action-btn download download-original-btn" data-project-id="${project.id}" data-file-name="${project.fileName}" style="background: #3e3e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block;">
                         Download Original File
                     </button>
                 </div>
@@ -2336,7 +2338,7 @@
                         <span style="color: #666; font-size: 0.9em;">¢/word</span>
                         ${isCustomLanguage ? `
                             <button onclick="deleteCustomLanguage('${language}')" 
-                                    style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; margin-left: 5px;"
+                                    style="background: #3e3e3e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; margin-left: 5px;"
                                     title="Delete custom language">
                                 🗑️
                             </button>
