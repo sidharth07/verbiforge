@@ -1523,7 +1523,9 @@
         }
         
         .file-name.show {
-            display: block;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
         
         /* Project Type Cards */
@@ -2005,6 +2007,7 @@
                                         </div>
                                     </label>
                                     <div id="fileName" class="file-name"></div>
+                                    <button type="button" id="testFileNameBtn" style="margin-top: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Test File Name Display</button>
                                 </div>
 
                                 <div class="form-group">
@@ -3814,6 +3817,10 @@
             const fileNameElement = document.getElementById('fileName');
             if (fileNameElement) {
                 fileNameElement.classList.remove('show');
+                console.log('🔧 File name element initialized:', fileNameElement);
+                console.log('🔧 Initial classes:', fileNameElement.className);
+            } else {
+                console.error('❌ File name element not found!');
             }
             
             // Logout button
@@ -3951,6 +3958,8 @@
                     fileName.classList.add('show');
                     console.log('✅ File selected and displayed:', file.name);
                     console.log('🔍 File name element classes:', fileName.className);
+                    console.log('🔍 File name element display style:', window.getComputedStyle(fileName).display);
+                    console.log('🔍 File name element visibility:', window.getComputedStyle(fileName).visibility);
                 } else {
                     fileName.textContent = '';
                     fileName.classList.remove('show');
@@ -3987,6 +3996,25 @@
             uploadZone.addEventListener('click', function(e) {
                 console.log('Upload zone clicked');
             });
+
+            // Test button for debugging file name display
+            const testFileNameBtn = document.getElementById('testFileNameBtn');
+            if (testFileNameBtn) {
+                testFileNameBtn.addEventListener('click', function() {
+                    console.log('🧪 Test button clicked');
+                    const fileName = document.getElementById('fileName');
+                    if (fileName) {
+                        fileName.textContent = 'test-file.xlsx';
+                        fileName.classList.add('show');
+                        console.log('🧪 Test file name displayed');
+                        console.log('🧪 File name element classes:', fileName.className);
+                        console.log('🧪 File name element display style:', window.getComputedStyle(fileName).display);
+                        console.log('🧪 File name element visibility:', window.getComputedStyle(fileName).visibility);
+                    } else {
+                        console.error('❌ File name element not found in test');
+                    }
+                });
+            }
 
             // Modern language dropdown
             const languageDropdown = document.getElementById('languageDropdown');
