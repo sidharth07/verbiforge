@@ -689,6 +689,7 @@
             z-index: 1000;
         }
 
+        /* Modern SaaS Project Details Modal */
         .project-details-modal {
             display: none;
             position: fixed;
@@ -696,90 +697,204 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
         .project-details-modal .modal-content {
             background: white;
-            border-radius: 8px;
+            border-radius: 20px;
             padding: 0;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid #e2e8f0;
         }
 
         .project-details-modal .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #eee;
+            padding: 24px 32px;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 20px 20px 0 0;
         }
 
         .project-details-modal .modal-header h2 {
             margin: 0;
-            color: #333;
-            font-size: 20px;
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .project-details-modal .modal-header h2::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: inline-block;
         }
 
         .project-details-modal .modal-body {
-            padding: 24px;
+            padding: 32px;
+        }
+
+        .project-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
         }
 
         .project-details-modal .detail-row {
             display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .project-details-modal .detail-row:last-child {
-            border-bottom: none;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
 
         .project-details-modal .detail-label {
-            font-weight: 500;
-            color: #333;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .project-details-modal .detail-value {
-            color: #666;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 14px;
         }
 
+        .project-details-modal .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .project-details-modal .status-badge.quote { background: #fef3c7; color: #92400e; }
+        .project-details-modal .status-badge.submitted { background: #dbeafe; color: #1e40af; }
+        .project-details-modal .status-badge.in-progress { background: #fef3c7; color: #92400e; }
+        .project-details-modal .status-badge.proofreading { background: #e9d5ff; color: #7c3aed; }
+        .project-details-modal .status-badge.ready { background: #fed7aa; color: #ea580c; }
+        .project-details-modal .status-badge.completed { background: #d1fae5; color: #065f46; }
+
         .project-details-modal .cost-breakdown {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 16px;
-            margin: 16px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .project-details-modal .cost-breakdown h4 {
+            margin: 0 0 20px 0;
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-details-modal .cost-breakdown h4::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
         }
 
         .project-details-modal .cost-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
         }
 
         .project-details-modal .cost-item:last-child {
-            border-bottom: none;
+            margin-bottom: 0;
         }
 
-        .project-details-modal .total-cost {
-            font-size: 18px;
-            font-weight: bold;
-            color: #28a745;
-            text-align: center;
-            padding: 16px;
-            background: white;
-            border-radius: 6px;
+        .project-details-modal .cost-item .language {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .project-details-modal .cost-item .cost {
+            color: #059669;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .project-details-modal .cost-summary {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .project-details-modal .cost-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .project-details-modal .cost-summary-row.subtotal {
+            border-bottom: 1px solid #bbf7d0;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+
+        .project-details-modal .cost-summary-row.total {
+            border-top: 2px solid #059669;
+            padding-top: 16px;
             margin-top: 16px;
+        }
+
+        .project-details-modal .cost-summary-label {
+            font-weight: 600;
+            color: #065f46;
+            font-size: 14px;
+        }
+
+        .project-details-modal .cost-summary-value {
+            font-weight: 700;
+            color: #065f46;
+            font-size: 16px;
+        }
+
+        .project-details-modal .cost-summary-value.total {
+            font-size: 24px;
+            color: #059669;
         }
 
         .project-details-modal .close-btn {
@@ -787,18 +902,36 @@
             border: none;
             font-size: 24px;
             cursor: pointer;
-            color: #666;
-            padding: 0;
-            width: 30px;
-            height: 30px;
+            color: #64748b;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.2s;
+            transition: all 0.2s ease;
+            border-radius: 8px;
         }
 
         .project-details-modal .close-btn:hover {
-            color: #333;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+            .project-details-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .project-details-modal .modal-content {
+                width: 95%;
+                max-height: 90vh;
+            }
+            
+            .project-details-modal .modal-body {
+                padding: 24px;
+            }
         }
 
         .modal.show {
@@ -2742,11 +2875,11 @@
                         
                         breakdownHtml = `
                             <div class="cost-breakdown">
-                                <h4 style="margin-bottom: 12px; color: #333; font-size: 16px;">Translation Costs Breakdown:</h4>
+                                <h4>Translation Costs Breakdown</h4>
                                 ${project.breakdown.map(item => `
                                     <div class="cost-item">
-                                        <span style="font-weight: 500;">${item.language}</span>
-                                        <span style="color: #28a745; font-weight: 600;">$${parseFloat(item.cost || 0).toFixed(2)}</span>
+                                        <span class="language">${item.language}</span>
+                                        <span class="cost">$${parseFloat(item.cost || 0).toFixed(2)}</span>
                                     </div>
                                 `).join('')}
                             </div>
@@ -2756,51 +2889,67 @@
                         subtotal = parseFloat(project.subtotal || 0);
                     }
                     
+                    const statusClass = getStatusClass(project.status);
+                    const projectType = (project.projectType || project.project_type || 'fusion') === 'pure' ? 'Pure' : 'Fusion';
+                    const projectManagementCost = parseFloat(project.projectManagementCost || project.project_management_cost || 500);
+                    const total = parseFloat(project.total);
+                    
                     const modalContent = `
-                        <div class="detail-row">
-                            <span class="detail-label">Project Name:</span>
-                            <span class="detail-value">${project.name}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Project ID:</span>
-                            <span class="detail-value">${project.projectId || project.project_id || 'N/A'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Created Date:</span>
-                            <span class="detail-value">${date}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">File Name:</span>
-                            <span class="detail-value">${project.fileName || project.file_name}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Word Count:</span>
-                            <span class="detail-value">${(project.wordCount || project.word_count || 0).toLocaleString()}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Project Type:</span>
-                            <span class="detail-value">${(project.projectType || project.project_type || 'fusion') === 'pure' ? 'Pure' : 'Fusion'}${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Status:</span>
-                            <span class="detail-value" style="color: ${getStatusColor(project.status)};">${getStatusText(project.status)}</span>
-                        </div>
-                        ${project.eta ? `
+                        <div class="project-details-grid">
                             <div class="detail-row">
-                                <span class="detail-label">ETA:</span>
-                                <span class="detail-value">${project.eta} working days</span>
+                                <span class="detail-label">Project Name</span>
+                                <span class="detail-value">${project.name}</span>
                             </div>
-                        ` : ''}
+                            <div class="detail-row">
+                                <span class="detail-label">Project ID</span>
+                                <span class="detail-value">${project.projectId || project.project_id || 'N/A'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Created Date</span>
+                                <span class="detail-value">${date}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">File Name</span>
+                                <span class="detail-value">${project.fileName || project.file_name}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Word Count</span>
+                                <span class="detail-value">${(project.wordCount || project.word_count || 0).toLocaleString()}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Project Type</span>
+                                <span class="detail-value">${projectType}${(project.multiplier && project.multiplier > 1) ? ` (${project.multiplier}x)` : ''}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status</span>
+                                <span class="detail-value">
+                                    <span class="status-badge ${statusClass}">${getStatusText(project.status)}</span>
+                                </span>
+                            </div>
+                            ${project.eta ? `
+                                <div class="detail-row">
+                                    <span class="detail-label">ETA</span>
+                                    <span class="detail-value">${project.eta} working days</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
                         ${breakdownHtml}
-                        <div class="detail-row" style="border-top: 2px solid #eee; padding-top: 12px; margin-top: 12px;">
-                            <span class="detail-label" style="font-weight: 600;">Subtotal:</span>
-                            <span class="detail-value" style="font-weight: 600;">$${subtotal.toFixed(2)}</span>
+                        
+                        <div class="cost-summary">
+                            <div class="cost-summary-row subtotal">
+                                <span class="cost-summary-label">Subtotal</span>
+                                <span class="cost-summary-value">$${subtotal.toFixed(2)}</span>
+                            </div>
+                            <div class="cost-summary-row">
+                                <span class="cost-summary-label">Project Management</span>
+                                <span class="cost-summary-value">$${projectManagementCost.toFixed(2)}</span>
+                            </div>
+                            <div class="cost-summary-row total">
+                                <span class="cost-summary-label">Total</span>
+                                <span class="cost-summary-value total">$${total.toFixed(2)}</span>
+                            </div>
                         </div>
-                        <div class="detail-row">
-                            <span class="detail-label" style="font-weight: 600;">Project Management:</span>
-                            <span class="detail-value" style="font-weight: 600;">$${parseFloat(project.projectManagementCost || project.project_management_cost || 500).toFixed(2)}</span>
-                        </div>
-                        <div class="total-cost">Total: $${parseFloat(project.total).toFixed(2)}</div>
                     `;
                     
                     document.getElementById('projectDetailsContent').innerHTML = modalContent;
