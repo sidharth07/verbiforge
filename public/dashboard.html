@@ -303,6 +303,22 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            margin-left: auto;
+        }
+
+        .clickable-user-name {
+            cursor: pointer;
+            color: white;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .clickable-user-name:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
         }
 
         .nav-user #userName.admin-clickable {
@@ -915,7 +931,7 @@
                 VerbiForge
             </div>
             <div class="nav-user">
-                <span id="userName">Loading...</span>
+                <span id="userName" class="clickable-user-name">Loading...</span>
             </div>
         </div>
     </nav>
@@ -1417,7 +1433,13 @@
                     currentUser = userData.user;
                     // Remove "Super Admin" from the display name if present
                     const displayName = currentUser.name.replace(/Super Admin/gi, '').trim();
-                    document.getElementById('userName').textContent = displayName;
+                    const userNameElement = document.getElementById('userName');
+                    userNameElement.textContent = displayName;
+                    
+                    // Add click event to open My Account page
+                    userNameElement.addEventListener('click', function() {
+                        switchTab('account');
+                    });
 
                     // Check if user is admin and show super admin button
                     if (adminResponse.ok) {
