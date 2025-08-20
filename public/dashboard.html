@@ -1463,6 +1463,7 @@
             cursor: pointer;
             position: relative;
             user-select: none;
+            display: block;
         }
         
         .upload-zone:hover {
@@ -1481,13 +1482,13 @@
             width: 100%;
             height: 100%;
             cursor: pointer;
-            z-index: -1;
+            z-index: 1;
         }
         
         .upload-content {
             pointer-events: none;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
         
         .upload-icon {
@@ -1992,7 +1993,7 @@
 
                                 <div class="form-group">
                                     <label for="fileInput">Upload File</label>
-                                    <div class="upload-zone" id="uploadZone">
+                                    <label for="fileInput" class="upload-zone" id="uploadZone">
                                         <input type="file" id="fileInput" accept=".xlsx,.xls" class="file-input">
                                         <div class="upload-content">
                                             <svg viewBox="0 0 24 24" class="upload-icon">
@@ -2002,7 +2003,7 @@
                                             <p>Supports Excel files (.xlsx, .xls)</p>
                                         </div>
                                         <div id="fileName" class="file-name"></div>
-                                    </div>
+                                    </label>
                                 </div>
 
                                 <div class="form-group">
@@ -3973,23 +3974,10 @@
                 }
             });
 
-            // Click to upload - only trigger on upload zone click
+            // Click to upload - label approach handles this automatically
+            // But we'll keep the event listener for additional functionality
             uploadZone.addEventListener('click', function(e) {
-                // Only trigger if clicking on the upload zone itself or upload content
-                if (e.target === uploadZone || e.target.closest('.upload-content')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Upload zone clicked, triggering file input');
-                    fileInput.click();
-                }
-            });
-
-            // Prevent file input from being triggered by clicks outside upload zone
-            document.addEventListener('click', function(e) {
-                // If clicking outside the upload zone, don't do anything
-                if (!uploadZone.contains(e.target)) {
-                    return;
-                }
+                console.log('Upload zone clicked');
             });
 
             // Modern language dropdown
