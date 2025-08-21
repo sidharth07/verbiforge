@@ -1871,7 +1871,6 @@
                         <table class="projects-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Company</th>
@@ -3494,9 +3493,8 @@
                 row.innerHTML = `
                     <td>
                         ${!contact.isRead ? '<span class="unread-indicator"></span>' : ''}
-                        ${contact.id}
+                        ${contact.name}
                     </td>
-                    <td>${contact.name}</td>
                     <td>${contact.email}</td>
                     <td>${contact.company || '-'}</td>
                     <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${contact.subject}</td>
