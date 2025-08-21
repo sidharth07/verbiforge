@@ -2860,24 +2860,38 @@
                 return;
             }
             
-            try {
-                const response = await Auth.authFetch('/admin/languages', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ languages: { [language]: price } })
-                });
-                
-                if (response.ok) {
-                    allLanguages[language] = price;
-                    showStatusMessage(`${language} price updated successfully!`, 'success');
-                } else {
-                    const data = await response.json();
-                    showStatusMessage(`Error updating ${language}: ${data.error}`, 'error');
+            // Get the current price from allLanguages
+            const currentPrice = allLanguages[language] || 0;
+            
+            // Show confirmation popup with price change details
+            CustomModal.confirm(
+                `Are you sure you want to change ${language} pricing from ${currentPrice}¢ to ${price}¢ per word?`,
+                async () => {
+                    try {
+                        const response = await Auth.authFetch('/admin/languages', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ languages: { [language]: price } })
+                        });
+                        
+                        if (response.ok) {
+                            allLanguages[language] = price;
+                            showStatusMessage(`${language} price updated from ${currentPrice}¢ to ${price}¢ successfully!`, 'success');
+                        } else {
+                            const data = await response.json();
+                            showStatusMessage(`Error updating ${language}: ${data.error}`, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error saving language price:', error);
+                        showStatusMessage(`Network error updating ${language}`, 'error');
+                    }
+                },
+                () => {
+                    console.log(`❌ ${language} price change cancelled by user`);
+                    // Reset the input to the original value
+                    input.value = currentPrice;
                 }
-            } catch (error) {
-                console.error('Error saving language price:', error);
-                showStatusMessage(`Network error updating ${language}`, 'error');
-            }
+            );
         }
 
         async function saveAllLanguagePricing() {
