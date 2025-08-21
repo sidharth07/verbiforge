@@ -600,7 +600,7 @@
         .dashboard-main {
             flex: 1;
             margin-left: 238px; /* Updated to match reduced sidebar width */
-            margin-top: 72px; /* Add top margin to account for header */
+            margin-top: 0; /* Remove top margin to eliminate white space */
             padding: 30px;
             background: #f8f9fa;
             min-height: calc(100vh - 72px); /* Adjust height to account for header */
@@ -658,6 +658,7 @@
 
         .tab-content {
             display: none;
+            padding-top: 72px; /* Add padding to account for header */
         }
 
         .tab-content.active {
