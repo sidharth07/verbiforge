@@ -2898,26 +2898,36 @@
             });
             
             console.log('📊 Updated languages:', updatedLanguages);
-            showStatusMessage('Saving language pricing...', 'info');
             
-            try {
-                const response = await Auth.authFetch('/admin/languages', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ languages: updatedLanguages })
-                });
-                
-                if (response.ok) {
-                    allLanguages = updatedLanguages;
-                    showStatusMessage('✅ Language pricing updated successfully!', 'success');
-                } else {
-                    const data = await response.json();
-                    showStatusMessage('❌ Error: ' + data.error, 'error');
+            // Show confirmation popup
+            CustomModal.confirm(
+                `Are you sure you want to save pricing changes for ${Object.keys(updatedLanguages).length} languages?`,
+                async () => {
+                    showStatusMessage('Saving language pricing...', 'info');
+                    
+                    try {
+                        const response = await Auth.authFetch('/admin/languages', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ languages: updatedLanguages })
+                        });
+                        
+                        if (response.ok) {
+                            allLanguages = updatedLanguages;
+                            showStatusMessage('✅ Language pricing updated successfully!', 'success');
+                        } else {
+                            const data = await response.json();
+                            showStatusMessage('❌ Error: ' + data.error, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error saving languages:', error);
+                        showStatusMessage('❌ Network error saving languages', 'error');
+                    }
+                },
+                () => {
+                    console.log('❌ Save All Changes cancelled by user');
                 }
-            } catch (error) {
-                console.error('Error saving languages:', error);
-                showStatusMessage('❌ Network error saving languages', 'error');
-            }
+            );
         }
 
         async function applyGlobalPricing() {
