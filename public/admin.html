@@ -2832,15 +2832,22 @@
         }
 
         function showStatusMessage(message, type = 'info') {
+            console.log('📝 Showing status message:', message, type);
             const statusDiv = document.getElementById('languageSaveStatus');
-            statusDiv.textContent = message;
-            statusDiv.className = `status-message global ${type}`;
-            statusDiv.style.display = 'block';
-            
-            if (type === 'success' || type === 'error') {
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 3000);
+            if (statusDiv) {
+                statusDiv.textContent = message;
+                statusDiv.className = `status-message global ${type}`;
+                statusDiv.style.display = 'block';
+                
+                if (type === 'success' || type === 'error') {
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                }
+            } else {
+                console.error('❌ Status message element not found');
+                // Fallback to alert for debugging
+                alert(`${type.toUpperCase()}: ${message}`);
             }
         }
 
@@ -2874,18 +2881,23 @@
         }
 
         async function saveAllLanguagePricing() {
+            console.log('🔧 Save All Changes button clicked');
             const inputs = document.querySelectorAll('.language-price-input');
+            console.log('🔍 Found language inputs:', inputs.length);
+            
             const updatedLanguages = {};
             
             inputs.forEach(input => {
                 const language = input.dataset.language;
                 const price = parseInt(input.value);
+                console.log(`🔍 Language: ${language}, Price: ${price}`);
                 
                 if (price && price > 0) {
                     updatedLanguages[language] = price;
                 }
             });
             
+            console.log('📊 Updated languages:', updatedLanguages);
             showStatusMessage('Saving language pricing...', 'info');
             
             try {
@@ -3749,7 +3761,13 @@
             document.getElementById('applyGlobalPricingBtn').addEventListener('click', applyGlobalPricing);
             document.getElementById('addNewLanguageBtn').addEventListener('click', addNewLanguage);
             document.getElementById('updateMultiplierBtn').addEventListener('click', updateMultiplier);
-            document.getElementById('saveAllLanguagePricingBtn').addEventListener('click', saveAllLanguagePricing);
+            const saveAllBtn = document.getElementById('saveAllLanguagePricingBtn');
+            if (saveAllBtn) {
+                saveAllBtn.addEventListener('click', saveAllLanguagePricing);
+                console.log('✅ Save All Changes button listener attached');
+            } else {
+                console.error('❌ Save All Changes button not found');
+            }
             document.getElementById('resetLanguagePricingBtn').addEventListener('click', resetLanguagePricing);
 
             // Admin management buttons
