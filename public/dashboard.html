@@ -460,7 +460,7 @@
         }
 
         .brand-name {
-            font-size: 33px;
+            font-size: 31px;
             font-weight: 700;
             color: white;
             letter-spacing: -0.5px;
@@ -2019,11 +2019,27 @@
         <div class="header-brand">
             <div class="logo-badge">
                 <svg viewBox="0 0 60 60" width="40" height="40">
-                    <!-- V Letter -->
-                    <path d="M8 45 L20 15 L32 45" fill="white" stroke="white" stroke-width="2"/>
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="logoShadow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000000" flood-opacity="0.1"/>
+                        </filter>
+                    </defs>
                     
-                    <!-- F Letter -->
-                    <path d="M25 15 L25 45 M25 15 L45 15 M25 30 L40 30" fill="white" stroke="white" stroke-width="2"/>
+                    <!-- Background circle -->
+                    <circle cx="30" cy="30" r="28" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                    
+                    <!-- V Letter - Modern geometric design -->
+                    <path d="M12 42 L22 18 L32 42" fill="url(#logoGradient)" filter="url(#logoShadow)" stroke="white" stroke-width="1.5"/>
+                    
+                    <!-- F Letter - Modern geometric design -->
+                    <path d="M28 18 L28 42 M28 18 L48 18 M28 32 L44 32" fill="url(#logoGradient)" filter="url(#logoShadow)" stroke="white" stroke-width="1.5"/>
+                    
+                    <!-- Subtle accent line -->
+                    <line x1="15" y1="35" x2="45" y2="35" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
                 </svg>
             </div>
             <div class="brand-name">VerbiForge</div>
