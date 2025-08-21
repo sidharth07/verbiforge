@@ -1114,14 +1114,14 @@
         .project-card {
             background: white;
             border-radius: 16px;
-            padding: 20px;
+            padding: 21px; /* Increased by 5% from 20px */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            flex: 0 0 272px; /* Reduced by 15% from 320px */
-            min-width: 272px;
-            max-width: 272px;
+            flex: 0 0 286px; /* Increased by 5% from 272px */
+            min-width: 286px;
+            max-width: 286px;
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
@@ -1412,17 +1412,17 @@
 
         /* Responsive breakpoints */
         @media (min-width: 1400px) {
-            .project-card { flex: 0 0 289px; min-width: 289px; max-width: 289px; } /* Reduced by 15% from 340px */
+            .project-card { flex: 0 0 303px; min-width: 303px; max-width: 303px; } /* Increased by 5% from 289px */
         }
         @media (max-width: 1199.98px) {
-            .project-card { flex: 0 0 272px; min-width: 272px; max-width: 272px; } /* Reduced by 15% from 320px */
+            .project-card { flex: 0 0 286px; min-width: 286px; max-width: 286px; } /* Increased by 5% from 272px */
         }
         @media (max-width: 991.98px) {
-            .project-card { flex: 0 0 306px; min-width: 306px; max-width: 306px; } /* Reduced by 15% from 360px */
+            .project-card { flex: 0 0 321px; min-width: 321px; max-width: 321px; } /* Increased by 5% from 306px */
         }
         @media (max-width: 767.98px) {
             .cards-container { gap: 16px; padding: 16px; }
-            .project-card { flex: 0 0 100%; min-width: 100%; max-width: 100%; padding: 16px; }
+            .project-card { flex: 0 0 100%; min-width: 100%; max-width: 100%; padding: 17px; } /* Increased by 5% from 16px */
         }
         
         /* Responsive Sidebar */
