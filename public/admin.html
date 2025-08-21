@@ -2868,10 +2868,14 @@
                 `Are you sure you want to change ${language} pricing from ${currentPrice}¢ to ${price}¢ per word?`,
                 async () => {
                     try {
+                        // Create updated languages object with all current languages plus the updated one
+                        const updatedLanguages = { ...allLanguages };
+                        updatedLanguages[language] = price;
+                        
                         const response = await Auth.authFetch('/admin/languages', {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ languages: { [language]: price } })
+                            body: JSON.stringify({ languages: updatedLanguages })
                         });
                         
                         if (response.ok) {
