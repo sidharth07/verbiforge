@@ -1103,11 +1103,10 @@
 
         /* Modern SaaS Dashboard Cards */
         .cards-container { 
-            display: flex; 
-            flex-wrap: wrap; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, 286px);
             gap: 24px; 
-            align-items: stretch; 
-            justify-content: flex-start; 
+            justify-content: center; 
             padding: 20px;
         }
         
@@ -1119,9 +1118,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            flex: 0 0 286px; /* Increased by 5% from 272px */
-            min-width: 286px;
-            max-width: 286px;
+            width: 286px;
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
@@ -1412,17 +1409,28 @@
 
         /* Responsive breakpoints */
         @media (min-width: 1400px) {
-            .project-card { flex: 0 0 303px; min-width: 303px; max-width: 303px; } /* Increased by 5% from 289px */
+            .cards-container { grid-template-columns: repeat(auto-fit, 303px); }
+            .project-card { width: 303px; }
         }
         @media (max-width: 1199.98px) {
-            .project-card { flex: 0 0 286px; min-width: 286px; max-width: 286px; } /* Increased by 5% from 272px */
+            .cards-container { grid-template-columns: repeat(auto-fit, 286px); }
+            .project-card { width: 286px; }
         }
         @media (max-width: 991.98px) {
-            .project-card { flex: 0 0 321px; min-width: 321px; max-width: 321px; } /* Increased by 5% from 306px */
+            .cards-container { grid-template-columns: repeat(auto-fit, 321px); }
+            .project-card { width: 321px; }
         }
         @media (max-width: 767.98px) {
-            .cards-container { gap: 16px; padding: 16px; justify-content: flex-start; }
-            .project-card { flex: 0 0 100%; min-width: 100%; max-width: 100%; padding: 17px; } /* Increased by 5% from 16px */
+            .cards-container { 
+                grid-template-columns: 1fr; 
+                gap: 16px; 
+                padding: 16px; 
+                justify-content: center; 
+            }
+            .project-card { 
+                width: 100%; 
+                padding: 17px; 
+            }
         }
         
         /* Responsive Sidebar */
