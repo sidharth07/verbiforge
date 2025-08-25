@@ -1104,9 +1104,9 @@
         /* Modern SaaS Dashboard Cards */
         .cards-container { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, 286px);
+            grid-template-columns: repeat(auto-fill, 286px);
             gap: 24px; 
-            justify-content: start; 
+            justify-content: center; 
             padding: 20px;
         }
         
@@ -1409,15 +1409,15 @@
 
         /* Responsive breakpoints */
         @media (min-width: 1400px) {
-            .cards-container { grid-template-columns: repeat(auto-fit, 303px); }
+            .cards-container { grid-template-columns: repeat(auto-fill, 303px); }
             .project-card { width: 303px; }
         }
         @media (max-width: 1199.98px) {
-            .cards-container { grid-template-columns: repeat(auto-fit, 286px); }
+            .cards-container { grid-template-columns: repeat(auto-fill, 286px); }
             .project-card { width: 286px; }
         }
         @media (max-width: 991.98px) {
-            .cards-container { grid-template-columns: repeat(auto-fit, 321px); }
+            .cards-container { grid-template-columns: repeat(auto-fill, 321px); }
             .project-card { width: 321px; }
         }
         @media (max-width: 767.98px) {
@@ -1425,7 +1425,7 @@
                 grid-template-columns: 1fr; 
                 gap: 16px; 
                 padding: 16px; 
-                justify-content: start; 
+                justify-content: center; 
             }
             .project-card { 
                 width: 100%; 
