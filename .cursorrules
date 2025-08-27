@@ -56,7 +56,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **Branch**: staging
 - **Environment**: staging
 - **Database**: Separate staging database
-- **Admin Email**: admin@staging.verbiforge.com
+- **Admin Email**: sid@verbiforge.com
 - **Super Admin Password**: admin123
 
 ## Deployment Process
