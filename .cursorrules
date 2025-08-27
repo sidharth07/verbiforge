@@ -49,6 +49,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **Environment**: production
 - **Database**: PostgreSQL (verbiforge-db)
 - **Admin Email**: sid@verbiforge.com
+- **Super Admin Password**: admin123
 
 ### Staging Environment
 - **URL**: www.staging.verbiforge.com
@@ -56,6 +57,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **Environment**: staging
 - **Database**: Separate staging database
 - **Admin Email**: admin@staging.verbiforge.com
+- **Super Admin Password**: admin123
 
 ## Deployment Process
 
@@ -100,9 +102,12 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 ## Authentication System
 - JWT-based authentication
 - Google OAuth integration
-- Role-based access (user/admin)
+- Role-based access (user/admin/super_admin)
 - Session management
 - Password hashing with bcrypt
+- **Super Admin Accounts**:
+  - `sid@verbiforge.com` (password: admin123)
+  - `sid.bandewar@gmail.com` (password: admin123)
 
 ## Security Features
 - Rate limiting
@@ -119,6 +124,9 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - Production environment serves real users
 - File uploads are limited to 10MB
 - Rate limiting: 100 requests per 15 minutes
+- **Super admin users are automatically created** on server startup
+- **Admin login**: Use `sid@verbiforge.com` with password `admin123`
+- **Always update .cursorrules** after making significant changes to maintain context
 
 ## Common Commands
 ```bash
@@ -144,6 +152,9 @@ curl www.staging.verbiforge.com/health
 - Ensure database connections are working
 - Check file permissions for uploads
 - Monitor rate limiting and file size limits
+- **Admin Login Issues**: Verify super admin exists in database
+- **Deployment Issues**: Check if admin users are being created on startup
+- **Context Loss**: Refer to .cursorrules file for project information
 
 ## Contact Information
 - **Developer**: Sidharth Bandewar
@@ -160,3 +171,6 @@ When working on this project:
 - Document any new features or changes
 - Consider security implications of changes
 - Maintain responsive design principles
+- **CRITICAL**: Update .cursorrules file after any significant changes
+- **CRITICAL**: Include admin credentials and deployment information
+- **CRITICAL**: Document any new environment variables or configuration changes
