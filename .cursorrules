@@ -1,0 +1,162 @@
+# VerbiForge - Translation Management Platform
+
+## Project Overview
+VerbiForge is a comprehensive translation management platform built with Node.js/Express that counts words in Excel files and calculates pricing for 100+ languages with project management capabilities.
+
+## Tech Stack
+- **Backend**: Node.js, Express.js
+- **Database**: PostgreSQL (production), SQLite (development)
+- **Authentication**: JWT, Google OAuth
+- **File Processing**: XLSX library for Excel files
+- **Email**: Mailgun integration
+- **Deployment**: Render.com
+- **Frontend**: HTML, CSS, JavaScript (vanilla)
+
+## Project Structure
+```
+├── server.js              # Main Express server
+├── package.json           # Dependencies and scripts
+├── render.yaml            # Render deployment configuration
+├── public/                # Static files
+│   ├── index.html         # Landing page
+│   ├── dashboard.html     # User dashboard
+│   ├── login.html         # Login page
+│   ├── signup.html        # Registration page
+│   ├── admin.html         # Admin panel
+│   ├── style.css          # Main stylesheet
+│   └── script.js          # Frontend JavaScript
+├── data/                  # Database files (SQLite)
+├── uploads/              # File upload directory
+├── secure-files/         # Encrypted file storage
+└── email-service.js      # Email functionality
+```
+
+## Key Features
+- Excel file upload and word counting
+- Multi-language translation pricing
+- User authentication and authorization
+- Project management system
+- Admin panel for user management
+- Google OAuth integration
+- Email notifications
+- File encryption and security
+
+## Deployment Information
+
+### Production Environment
+- **URL**: www.verbiforge.com
+- **Branch**: main/master
+- **Environment**: production
+- **Database**: PostgreSQL (verbiforge-db)
+- **Admin Email**: sid@verbiforge.com
+
+### Staging Environment
+- **URL**: www.staging.verbiforge.com
+- **Branch**: staging
+- **Environment**: staging
+- **Database**: Separate staging database
+- **Admin Email**: admin@staging.verbiforge.com
+
+## Deployment Process
+
+### Staging Deployment
+1. Make changes locally
+2. Switch to staging branch: `git checkout staging`
+3. Merge changes: `git merge main` (if needed)
+4. Commit changes: `git add . && git commit -m "message"`
+5. Push to staging: `git push origin staging`
+6. Render automatically deploys from staging branch
+
+### Production Deployment
+1. Make changes locally
+2. Commit to main: `git add . && git commit -m "message"`
+3. Push to main: `git push origin main`
+4. Render automatically deploys from main branch
+
+## Environment Variables
+- `NODE_ENV`: production/staging/development
+- `PORT`: 10000 (Render), 3000 (local)
+- `JWT_SECRET`: Authentication secret
+- `DATABASE_URL`: PostgreSQL connection string
+- `GOOGLE_CLIENT_ID`: Google OAuth
+- `GOOGLE_CLIENT_SECRET`: Google OAuth
+- `MAILGUN_API_KEY`: Email service
+- `MAILGUN_DOMAIN`: Email domain
+- `APP_URL`: Application URL
+
+## Database Schema
+- **users**: User accounts and authentication
+- **projects**: Translation projects
+- **files**: Uploaded file metadata
+- **translations**: Translation requests and status
+
+## File Processing
+- Supports .xlsx and .xls files
+- Extracts text from all sheets
+- Counts words using whitespace separation
+- Calculates pricing based on word count and language
+- Stores files securely with encryption
+
+## Authentication System
+- JWT-based authentication
+- Google OAuth integration
+- Role-based access (user/admin)
+- Session management
+- Password hashing with bcrypt
+
+## Security Features
+- Rate limiting
+- File size restrictions
+- File type validation
+- CORS configuration
+- Helmet.js security headers
+- Input validation and sanitization
+
+## Important Notes
+- Never modify production database directly
+- Always test changes on staging first
+- Staging environment is for testing only
+- Production environment serves real users
+- File uploads are limited to 10MB
+- Rate limiting: 100 requests per 15 minutes
+
+## Common Commands
+```bash
+# Local development
+npm run dev
+
+# Staging deployment
+git checkout staging
+git merge main
+git push origin staging
+
+# Production deployment
+git push origin main
+
+# Check deployment status
+curl www.verbiforge.com/health
+curl www.staging.verbiforge.com/health
+```
+
+## Troubleshooting
+- Check Render logs for deployment issues
+- Verify environment variables are set correctly
+- Ensure database connections are working
+- Check file permissions for uploads
+- Monitor rate limiting and file size limits
+
+## Contact Information
+- **Developer**: Sidharth Bandewar
+- **Email**: sid@verbiforge.com
+- **GitHub**: https://github.com/sidharth07/verbiforge
+
+## Project Context for AI
+When working on this project:
+- Always maintain existing functionality
+- Test changes on staging before production
+- Follow the established code patterns
+- Respect the current UI/UX design
+- Ensure backward compatibility
+- Document any new features or changes
+- Consider security implications of changes
+- Maintain responsive design principles
