@@ -38,7 +38,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - Project management system
 - Admin panel for user management
 - Google OAuth integration
-- Email notifications
+- Email notifications with customizable templates
 - File encryption and security
 
 ## Deployment Information
@@ -91,6 +91,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **projects**: Translation projects
 - **files**: Uploaded file metadata
 - **translations**: Translation requests and status
+- **email_templates**: Customizable email templates with variables
 
 ## File Processing
 - Supports .xlsx and .xls files
@@ -108,6 +109,16 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **Super Admin Accounts**:
   - `sid@verbiforge.com` (password: admin123)
   - `sid.bandewar@gmail.com` (password: admin123)
+
+## Email Template Management System
+- **WYSIWYG Editor**: Visual email template editor with live preview
+- **Source Toggle**: Switch between formatted preview and HTML source code
+- **Variable Support**: Dynamic placeholders like {{userName}}, {{projectName}}, etc.
+- **Template Types**: Welcome emails, project notifications, admin alerts
+- **Test Functionality**: Send test emails with sample data
+- **Active/Inactive Toggle**: Enable/disable templates
+- **Real-time Preview**: See how emails look with sample data
+- **Variable Insertion**: Click variables to insert them into templates
 
 ## Security Features
 - Rate limiting
