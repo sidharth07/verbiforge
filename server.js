@@ -421,6 +421,29 @@ async function initializeDatabase() {
         `);
         console.log('✅ Settings table ready');
 
+        // Create email_templates table
+        await dbHelpers.run(`
+            CREATE TABLE IF NOT EXISTS email_templates (
+                id TEXT PRIMARY KEY,
+                name TEXT UNIQUE NOT NULL,
+                subject TEXT NOT NULL,
+                html_content TEXT NOT NULL,
+                description TEXT,
+                variables TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('✅ Email templates table ready');
+
+        // Initialize default email templates if table is empty
+        const templateCount = await dbHelpers.get('SELECT COUNT(*) as count FROM email_templates');
+        if (templateCount.count === 0) {
+            console.log('📧 Initializing default email templates...');
+            await initializeEmailTemplates();
+        }
+
         // Check if database already has data
         const hasExistingData = await checkExistingData();
         
@@ -454,6 +477,338 @@ async function initializeDatabase() {
     } catch (error) {
         console.error('❌ Database initialization error:', error);
         throw error;
+    }
+}
+
+async function initializeEmailTemplates() {
+    try {
+        console.log('🔧 Initializing default email templates...');
+        
+        const defaultTemplates = [
+            {
+                id: uuidv4(),
+                name: 'welcome_email',
+                subject: 'Welcome to VerbiForge! 🚀',
+                description: 'Email sent to new users when they sign up',
+                variables: JSON.stringify([
+                    { name: 'userName', description: 'User\'s first name', example: 'John' },
+                    { name: 'userEmail', description: 'User\'s email address', example: 'john@example.com' },
+                    { name: 'appUrl', description: 'Application URL', example: 'https://verbiforge.com' }
+                ]),
+                html_content: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to VerbiForge!</h1>
+                            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Professional Translation Services</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}! 👋</h2>
+                            
+                            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+                                Thank you for joining VerbiForge! We're excited to help you with your translation projects.
+                            </p>
+                            
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <h3 style="color: #333; margin-top: 0;">What you can do now:</h3>
+                                <ul style="color: #666; line-height: 1.8;">
+                                    <li>📁 Upload your documents for translation</li>
+                                    <li>🌍 Choose from 100+ languages</li>
+                                    <li>💰 Get instant pricing quotes</li>
+                                    <li>📊 Track your project progress</li>
+                                    <li>📥 Download completed translations</li>
+                                </ul>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{{appUrl}}/dashboard.html" 
+                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    Get Started with Your First Project
+                                </a>
+                            </div>
+                            
+                            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+                                If you have any questions, feel free to reach out to our support team. We're here to help!
+                            </p>
+                            
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                            
+                            <p style="color: #999; font-size: 14px; text-align: center;">
+                                Best regards,<br>
+                                The VerbiForge Team
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: uuidv4(),
+                name: 'project_created',
+                subject: 'Project Created: {{projectName}} 📋',
+                description: 'Email sent to users when a project is created',
+                variables: JSON.stringify([
+                    { name: 'userName', description: 'User\'s first name', example: 'John' },
+                    { name: 'userEmail', description: 'User\'s email address', example: 'john@example.com' },
+                    { name: 'projectName', description: 'Name of the project', example: 'Website Translation' },
+                    { name: 'fileName', description: 'Original file name', example: 'website.xlsx' },
+                    { name: 'wordCount', description: 'Total word count', example: '1,250' },
+                    { name: 'projectType', description: 'Type of project', example: 'Fusion' },
+                    { name: 'total', description: 'Total cost', example: '$45.50' },
+                    { name: 'appUrl', description: 'Application URL', example: 'https://verbiforge.com' }
+                ]),
+                html_content: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">Project Created Successfully!</h1>
+                            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Your translation project is ready</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}! 🎉</h2>
+                            
+                            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+                                Your translation project has been created successfully. Here are the details:
+                            </p>
+                            
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <h3 style="color: #333; margin-top: 0;">Project Details:</h3>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Name:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{projectName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">File:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{fileName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Word Count:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{wordCount}} words</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Type:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{projectType}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Total Cost:</td>
+                                        <td style="padding: 8px 0; color: #28a745; font-weight: bold;">{{total}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
+                                <h4 style="color: #1976d2; margin-top: 0;">Next Steps:</h4>
+                                <p style="color: #666; margin-bottom: 0;">
+                                    Your project is now in our queue. Our team will review it and begin the translation process. 
+                                    You'll receive updates as your project progresses.
+                                </p>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{{appUrl}}/dashboard.html" 
+                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    View Project Dashboard
+                                </a>
+                            </div>
+                            
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                            
+                            <p style="color: #999; font-size: 14px; text-align: center;">
+                                Thank you for choosing VerbiForge!<br>
+                                We'll keep you updated on your project's progress.
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: uuidv4(),
+                name: 'project_completed',
+                subject: 'Project Completed: {{projectName}} ✅',
+                description: 'Email sent to users when a project is completed',
+                variables: JSON.stringify([
+                    { name: 'userName', description: 'User\'s first name', example: 'John' },
+                    { name: 'userEmail', description: 'User\'s email address', example: 'john@example.com' },
+                    { name: 'projectName', description: 'Name of the project', example: 'Website Translation' },
+                    { name: 'fileName', description: 'Original file name', example: 'website.xlsx' },
+                    { name: 'translatedFileName', description: 'Translated file name', example: 'website_translated.xlsx' },
+                    { name: 'wordCount', description: 'Total word count', example: '1,250' },
+                    { name: 'projectType', description: 'Type of project', example: 'Fusion' },
+                    { name: 'appUrl', description: 'Application URL', example: 'https://verbiforge.com' }
+                ]),
+                html_content: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
+                        <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">Project Completed! 🎉</h1>
+                            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Your translation is ready for download</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}! 🚀</h2>
+                            
+                            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+                                Great news! Your translation project has been completed successfully. Your files are ready for download.
+                            </p>
+                            
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <h3 style="color: #333; margin-top: 0;">Project Summary:</h3>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Name:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{projectName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Original File:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{fileName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Translated File:</td>
+                                        <td style="padding: 8px 0; color: #28a745; font-weight: bold;">{{translatedFileName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Word Count:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{wordCount}} words</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Type:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{projectType}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+                                <h4 style="color: #155724; margin-top: 0;">Ready for Download! 📥</h4>
+                                <p style="color: #666; margin-bottom: 0;">
+                                    Your translated file is now available in your dashboard. You can download it anytime.
+                                </p>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{{appUrl}}/dashboard.html" 
+                                   style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    Download Your Translation
+                                </a>
+                            </div>
+                            
+                            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                                <h4 style="color: #856404; margin-top: 0;">We'd Love Your Feedback! ⭐</h4>
+                                <p style="color: #666; margin-bottom: 0;">
+                                    How was your experience with VerbiForge? We'd appreciate your feedback to help us improve our services.
+                                </p>
+                            </div>
+                            
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                            
+                            <p style="color: #999; font-size: 14px; text-align: center;">
+                                Thank you for choosing VerbiForge!<br>
+                                We hope to work with you again soon.
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: uuidv4(),
+                name: 'admin_notification',
+                subject: 'New Project Created: {{projectName}} 📋',
+                description: 'Email sent to admin when a new project is created',
+                variables: JSON.stringify([
+                    { name: 'projectName', description: 'Name of the project', example: 'Website Translation' },
+                    { name: 'projectId', description: 'Project ID', example: 'PROJ-12345' },
+                    { name: 'fileName', description: 'Original file name', example: 'website.xlsx' },
+                    { name: 'wordCount', description: 'Total word count', example: '1,250' },
+                    { name: 'projectType', description: 'Type of project', example: 'Fusion' },
+                    { name: 'total', description: 'Total cost', example: '$45.50' },
+                    { name: 'userName', description: 'User\'s first name', example: 'John' },
+                    { name: 'userEmail', description: 'User\'s email address', example: 'john@example.com' },
+                    { name: 'appUrl', description: 'Application URL', example: 'https://verbiforge.com' }
+                ]),
+                html_content: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">New Project Alert! 🚨</h1>
+                            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">A new project has been created</p>
+                        </div>
+                        
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333; margin-bottom: 20px;">Project Details 📊</h2>
+                            
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <h3 style="color: #333; margin-top: 0;">Project Information:</h3>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Name:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{projectName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project ID:</td>
+                                        <td style="padding: 8px 0; color: #333; font-family: monospace;">{{projectId}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">File:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{fileName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Word Count:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{wordCount}} words</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Project Type:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{projectType}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Total Cost:</td>
+                                        <td style="padding: 8px 0; color: #28a745; font-weight: bold;">{{total}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
+                                <h4 style="color: #1976d2; margin-top: 0;">Client Information:</h4>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Name:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{userName}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #666; font-weight: bold;">Email:</td>
+                                        <td style="padding: 8px 0; color: #333;">{{userEmail}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{{appUrl}}/admin.html" 
+                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    View Project in Admin Panel
+                                </a>
+                            </div>
+                            
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                            
+                            <p style="color: #999; font-size: 14px; text-align: center;">
+                                This is an automated notification from VerbiForge.<br>
+                                You can manage this project from the Admin Panel.
+                            </p>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        for (const template of defaultTemplates) {
+            await dbHelpers.run(`
+                INSERT INTO email_templates (id, name, subject, html_content, description, variables, is_active) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `, [template.id, template.name, template.subject, template.html_content, template.description, template.variables, true]);
+            
+            console.log(`✅ Email template created: ${template.name}`);
+        }
+        
+        console.log('✅ Default email templates initialized');
+        
+    } catch (error) {
+        console.error('❌ Error initializing email templates:', error);
     }
 }
 
@@ -2865,6 +3220,121 @@ app.put('/notifications/preferences', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('❌ Error updating notification preferences:', error);
         res.status(500).json({ error: 'Failed to update notification preferences: ' + error.message });
+    }
+});
+
+// Email Template Management Endpoints
+
+// Get all email templates
+app.get('/admin/email-templates', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const templates = await dbHelpers.all('SELECT * FROM email_templates ORDER BY name');
+        res.json(templates);
+    } catch (error) {
+        console.error('Error fetching email templates:', error);
+        res.status(500).json({ error: 'Failed to fetch email templates' });
+    }
+});
+
+// Get single email template
+app.get('/admin/email-templates/:id', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const template = await dbHelpers.get('SELECT * FROM email_templates WHERE id = $1', [req.params.id]);
+        if (!template) {
+            return res.status(404).json({ error: 'Email template not found' });
+        }
+
+        res.json(template);
+    } catch (error) {
+        console.error('Error fetching email template:', error);
+        res.status(500).json({ error: 'Failed to fetch email template' });
+    }
+});
+
+// Update email template
+app.put('/admin/email-templates/:id', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { name, subject, html_content, description, variables, is_active } = req.body;
+
+        if (!name || !subject || !html_content) {
+            return res.status(400).json({ error: 'Name, subject, and HTML content are required' });
+        }
+
+        await dbHelpers.run(`
+            UPDATE email_templates 
+            SET name = $1, subject = $2, html_content = $3, description = $4, variables = $5, is_active = $6, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $7
+        `, [name, subject, html_content, description, variables, is_active, req.params.id]);
+
+        res.json({ success: true, message: 'Email template updated successfully' });
+    } catch (error) {
+        console.error('Error updating email template:', error);
+        res.status(500).json({ error: 'Failed to update email template' });
+    }
+});
+
+// Test email template
+app.post('/admin/email-templates/:id/test', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const template = await dbHelpers.get('SELECT * FROM email_templates WHERE id = $1', [req.params.id]);
+        if (!template) {
+            return res.status(404).json({ error: 'Email template not found' });
+        }
+
+        const { testEmail, variables } = req.body;
+        if (!testEmail) {
+            return res.status(400).json({ error: 'Test email address is required' });
+        }
+
+        // Replace variables in template
+        let subject = template.subject;
+        let htmlContent = template.html_content;
+
+        if (variables) {
+            Object.keys(variables).forEach(key => {
+                const regex = new RegExp(`{{${key}}}`, 'g');
+                subject = subject.replace(regex, variables[key]);
+                htmlContent = htmlContent.replace(regex, variables[key]);
+            });
+        }
+
+        // Send test email
+        const messageData = {
+            from: `VerbiForge <${process.env.FROM_EMAIL || 'noreply@verbiforge.com'}>`,
+            to: testEmail,
+            subject: subject,
+            html: htmlContent
+        };
+
+        if (emailService.isConfigured && emailService.mg) {
+            const response = await emailService.mg.messages.create(emailService.domain, messageData);
+            res.json({ success: true, messageId: response.id, message: 'Test email sent successfully' });
+        } else {
+            res.json({ success: false, message: 'Email service not configured - test email logged but not sent' });
+        }
+    } catch (error) {
+        console.error('Error sending test email:', error);
+        res.status(500).json({ error: 'Failed to send test email' });
     }
 });
 
