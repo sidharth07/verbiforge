@@ -3340,6 +3340,33 @@ app.post('/admin/email-templates/initialize', requireAuth, async (req, res) => {
     }
 });
 
+// Toggle email template status
+app.patch('/admin/email-templates/:id/status', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { is_active } = req.body;
+        
+        if (typeof is_active !== 'boolean') {
+            return res.status(400).json({ error: 'is_active must be a boolean value' });
+        }
+
+        await dbHelpers.run(`
+            UPDATE email_templates 
+            SET is_active = $1, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $2
+        `, [is_active, req.params.id]);
+
+        res.json({ success: true, message: 'Email template status updated successfully' });
+    } catch (error) {
+        console.error('Error updating email template status:', error);
+        res.status(500).json({ error: 'Failed to update email template status' });
+    }
+});
+
 // Test email template
 app.post('/admin/email-templates/:id/test', requireAuth, async (req, res) => {
     try {

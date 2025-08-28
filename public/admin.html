@@ -1609,14 +1609,14 @@
         }
 
         .test-email-btn.primary {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: #3e3e3e;
             color: white;
         }
 
         .test-email-btn.primary:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            background: #2d2d2d;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(62, 62, 62, 0.3);
         }
 
         .test-email-btn.secondary {
@@ -3454,7 +3454,7 @@
             modal.innerHTML = `
                 <div class="test-email-content">
                     <div class="test-email-header">
-                        <div class="test-email-icon">📧</div>
+                        <div class="test-email-icon" style="background: #3e3e3e;">📧</div>
                         <div class="test-email-title">Send Test Email</div>
                         <div class="test-email-subtitle">Send a test email for "${templateName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}" template</div>
                     </div>
@@ -3509,7 +3509,7 @@
             modal.innerHTML = `
                 <div class="test-email-content">
                     <div class="test-email-header">
-                        <div class="test-email-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">✅</div>
+                        <div class="test-email-icon" style="background: #3e3e3e;">✅</div>
                         <div class="test-email-title">${title}</div>
                         <div class="test-email-subtitle">${message}</div>
                     </div>
@@ -3553,17 +3553,17 @@
             };
             
             const colorMap = {
-                'warning': 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                'danger': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                'info': 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                'success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                'warning': '#3e3e3e',
+                'danger': '#3e3e3e',
+                'info': '#3e3e3e',
+                'success': '#3e3e3e'
             };
             
             const buttonColorMap = {
-                'warning': 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                'danger': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                'info': 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                'success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                'warning': '#3e3e3e',
+                'danger': '#3e3e3e',
+                'info': '#3e3e3e',
+                'success': '#3e3e3e'
             };
             
             modal.innerHTML = `
@@ -3732,8 +3732,8 @@
                 action === 'disable' ? 'warning' : 'info',
                 async () => {
                     try {
-                        const response = await Auth.authFetch(`/admin/email-templates/${templateId}`, {
-                            method: 'PUT',
+                        const response = await Auth.authFetch(`/admin/email-templates/${templateId}/status`, {
+                            method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
