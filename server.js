@@ -858,6 +858,14 @@ app.get('/health/database', async (req, res) => {
         const contactCount = await dbHelpers.get('SELECT COUNT(*) as count FROM contact_submissions');
         const settingsCount = await dbHelpers.get('SELECT COUNT(*) as count FROM settings');
         
+        // Check if email_templates table exists
+        let emailTemplatesCount = null;
+        try {
+            emailTemplatesCount = await dbHelpers.get('SELECT COUNT(*) as count FROM email_templates');
+        } catch (error) {
+            emailTemplatesCount = { count: 'Table does not exist' };
+        }
+        
         res.json({
             status: 'ok',
             database: {
@@ -867,7 +875,8 @@ app.get('/health/database', async (req, res) => {
                     users: userCount.count,
                     projects: projectCount.count,
                     contacts: contactCount.count,
-                    settings: settingsCount.count
+                    settings: settingsCount.count,
+                    email_templates: emailTemplatesCount.count
                 },
                 environment: process.env.NODE_ENV || 'development'
             },
@@ -885,6 +894,8 @@ app.get('/health/database', async (req, res) => {
         });
     }
 });
+
+
 
 // Login endpoint
 app.post('/login', async (req, res) => {
