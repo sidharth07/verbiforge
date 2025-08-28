@@ -3322,6 +3322,24 @@ app.put('/admin/email-templates/:id', requireAuth, async (req, res) => {
     }
 });
 
+// Initialize email templates (admin only)
+app.post('/admin/email-templates/initialize', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        console.log('📧 Manually initializing email templates...');
+        await initializeEmailTemplates();
+        
+        res.json({ success: true, message: 'Email templates initialized successfully' });
+    } catch (error) {
+        console.error('Error initializing email templates:', error);
+        res.status(500).json({ error: 'Failed to initialize email templates' });
+    }
+});
+
 // Test email template
 app.post('/admin/email-templates/:id/test', requireAuth, async (req, res) => {
     try {
