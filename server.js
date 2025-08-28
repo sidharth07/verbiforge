@@ -3233,6 +3233,14 @@ app.get('/admin/email-templates', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
 
+        // First check if table exists
+        try {
+            await dbHelpers.get('SELECT COUNT(*) as count FROM email_templates');
+        } catch (tableError) {
+            console.error('Email templates table does not exist:', tableError);
+            return res.status(500).json({ error: 'Email templates table not found. Please restart the server.' });
+        }
+        
         const templates = await dbHelpers.all('SELECT * FROM email_templates ORDER BY name');
         res.json(templates);
     } catch (error) {
