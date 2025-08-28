@@ -2963,7 +2963,7 @@
                             </div>
                             
                             <div style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">HTML Content:</label>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Email Content:</label>
                                 <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; border: 1px solid #e9ecef;">
                                     <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Available Variables:</div>
                                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
@@ -2974,8 +2974,22 @@
                                         `).join('')}
                                     </div>
                                 </div>
+                                
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" id="toggleViewBtn" 
+                                            style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                                        Show Source
+                                    </button>
+                                </div>
+                                
+                                <!-- WYSIWYG Preview -->
+                                <div id="emailPreview" style="width: 100%; min-height: 300px; border: 1px solid #ddd; border-radius: 6px; padding: 20px; background: white; overflow-y: auto;">
+                                    <!-- Email preview will be rendered here -->
+                                </div>
+                                
+                                <!-- HTML Source Editor -->
                                 <textarea id="templateHtmlContent" 
-                                          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; min-height: 300px; resize: vertical; font-family: monospace;" required>${template.html_content}</textarea>
+                                          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; min-height: 300px; resize: vertical; font-family: monospace; display: none;" required>${template.html_content}</textarea>
                             </div>
                             
                             <div style="margin-bottom: 20px;">
@@ -3007,6 +3021,9 @@
                 e.preventDefault();
                 await saveEmailTemplate(template.id);
             });
+            
+            // Initialize email preview and toggle functionality
+            initializeEmailEditor(template, variables);
             
             // Show modal with animation
             setTimeout(() => {
@@ -3122,6 +3139,112 @@
                 console.error('Error toggling template:', error);
                 showError('Network error updating template');
             }
+        }
+
+        function initializeEmailEditor(template, variables) {
+            const previewDiv = document.getElementById('emailPreview');
+            const textarea = document.getElementById('templateHtmlContent');
+            const toggleBtn = document.getElementById('toggleViewBtn');
+            let isSourceView = false;
+            
+            // Function to render email preview with sample data
+            function renderEmailPreview() {
+                let htmlContent = textarea.value;
+                
+                // Replace variables with sample data
+                const sampleData = {
+                    userName: 'John Doe',
+                    userEmail: 'john@example.com',
+                    projectName: 'Sample Translation Project',
+                    fileName: 'document.xlsx',
+                    wordCount: '1,250',
+                    projectType: 'Fusion',
+                    total: '$45.50',
+                    translatedFileName: 'document_translated.xlsx',
+                    projectId: 'PROJ-123',
+                    appUrl: window.location.origin
+                };
+                
+                // Replace all variables with sample data
+                Object.keys(sampleData).forEach(key => {
+                    const regex = new RegExp(`{{${key}}}`, 'g');
+                    htmlContent = htmlContent.replace(regex, sampleData[key]);
+                });
+                
+                // Render the preview
+                previewDiv.innerHTML = htmlContent;
+            }
+            
+            // Function to toggle between preview and source view
+            function toggleView() {
+                isSourceView = !isSourceView;
+                
+                if (isSourceView) {
+                    // Show source code
+                    previewDiv.style.display = 'none';
+                    textarea.style.display = 'block';
+                    toggleBtn.textContent = 'Show Preview';
+                    toggleBtn.style.background = '#28a745';
+                } else {
+                    // Show preview
+                    previewDiv.style.display = 'block';
+                    textarea.style.display = 'none';
+                    toggleBtn.textContent = 'Show Source';
+                    toggleBtn.style.background = '#6c757d';
+                    renderEmailPreview();
+                }
+            }
+            
+            // Initialize the preview
+            renderEmailPreview();
+            
+            // Add event listeners
+            toggleBtn.addEventListener('click', toggleView);
+            
+            // Update preview when textarea content changes
+            textarea.addEventListener('input', () => {
+                if (!isSourceView) {
+                    renderEmailPreview();
+                }
+            });
+            
+            // Add variable insertion functionality
+            variables.forEach(variable => {
+                const variableSpans = document.querySelectorAll('span');
+                variableSpans.forEach(span => {
+                    if (span.textContent.includes(`{{${variable.name}}}`)) {
+                        span.style.cursor = 'pointer';
+                        span.title = `Click to insert {{${variable.name}}}`;
+                        span.addEventListener('click', () => {
+                            if (isSourceView) {
+                                // Insert variable at cursor position in textarea
+                                const cursorPos = textarea.selectionStart;
+                                const textBefore = textarea.value.substring(0, cursorPos);
+                                const textAfter = textarea.value.substring(cursorPos);
+                                textarea.value = textBefore + `{{${variable.name}}}` + textAfter;
+                                
+                                // Set cursor position after inserted variable
+                                const newPos = cursorPos + `{{${variable.name}}}`.length;
+                                textarea.setSelectionRange(newPos, newPos);
+                                textarea.focus();
+                            } else {
+                                // Switch to source view and insert variable
+                                toggleView();
+                                setTimeout(() => {
+                                    const cursorPos = textarea.selectionStart;
+                                    const textBefore = textarea.value.substring(0, cursorPos);
+                                    const textAfter = textarea.value.substring(cursorPos);
+                                    textarea.value = textBefore + `{{${variable.name}}}` + textAfter;
+                                    
+                                    const newPos = cursorPos + `{{${variable.name}}}`.length;
+                                    textarea.setSelectionRange(newPos, newPos);
+                                    textarea.focus();
+                                }, 100);
+                            }
+                        });
+                    }
+                });
+            });
         }
 
         async function loadLanguages() {
