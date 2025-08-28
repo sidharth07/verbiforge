@@ -120,7 +120,9 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **Real-time Preview**: See how emails look with sample data
 - **Variable Insertion**: Click variables to insert them into templates
 - **SaaS-Ready Design**: Modern card-based layout with professional styling
-- **Enhanced Action Buttons**: Gradient buttons with icons and hover effects
+- **Clean Table Design**: Hidden template IDs, removed subject column for cleaner look
+- **3-Dot Menu System**: Professional dropdown menu with Edit, Test, and Enable/Disable options
+- **Success Feedback**: Professional success popup when saving template changes
 - **Status Indicators**: Visual active/inactive status with colored badges
 - **Responsive Design**: Mobile-friendly interface with proper spacing
 
