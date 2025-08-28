@@ -438,9 +438,14 @@ async function initializeDatabase() {
         console.log('✅ Email templates table ready');
 
         // Initialize default email templates if table is empty
-        const templateCount = await dbHelpers.get('SELECT COUNT(*) as count FROM email_templates');
-        if (templateCount.count === 0) {
-            console.log('📧 Initializing default email templates...');
+        try {
+            const templateCount = await dbHelpers.get('SELECT COUNT(*) as count FROM email_templates');
+            if (templateCount.count === 0) {
+                console.log('📧 Initializing default email templates...');
+                await initializeEmailTemplates();
+            }
+        } catch (error) {
+            console.log('📧 Email templates table not found, creating it...');
             await initializeEmailTemplates();
         }
 
