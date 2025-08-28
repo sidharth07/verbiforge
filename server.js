@@ -1126,7 +1126,7 @@ app.post('/fix-translated-files', requireAuth, async (req, res) => {
         }
         
         // Find projects with translated_file_name but missing translated_file_path
-        const projects = await dbHelpers.all(`
+        const projects = await dbHelpers.query(`
             SELECT id, translated_file_name, translated_file_path 
             FROM projects 
             WHERE translated_file_name IS NOT NULL 
@@ -1197,7 +1197,7 @@ app.post('/fix-project-ids', requireAuth, async (req, res) => {
             console.log('✅ Added project_id column');
             
             // Generate project IDs for existing projects
-            const projects = await dbHelpers.all(`
+            const projects = await dbHelpers.query(`
                 SELECT id FROM projects 
                 WHERE project_id IS NULL OR project_id = ''
             `);
@@ -1266,7 +1266,7 @@ app.get('/debug/schema', requireAuth, async (req, res) => {
         }
         
         // Get table schema
-        const schema = await dbHelpers.all(`
+        const schema = await dbHelpers.query(`
             SELECT column_name, data_type, is_nullable, column_default
             FROM information_schema.columns 
             WHERE table_name = 'projects' 
@@ -3267,7 +3267,7 @@ app.get('/admin/email-templates', requireAuth, async (req, res) => {
             return res.status(500).json({ error: 'Email templates table not found. Please restart the server.' });
         }
         
-        const templates = await dbHelpers.all('SELECT * FROM email_templates ORDER BY name');
+        const templates = await dbHelpers.query('SELECT * FROM email_templates ORDER BY name');
         res.json(templates);
     } catch (error) {
         console.error('Error fetching email templates:', error);
