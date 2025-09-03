@@ -77,6 +77,18 @@ app.get('/health', (req, res) => {
         environment: process.env.NODE_ENV || 'development'
     });
 });
+
+// Serve sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+    res.setHeader('Content-Type', 'application/xml');
+    res.sendFile(path.join(__dirname, 'sitemap.xml'));
+});
+
+// Serve robots.txt
+app.get('/robots.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.sendFile(path.join(__dirname, 'robots.txt'));
+});
 app.use(express.static('public', {
     etag: false,
     lastModified: false,
