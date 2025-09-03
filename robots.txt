@@ -1,0 +1,47 @@
+# VerbiForge Translation Services - Robots.txt
+# https://www.verbiforge.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.verbiforge.com/sitemap.xml
+
+# Crawl delay (optional - be respectful to servers)
+Crawl-delay: 1
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Allow crawling of all public pages
+Allow: /index.html
+Allow: /about.html
+Allow: /contact.html
+Allow: /login.html
+Allow: /signup.html
+
+# Disallow admin and dashboard areas (optional - for security)
+Disallow: /admin.html
+Disallow: /dashboard.html
+
+# Disallow sensitive directories
+Disallow: /secure-files/
+Disallow: /data/
+Disallow: /uploads/
+
+# Allow CSS, JS, and images for proper rendering
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.ico
