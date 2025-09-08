@@ -5,7 +5,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 
 ## Tech Stack
 - **Backend**: Node.js, Express.js
-- **Database**: PostgreSQL (production), SQLite (development)
+- **Database**: Neon Tech (serverless PostgreSQL) - Development & Production branches
 - **Authentication**: JWT, Google OAuth
 - **File Processing**: XLSX library for Excel files
 - **Email**: Mailgun integration
@@ -17,16 +17,18 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 ├── server.js              # Main Express server
 ├── package.json           # Dependencies and scripts
 ├── render.yaml            # Render deployment configuration
+├── sitemap.xml            # SEO sitemap for search engines
+├── robots.txt             # Search engine crawling guidelines
 ├── public/                # Static files
 │   ├── index.html         # Landing page
 │   ├── dashboard.html     # User dashboard
 │   ├── login.html         # Login page
 │   ├── signup.html        # Registration page
 │   ├── admin.html         # Admin panel
+│   ├── about.html         # About Us page
+│   ├── contact.html       # Contact page
 │   ├── style.css          # Main stylesheet
 │   └── script.js          # Frontend JavaScript
-├── data/                  # Database files (SQLite)
-├── uploads/              # File upload directory
 ├── secure-files/         # Encrypted file storage
 └── email-service.js      # Email functionality
 ```
@@ -40,22 +42,24 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - Google OAuth integration
 - Email notifications with customizable templates
 - File encryption and security
+- SEO optimization with sitemap and robots.txt
+- Professional footer with LLP registration information
 
 ## Deployment Information
 
 ### Production Environment
 - **URL**: www.verbiforge.com
-- **Branch**: main/master
+- **Branch**: master
 - **Environment**: production
-- **Database**: PostgreSQL (verbiforge-db)
+- **Database**: Neon Tech Production Branch
 - **Admin Email**: sid@verbiforge.com
 - **Super Admin Password**: admin123
 
 ### Staging Environment
-- **URL**: www.staging.verbiforge.com
+- **URL**: staging.verbiforge.com
 - **Branch**: staging
 - **Environment**: staging
-- **Database**: Separate staging database
+- **Database**: Neon Tech Development Branch
 - **Admin Email**: sid@verbiforge.com
 - **Super Admin Password**: admin123
 
@@ -71,15 +75,16 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 
 ### Production Deployment
 1. Make changes locally
-2. Commit to main: `git add . && git commit -m "message"`
-3. Push to main: `git push origin main`
-4. Render automatically deploys from main branch
+2. Switch to master branch: `git checkout master`
+3. Merge staging: `git merge staging`
+4. Push to master: `git push origin master`
+5. Render automatically deploys from master branch
 
 ## Environment Variables
 - `NODE_ENV`: production/staging/development
 - `PORT`: 10000 (Render), 3000 (local)
 - `JWT_SECRET`: Authentication secret
-- `DATABASE_URL`: PostgreSQL connection string
+- `DATABASE_URL`: Neon PostgreSQL connection string (separate for staging/production)
 - `GOOGLE_CLIENT_ID`: Google OAuth
 - `GOOGLE_CLIENT_SECRET`: Google OAuth
 - `MAILGUN_API_KEY`: Email service
@@ -92,6 +97,15 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **files**: Uploaded file metadata
 - **translations**: Translation requests and status
 - **email_templates**: Customizable email templates with variables
+- **settings**: Application settings and configuration
+- **contacts**: Contact form submissions
+
+## SEO Features
+- **Sitemap.xml**: Complete site structure with all 8 pages, priorities, and change frequencies
+- **Robots.txt**: Search engine crawling guidelines with sitemap reference
+- **Sitemap References**: Added to HTML pages for better SEO discovery
+- **Server Routes**: Dedicated endpoints for sitemap.xml and robots.txt access
+- **Professional Footer**: Updated copyright with LLP registration information
 
 ## File Processing
 - Supports .xlsx and .xls files
@@ -145,6 +159,12 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **Super admin users are automatically created** on server startup
 - **Admin login**: Use `sid@verbiforge.com` with password `admin123`
 - **Always update .cursorrules** after making significant changes to maintain context
+- **SEO Files**: sitemap.xml and robots.txt are served via dedicated server routes
+- **LLP Registration**: Verbiforge Solutions LLP (LLPIN: ACR-0511) under Ministry of Corporate Affairs, India
+- **Database Migration**: Successfully migrated from Render PostgreSQL to Neon Tech
+- **Old Render Database**: Can be safely deleted (no longer used)
+- **Neon Branches**: Development branch for staging, Production branch for production
+- **Project Cleanup**: Removed unused documentation files, migration scripts, and old SQLite database
 
 ## Common Commands
 ```bash
@@ -153,15 +173,25 @@ npm run dev
 
 # Staging deployment
 git checkout staging
-git merge main
+git add . && git commit -m "message"
 git push origin staging
 
 # Production deployment
-git push origin main
+git checkout master
+git merge staging
+git push origin master
 
 # Check deployment status
 curl www.verbiforge.com/health
-curl www.staging.verbiforge.com/health
+curl staging.verbiforge.com/health
+
+# Check database health
+curl www.verbiforge.com/health/database
+curl staging.verbiforge.com/health/database
+
+# Check SEO files
+curl www.verbiforge.com/sitemap.xml
+curl www.verbiforge.com/robots.txt
 ```
 
 ## Troubleshooting
@@ -173,6 +203,21 @@ curl www.staging.verbiforge.com/health
 - **Admin Login Issues**: Verify super admin exists in database
 - **Deployment Issues**: Check if admin users are being created on startup
 - **Context Loss**: Refer to .cursorrules file for project information
+- **SEO Issues**: Verify sitemap.xml and robots.txt are accessible via server routes
+- **Sitemap Access**: Check that server.js has dedicated routes for /sitemap.xml and /robots.txt
+- **Database Issues**: Verify Neon connection strings are correct for each environment
+- **ON CONFLICT Errors**: Check if database constraints are properly set up after migration
+- **Neon Migration**: Both Development and Production branches are active and working
+
+## Database Migration to Neon Tech
+- **Migration Status**: ✅ Complete - Successfully migrated from Render PostgreSQL to Neon Tech
+- **Staging Database**: Neon Development Branch (staging.verbiforge.com)
+- **Production Database**: Neon Production Branch (www.verbiforge.com)
+- **Old Render Database**: Can be safely deleted (no longer used)
+- **Benefits**: Serverless architecture, automatic scaling, better performance
+- **Connection Strings**: Separate for each environment (staging/production)
+- **Data Integrity**: All data successfully migrated with no loss
+- **ON CONFLICT Handling**: Implemented fallback logic for database compatibility
 
 ## Contact Information
 - **Developer**: Sidharth Bandewar
