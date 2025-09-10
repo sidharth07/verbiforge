@@ -1492,7 +1492,17 @@ app.post('/admin/projects/create', requireAuth, async (req, res) => {
         
         // Send admin notification
         try {
-            await emailService.sendProjectCreatedNotificationToAdmin(user.name, user.email, name, humanReadableId, total);
+            await emailService.sendProjectCreatedNotificationToAdmin({
+                projectName: name,
+                fileName: fileName,
+                wordCount: parseInt(wordCount),
+                projectType: projectType || 'fusion',
+                total: parseFloat(total),
+                userEmail: user.email,
+                userName: user.name || user.email,
+                projectId: humanReadableId,
+                breakdown: breakdown
+            });
             console.log('✅ Admin notification sent for project creation');
         } catch (adminEmailError) {
             console.error('❌ Failed to send admin notification:', adminEmailError);
@@ -1899,7 +1909,26 @@ app.put('/projects/:id/submit', requireAuth, async (req, res) => {
         }
         
         // Update project status to submitted
-        await dbHelpers.run('UPDATE projects SET status = $1 WHERE id = $2', ['submitted', id]);
+        await dbHelpers.run('UPDATE projects SET status = $1, submitted_at = CURRENT_TIMESTAMP WHERE id = $2', ['submitted', id]);
+        
+        // Send admin notification for project submission
+        try {
+            await emailService.sendProjectCreatedNotificationToAdmin({
+                projectName: project.name,
+                fileName: project.file_name,
+                wordCount: project.word_count,
+                projectType: project.project_type || 'fusion',
+                total: project.total,
+                userEmail: req.user.email,
+                userName: req.user.name || req.user.email,
+                projectId: project.project_id || project.id,
+                breakdown: project.breakdown ? JSON.parse(project.breakdown) : []
+            });
+            console.log('✅ Project submission notification sent to admin');
+        } catch (adminEmailError) {
+            console.error('❌ Failed to send project submission notification to admin:', adminEmailError);
+            // Don't fail the project submission if admin email fails
+        }
         
         console.log('✅ Project submitted successfully:', id);
         res.json({ success: true, message: 'Project submitted successfully' });

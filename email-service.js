@@ -300,7 +300,7 @@ class EmailService {
             const messageData = {
                 from: `VerbiForge <${this.fromEmail}>`,
                 to: adminEmail,
-                subject: `New Project Created: ${projectData.projectName} 📋`,
+                subject: `New Project Alert!`,
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
                         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
