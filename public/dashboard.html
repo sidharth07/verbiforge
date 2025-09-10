@@ -2322,6 +2322,11 @@
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">License</div>
+                            <div style="font-weight: 500; color: #333;" id="accountLicense">Loading...</div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
                             <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Account Created</div>
                             <div style="font-weight: 500; color: #333;" id="accountCreated">Loading...</div>
                         </div>
@@ -3813,6 +3818,7 @@
                                             document.getElementById('accountName').value = profileData.name || currentUser?.name || '';
                     document.getElementById('accountEmail').value = profileData.email || currentUser?.email || '';
                     document.getElementById('accountType').textContent = profileData.role || currentUser?.role || 'User';
+                    document.getElementById('accountLicense').textContent = profileData.license || currentUser?.license || 'Free';
                         document.getElementById('accountCreated').textContent = profileData.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A';
                     } else {
                         console.log('⚠️ Profile API failed, using local data');

@@ -92,7 +92,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - `APP_URL`: Application URL
 
 ## Database Schema
-- **users**: User accounts and authentication
+- **users**: User accounts and authentication with license system (Free/Professional)
 - **projects**: Translation projects
 - **files**: Uploaded file metadata
 - **translations**: Translation requests and status
@@ -118,6 +118,7 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - JWT-based authentication
 - Google OAuth integration
 - Role-based access (user/admin/super_admin)
+- License system (Free/Professional)
 - Session management
 - Password hashing with bcrypt
 - **Super Admin Accounts**:

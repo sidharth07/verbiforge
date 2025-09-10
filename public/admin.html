@@ -2131,9 +2131,9 @@
                         <table class="projects-table">
                             <thead>
                                 <tr>
-                                    <th>User ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
+                                    <th>License</th>
                                     <th>Joined</th>
                                     <th>Projects</th>
                                     <th>Total Spent</th>
@@ -4264,9 +4264,15 @@
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
-                    <td>${user.id}</td>
                     <td>${user.name}</td>
                     <td>${user.email}</td>
+                    <td>
+                        <select onchange="updateUserLicense('${user.id}', this.value)" 
+                                style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; background: white;">
+                            <option value="Free" ${user.license === 'Free' ? 'selected' : ''}>Free</option>
+                            <option value="Professional" ${user.license === 'Professional' ? 'selected' : ''}>Professional</option>
+                        </select>
+                    </td>
                     <td>${joinedDate}</td>
                     <td>${user.projectCount}</td>
                     <td>$${user.totalSpent.toFixed(2)}</td>
@@ -4285,6 +4291,35 @@
             
             // Attach event listeners to dynamically created buttons
             attachDynamicButtonListeners();
+        }
+
+        async function updateUserLicense(userId, newLicense) {
+            try {
+                console.log(`🔄 Updating license for user ${userId} to ${newLicense}`);
+                
+                const response = await Auth.authFetch('/admin/users/update-license', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        license: newLicense
+                    })
+                });
+                
+                if (response.ok) {
+                    CustomModal.success(`User license updated to ${newLicense} successfully!`);
+                    // Refresh the users list to show updated data
+                    loadUsers();
+                } else {
+                    const data = await response.json();
+                    CustomModal.error('Error updating license: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error updating user license:', error);
+                CustomModal.error('Network error updating license');
+            }
         }
 
         async function deleteUser(userId, userName) {

@@ -349,9 +349,9 @@ async function createAdminUsers() {
                 const hashedPassword = await bcrypt.hash(admin.password, 12);
                 
                 await dbHelpers.run(`
-                    INSERT INTO users (id, email, password_hash, name, role, created_at) 
-                    VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-                `, [userId, admin.email, hashedPassword, admin.name, admin.role]);
+                    INSERT INTO users (id, email, password_hash, name, role, license, created_at) 
+                    VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+                `, [userId, admin.email, hashedPassword, admin.name, admin.role, 'Professional']);
                 
                 console.log(`✅ Admin user created: ${admin.email}`);
             } else {
@@ -378,10 +378,21 @@ async function initializeDatabase() {
                 password_hash TEXT NOT NULL,
                 name TEXT NOT NULL,
                 role TEXT DEFAULT 'user',
+                license TEXT DEFAULT 'Free',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         console.log('✅ Users table ready');
+
+        // Add license column to users table if it doesn't exist
+        try {
+            await dbHelpers.query(`
+                ALTER TABLE users ADD COLUMN IF NOT EXISTS license TEXT DEFAULT 'Free'
+            `);
+            console.log('✅ License column added to users table');
+        } catch (error) {
+            console.log('ℹ️ License column already exists or error adding it:', error.message);
+        }
 
         // Create projects table
         await dbHelpers.run(`
@@ -997,9 +1008,9 @@ app.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 12);
         
         await dbHelpers.run(`
-            INSERT INTO users (id, email, password_hash, name, role, created_at) 
-            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-        `, [userId, email, hashedPassword, name, 'user']);
+            INSERT INTO users (id, email, password_hash, name, role, license, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+        `, [userId, email, hashedPassword, name, 'user', 'Free']);
         
         // Send welcome email
         try {
@@ -2045,7 +2056,7 @@ app.get('/admin/users', requireAuth, async (req, res) => {
         
         // First, let's try a simpler query to see if the basic connection works
         console.log('🔍 Testing basic users query...');
-        const basicUsers = await dbHelpers.query('SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC');
+        const basicUsers = await dbHelpers.query('SELECT id, email, name, role, license, created_at FROM users ORDER BY created_at DESC');
         console.log('✅ Basic users query successful, found:', basicUsers.length, 'users');
         
         // Now let's get project counts and totals for each user
@@ -2215,6 +2226,51 @@ app.post('/admin/admins', requireAuth, async (req, res) => {
     }
 });
 
+// Update user license (admin only)
+app.put('/admin/users/update-license', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { userId, license } = req.body;
+        console.log('🔍 Update license request:', { userId, license, adminId: req.user.id });
+        
+        if (!userId || !license) {
+            return res.status(400).json({ error: 'User ID and license are required' });
+        }
+        
+        // Validate license value
+        if (!['Free', 'Professional'].includes(license)) {
+            return res.status(400).json({ error: 'Invalid license type. Must be Free or Professional' });
+        }
+        
+        // Check if user exists
+        const existingUser = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [userId]);
+        if (!existingUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Update user license
+        await dbHelpers.run(`
+            UPDATE users SET license = $1 WHERE id = $2
+        `, [license, userId]);
+        
+        console.log('✅ User license updated successfully:', { userId, license });
+        res.json({ 
+            success: true, 
+            message: 'User license updated successfully',
+            userId: userId,
+            license: license
+        });
+        
+    } catch (error) {
+        console.error('❌ Error updating user license:', error);
+        res.status(500).json({ error: 'Failed to update user license: ' + error.message });
+    }
+});
+
 // Create regular user (admin only)
 app.post('/admin/users/create', requireAuth, async (req, res) => {
     try {
@@ -2253,9 +2309,9 @@ app.post('/admin/users/create', requireAuth, async (req, res) => {
         // Create new regular user
         const userId = uuidv4();
         await dbHelpers.run(`
-            INSERT INTO users (id, email, name, password_hash, role, created_at) 
-            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-        `, [userId, email, name, hashedPassword, 'user']);
+            INSERT INTO users (id, email, name, password_hash, role, license, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+        `, [userId, email, name, hashedPassword, 'user', 'Free']);
         
         const newUser = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [userId]);
         
@@ -3197,6 +3253,7 @@ app.get('/profile', requireAuth, async (req, res) => {
             email: user.email,
             company: '', // Company field not in users table
             role: roleDisplay,
+            license: user.license || 'Free',
             created_at: user.created_at
         };
         
