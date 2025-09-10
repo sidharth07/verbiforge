@@ -11,6 +11,87 @@ const XLSX = require('xlsx');
 const EmailService = require('./email-service');
 const FileManager = require('./fileManager');
 
+// User ID generation utility
+function generateUserId() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Get the next available user ID starting from 70000
+            const result = await dbHelpers.get(`
+                SELECT MAX(user_id) as max_user_id 
+                FROM users 
+                WHERE user_id IS NOT NULL AND user_id >= 70000
+            `);
+            
+            let nextUserId = 70000;
+            if (result && result.max_user_id) {
+                nextUserId = Math.max(70000, result.max_user_id + 1);
+            }
+            
+            console.log('🔢 Generated User ID:', nextUserId);
+            resolve(nextUserId);
+        } catch (error) {
+            console.error('❌ Error generating User ID:', error);
+            // Fallback to timestamp-based ID
+            const fallbackId = 70000 + Math.floor(Math.random() * 1000);
+            console.log('🔢 Using fallback User ID:', fallbackId);
+            resolve(fallbackId);
+        }
+    });
+}
+
+// Assign User IDs to existing users who don't have them
+async function assignUserIdsToExistingUsers() {
+    try {
+        console.log('🔧 Assigning User IDs to existing users...');
+        
+        // Get all users without user_id
+        const usersWithoutId = await dbHelpers.query(`
+            SELECT id, email, name, created_at 
+            FROM users 
+            WHERE user_id IS NULL 
+            ORDER BY created_at ASC
+        `);
+        
+        if (usersWithoutId.length === 0) {
+            console.log('✅ All users already have User IDs');
+            return;
+        }
+        
+        console.log(`🔧 Found ${usersWithoutId.length} users without User IDs`);
+        
+        // Get the current max user_id
+        const maxResult = await dbHelpers.get(`
+            SELECT MAX(user_id) as max_user_id 
+            FROM users 
+            WHERE user_id IS NOT NULL AND user_id >= 70000
+        `);
+        
+        let nextUserId = 70000;
+        if (maxResult && maxResult.max_user_id) {
+            nextUserId = Math.max(70000, maxResult.max_user_id + 1);
+        }
+        
+        // Assign User IDs to each user
+        for (const user of usersWithoutId) {
+            try {
+                await dbHelpers.run(`
+                    UPDATE users SET user_id = $1 WHERE id = $2
+                `, [nextUserId, user.id]);
+                
+                console.log(`✅ Assigned User ID ${nextUserId} to ${user.email}`);
+                nextUserId++;
+            } catch (error) {
+                console.error(`❌ Error assigning User ID to ${user.email}:`, error);
+            }
+        }
+        
+        console.log('✅ User ID assignment completed');
+        
+    } catch (error) {
+        console.error('❌ Error assigning User IDs to existing users:', error);
+    }
+}
+
 // Project ID generation utility
 function generateProjectId() {
     // Get the next available number starting from 700
@@ -346,12 +427,13 @@ async function createAdminUsers() {
             
             if (!existingUser) {
                 const userId = uuidv4();
+                const userDisplayId = await generateUserId();
                 const hashedPassword = await bcrypt.hash(admin.password, 12);
                 
                 await dbHelpers.run(`
-                    INSERT INTO users (id, email, password_hash, name, role, license, created_at) 
-                    VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-                `, [userId, admin.email, hashedPassword, admin.name, admin.role, 'Professional']);
+                    INSERT INTO users (id, user_id, email, password_hash, name, role, license, created_at) 
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+                `, [userId, userDisplayId, admin.email, hashedPassword, admin.name, admin.role, 'Professional']);
                 
                 console.log(`✅ Admin user created: ${admin.email}`);
             } else {
@@ -374,6 +456,7 @@ async function initializeDatabase() {
         await dbHelpers.run(`
             CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,
+                user_id INTEGER UNIQUE,
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 name TEXT NOT NULL,
@@ -392,6 +475,19 @@ async function initializeDatabase() {
             console.log('✅ License column added to users table');
         } catch (error) {
             console.log('ℹ️ License column already exists or error adding it:', error.message);
+        }
+
+        // Add user_id column to users table if it doesn't exist
+        try {
+            await dbHelpers.query(`
+                ALTER TABLE users ADD COLUMN IF NOT EXISTS user_id INTEGER UNIQUE
+            `);
+            console.log('✅ User ID column added to users table');
+            
+            // Assign User IDs to existing users who don't have them
+            await assignUserIdsToExistingUsers();
+        } catch (error) {
+            console.log('ℹ️ User ID column already exists or error adding it:', error.message);
         }
 
         // Create projects table
@@ -976,6 +1072,7 @@ app.post('/login', async (req, res) => {
             token: user.id,
             user: {
                 id: user.id,
+                user_id: user.user_id,
                 email: user.email,
                 name: user.name,
                 role: user.role,
@@ -1006,12 +1103,13 @@ app.post('/signup', async (req, res) => {
         }
 
         const userId = uuidv4();
+        const userDisplayId = await generateUserId();
         const hashedPassword = await bcrypt.hash(password, 12);
         
         await dbHelpers.run(`
-            INSERT INTO users (id, email, password_hash, name, role, license, created_at) 
-            VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-        `, [userId, email, hashedPassword, name, 'user', 'Free']);
+            INSERT INTO users (id, user_id, email, password_hash, name, role, license, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+        `, [userId, userDisplayId, email, hashedPassword, name, 'user', 'Free']);
         
         // Send welcome email
         try {
@@ -1027,6 +1125,7 @@ app.post('/signup', async (req, res) => {
             token: userId,
             user: {
                 id: userId,
+                user_id: userDisplayId,
                 email: email,
                 name: name,
                 role: 'user',
@@ -2058,7 +2157,7 @@ app.get('/admin/users', requireAuth, async (req, res) => {
         
         // First, let's try a simpler query to see if the basic connection works
         console.log('🔍 Testing basic users query...');
-        const basicUsers = await dbHelpers.query('SELECT id, email, name, role, license, created_at FROM users ORDER BY created_at DESC');
+        const basicUsers = await dbHelpers.query('SELECT id, user_id, email, name, role, license, created_at FROM users ORDER BY created_at DESC');
         console.log('✅ Basic users query successful, found:', basicUsers.length, 'users');
         
         // Now let's get project counts and totals for each user
@@ -2310,10 +2409,11 @@ app.post('/admin/users/create', requireAuth, async (req, res) => {
         
         // Create new regular user
         const userId = uuidv4();
+        const userDisplayId = await generateUserId();
         await dbHelpers.run(`
-            INSERT INTO users (id, email, name, password_hash, role, license, created_at) 
-            VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-        `, [userId, email, name, hashedPassword, 'user', 'Free']);
+            INSERT INTO users (id, user_id, email, name, password_hash, role, license, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+        `, [userId, userDisplayId, email, name, hashedPassword, 'user', 'Free']);
         
         const newUser = await dbHelpers.get('SELECT * FROM users WHERE id = $1', [userId]);
         
@@ -3256,6 +3356,7 @@ app.get('/profile', requireAuth, async (req, res) => {
             company: '', // Company field not in users table
             role: roleDisplay,
             license: user.license || 'Free',
+            user_id: user.user_id,
             created_at: user.created_at
         };
         

@@ -2018,7 +2018,7 @@
                 VerbiForge
             </div>
             <div class="nav-user">
-                <span id="userName" class="clickable-user-name">Loading...</span>
+                <span id="navUserName" class="clickable-user-name">Loading...</span>
             </div>
         </div>
     </nav>
@@ -2055,7 +2055,7 @@
         </div>
         <button class="user-profile-btn" onclick="switchTab('account')">
             <div class="user-avatar" id="userAvatar">U</div>
-            <span id="userName">Loading...</span>
+            <span id="profileUserName">Loading...</span>
         </button>
     </div>
 
@@ -2316,6 +2316,11 @@
                     <h3 style="margin-bottom: 20px; color: #333; font-size: 18px;">Account Information</h3>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">User ID</div>
+                            <div style="font-weight: 500; color: #333;" id="accountUserId">Loading...</div>
+                        </div>
+                        
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
                             <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Account Type</div>
                             <div style="font-weight: 500; color: #333;" id="accountType">Loading...</div>
@@ -2607,28 +2612,38 @@
                         displayName = currentUser.email.split('@')[0]; // Use email prefix as name
                     }
                     console.log('👤 Final display name:', displayName);
-                    const userNameElement = document.getElementById('userName');
-                    console.log('👤 Found userName element:', userNameElement);
                     
-                    if (userNameElement) {
-                        userNameElement.textContent = displayName;
-                        console.log('👤 Set user name to:', displayName);
-                        
-                        // Update user avatar with first letter
-                        const userAvatar = document.getElementById('userAvatar');
-                        if (userAvatar) {
-                            userAvatar.textContent = displayName.charAt(0).toUpperCase();
-                        }
+                    // Update both user name elements
+                    const navUserNameElement = document.getElementById('navUserName');
+                    const profileUserNameElement = document.getElementById('profileUserName');
+                    
+                    console.log('👤 Found navUserName element:', navUserNameElement);
+                    console.log('👤 Found profileUserName element:', profileUserNameElement);
+                    
+                    if (navUserNameElement) {
+                        navUserNameElement.textContent = displayName;
+                        console.log('👤 Set nav user name to:', displayName);
                         
                         // Remove any existing click listeners to prevent duplicates
-                        userNameElement.replaceWith(userNameElement.cloneNode(true));
-                        const newUserNameElement = document.getElementById('userName');
+                        navUserNameElement.replaceWith(navUserNameElement.cloneNode(true));
+                        const newNavUserNameElement = document.getElementById('navUserName');
                         
                         // Add click event to open My Account page
-                        newUserNameElement.addEventListener('click', function() {
-                            console.log('👤 User name clicked, switching to account tab');
+                        newNavUserNameElement.addEventListener('click', function() {
+                            console.log('👤 Nav user name clicked, switching to account tab');
                             switchTab('account');
                         });
+                    }
+                    
+                    if (profileUserNameElement) {
+                        profileUserNameElement.textContent = displayName;
+                        console.log('👤 Set profile user name to:', displayName);
+                    }
+                    
+                    // Update user avatar with first letter
+                    const userAvatar = document.getElementById('userAvatar');
+                    if (userAvatar) {
+                        userAvatar.textContent = displayName.charAt(0).toUpperCase();
                     } else {
                         console.error('❌ User name element not found!');
                     }
@@ -2653,10 +2668,17 @@
             } catch (error) {
                 console.error('❌ Authentication error:', error);
                 // Set a fallback user name if authentication fails
-                const userNameElement = document.getElementById('userName');
-                if (userNameElement) {
-                    userNameElement.textContent = 'Guest User';
-                    console.log('👤 Set fallback user name: Guest User');
+                const navUserNameElement = document.getElementById('navUserName');
+                const profileUserNameElement = document.getElementById('profileUserName');
+                
+                if (navUserNameElement) {
+                    navUserNameElement.textContent = 'Guest User';
+                    console.log('👤 Set fallback nav user name: Guest User');
+                }
+                
+                if (profileUserNameElement) {
+                    profileUserNameElement.textContent = 'Guest User';
+                    console.log('👤 Set fallback profile user name: Guest User');
                 }
                 const userAvatar = document.getElementById('userAvatar');
                 if (userAvatar) {
@@ -3804,6 +3826,7 @@
                 if (currentUser) {
                     document.getElementById('accountName').value = currentUser.name || '';
                     document.getElementById('accountEmail').value = currentUser.email || '';
+                    document.getElementById('accountUserId').textContent = currentUser.user_id || 'N/A';
                     document.getElementById('accountType').textContent = currentUser.role || 'User';
                     document.getElementById('accountLicense').textContent = currentUser.license || 'Free';
                     document.getElementById('accountCreated').textContent = currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString() : 'N/A';
@@ -3821,6 +3844,7 @@
                         
                         document.getElementById('accountName').value = profileData.name || currentUser?.name || '';
                         document.getElementById('accountEmail').value = profileData.email || currentUser?.email || '';
+                        document.getElementById('accountUserId').textContent = profileData.user_id || currentUser?.user_id || 'N/A';
                         document.getElementById('accountType').textContent = profileData.role || currentUser?.role || 'User';
                         document.getElementById('accountLicense').textContent = profileData.license || currentUser?.license || 'Free';
                         document.getElementById('accountCreated').textContent = profileData.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A';
@@ -3885,6 +3909,7 @@
                 if (currentUser) {
                     document.getElementById('accountName').value = currentUser.name || '';
                     document.getElementById('accountEmail').value = currentUser.email || '';
+                    document.getElementById('accountUserId').textContent = currentUser.user_id || 'N/A';
                     document.getElementById('accountType').textContent = currentUser.role || 'User';
                     document.getElementById('accountLicense').textContent = currentUser.license || 'Free';
                     document.getElementById('accountCreated').textContent = 'N/A';
@@ -3915,8 +3940,16 @@
                 
                 if (response.ok) {
                     CustomModal.success('Profile updated successfully');
-                    // Update the user name in the navbar
-                    document.getElementById('userName').textContent = name;
+                    // Update the user name in both locations
+                    const navUserNameElement = document.getElementById('navUserName');
+                    const profileUserNameElement = document.getElementById('profileUserName');
+                    
+                    if (navUserNameElement) {
+                        navUserNameElement.textContent = name;
+                    }
+                    if (profileUserNameElement) {
+                        profileUserNameElement.textContent = name;
+                    }
                 } else {
                     const data = await response.json();
                     CustomModal.error('Error updating profile: ' + (data.error || 'Unknown error'));

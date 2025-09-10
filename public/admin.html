@@ -2121,6 +2121,22 @@
                 </div>
                 
                 <div id="usersContent" style="padding: 20px;">
+                    <!-- User Search -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 15px; color: #333;">🔍 Search Users</h3>
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="userSearchInput" placeholder="Search by User ID, Name, or Email..." 
+                                   style="flex: 1; min-width: 250px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                            <button id="searchUsersBtn" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                Search
+                            </button>
+                            <button id="clearUserSearchBtn" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                Clear
+                            </button>
+                        </div>
+                        <div id="userSearchStatus" style="margin-top: 10px; font-size: 0.9em;"></div>
+                    </div>
+                    
                     <div id="usersLoading" class="loading">
                         <div class="spinner"></div>
                         <p>Loading users...</p>
@@ -2131,6 +2147,7 @@
                         <table class="projects-table">
                             <thead>
                                 <tr>
+                                    <th>User ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>License</th>
@@ -4264,6 +4281,7 @@
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
+                    <td>${user.user_id || 'N/A'}</td>
                     <td>${user.name}</td>
                     <td>${user.email}</td>
                     <td>
@@ -4320,6 +4338,55 @@
                 console.error('Error updating user license:', error);
                 CustomModal.error('Network error updating license');
             }
+        }
+
+        // Search users functionality
+        async function searchUsers() {
+            const searchInput = document.getElementById('userSearchInput').value.trim();
+            const statusDiv = document.getElementById('userSearchStatus');
+            
+            if (!searchInput) {
+                statusDiv.innerHTML = '<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">Please enter a search term</div>';
+                return;
+            }
+            
+            try {
+                statusDiv.innerHTML = '<div style="color: #007bff;">Searching users...</div>';
+                
+                // Filter users based on search term
+                const filteredUsers = allUsers.filter(user => {
+                    const searchTerm = searchInput.toLowerCase();
+                    return (
+                        (user.user_id && user.user_id.toString().includes(searchTerm)) ||
+                        (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+                        (user.email && user.email.toLowerCase().includes(searchTerm))
+                    );
+                });
+                
+                if (filteredUsers.length > 0) {
+                    // Temporarily replace allUsers with filtered results
+                    const originalUsers = allUsers;
+                    allUsers = filteredUsers;
+                    renderUsers();
+                    allUsers = originalUsers; // Restore original array
+                    
+                    statusDiv.innerHTML = `<div style="color: #155724; background: #d4edda; padding: 8px; border-radius: 4px;">Found ${filteredUsers.length} user(s) matching "${searchInput}"</div>`;
+                } else {
+                    statusDiv.innerHTML = `<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">No users found matching "${searchInput}"</div>`;
+                    // Clear the table
+                    document.getElementById('usersTableBody').innerHTML = '';
+                }
+            } catch (error) {
+                console.error('❌ Search error:', error);
+                statusDiv.innerHTML = '<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">Error during search</div>';
+            }
+        }
+
+        // Clear user search
+        function clearUserSearch() {
+            document.getElementById('userSearchInput').value = '';
+            document.getElementById('userSearchStatus').innerHTML = '';
+            renderUsers(); // Show all users again
         }
 
         async function deleteUser(userId, userName) {
@@ -4925,6 +4992,17 @@
             
             // User management buttons
             document.getElementById('createUserBtn').addEventListener('click', createUser);
+            
+            // User search functionality
+            document.getElementById('searchUsersBtn').addEventListener('click', searchUsers);
+            document.getElementById('clearUserSearchBtn').addEventListener('click', clearUserSearch);
+            
+            // Allow Enter key to trigger search
+            document.getElementById('userSearchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchUsers();
+                }
+            });
 
             // Contact modal buttons
             const closeContactBtn = document.getElementById('closeContactModalBtn');
