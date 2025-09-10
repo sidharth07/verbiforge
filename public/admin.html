@@ -338,76 +338,155 @@
             padding-top: 0;
         }
 
-        /* Sidebar */
+        /* Modern SaaS Sidebar */
         .admin-sidebar {
-            width: 240px;
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            color: white;
+            width: 280px;
+            background: #ffffff;
+            color: #374151;
             position: fixed;
             top: 72px;
             left: 0;
             height: calc(100vh - 72px);
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #334155;
+            border-right: 1px solid #e5e7eb;
         }
 
         .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid #f3f4f6;
         }
 
         .sidebar-header h2 {
             margin: 0;
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: 600;
+            color: #111827;
+            letter-spacing: -0.025em;
         }
 
         .sidebar-nav {
-            padding: 20px 0;
+            flex: 1;
+            padding: 8px 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-section-header {
+            padding: 8px 20px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
         }
 
         .sidebar-btn {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             width: 100%;
-            padding: 16px 24px;
+            padding: 10px 20px;
             background: none;
             border: none;
-            color: #cbd5e1;
+            color: #6b7280;
             text-align: left;
             cursor: pointer;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            font-size: 15px;
+            transition: all 0.15s ease;
+            font-size: 14px;
             font-weight: 500;
+            border-radius: 0;
+            position: relative;
+            margin: 2px 0;
         }
 
         .sidebar-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            border-left-color: #667eea;
+            background: #f9fafb;
+            color: #374151;
         }
 
         .sidebar-btn.active {
-            background: rgba(102, 126, 234, 0.1);
-            color: white;
-            border-left-color: #667eea;
+            background: #f0f9ff;
+            color: #0369a1;
+            font-weight: 600;
+        }
+
+        .sidebar-btn.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #0369a1;
+            border-radius: 0 2px 2px 0;
         }
 
         .sidebar-btn svg {
             flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            opacity: 0.8;
+        }
+
+        .sidebar-btn.active svg {
+            opacity: 1;
+        }
+
+        .notification-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px 24px;
+            border-top: 1px solid #f3f4f6;
+            margin-top: auto;
+        }
+
+        .sidebar-footer .sidebar-btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 4px 0;
+        }
+
+        .sidebar-footer .sidebar-btn:first-child {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .sidebar-footer .sidebar-btn:first-child:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .sidebar-footer .sidebar-btn:last-child {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .sidebar-footer .sidebar-btn:last-child:hover {
+            background: #fee2e2;
+            color: #b91c1c;
         }
 
         /* Main Content */
         .admin-main {
             flex: 1;
-            margin-left: 240px;
+            margin-left: 280px;
             margin-top: 0;
             padding: 0;
             background: #f8f9fa;
@@ -1277,8 +1356,8 @@
 
         /* MacBook / medium screens */
         @media (max-width: 1366px) {
-            body { padding-left: 220px; }
-            .admin-sidebar { width: 220px; }
+            body { padding-left: 260px; }
+            .admin-sidebar { width: 260px; }
             .admin-main { margin-left: 0; padding: 24px; }
             .container { max-width: 1100px; }
             .projects-table th, .projects-table td { padding: 10px 12px; }
@@ -1289,8 +1368,8 @@
 
         /* Narrow laptops */
         @media (max-width: 1200px) {
-            body { padding-left: 200px; }
-            .admin-sidebar { width: 200px; }
+            body { padding-left: 240px; }
+            .admin-sidebar { width: 240px; }
             .container { max-width: 980px; }
             .projects-table { font-size: 0.95em; }
             .projects-table th, .projects-table td { padding: 8px 10px; }
@@ -1306,23 +1385,64 @@
         /* Tablet and below: collapsible sidebar */
         @media (max-width: 992px) {
             body { padding-left: 0; }
-            .admin-sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .admin-sidebar { 
+                transform: translateX(-100%); 
+                transition: transform 0.3s ease;
+                width: 280px;
+            }
             .admin-sidebar.open { transform: translateX(0); }
-            .admin-main { padding: 20px; }
+            .admin-main { 
+                margin-left: 0; 
+                padding: 20px; 
+            }
             .nav-content { padding: 0 12px; }
             .section-header { padding: 14px; }
         }
 
+        /* Mobile: compact sidebar */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                width: 240px;
+            }
+            .sidebar-section-header {
+                font-size: 10px;
+                padding: 6px 16px 8px;
+            }
+            .sidebar-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            .sidebar-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
         .sidebar-toggle {
             display: none;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid rgba(0,0,0,0.1);
-            padding: 6px 10px;
-            border-radius: 6px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.15s ease;
         }
+        
+        .sidebar-toggle:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
         @media (max-width: 992px) {
-            .sidebar-toggle { display: inline-flex; align-items: center; gap: 6px; }
+            .sidebar-toggle { 
+                display: inline-flex; 
+                align-items: center; 
+                gap: 8px; 
+            }
         }
 
         /* Revenue card grid responsiveness */
@@ -1730,73 +1850,108 @@
     </div>
 
     <div class="admin-layout">
-        <!-- Sidebar -->
+        <!-- Modern SaaS Sidebar -->
         <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            
             <nav class="sidebar-nav">
-                <button class="sidebar-btn active" data-admin-tab="dashboard" id="dashboardTabBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-                    </svg>
-                    Dashboard
-                </button>
-                <button class="sidebar-btn" data-admin-tab="projects" id="projectsTabBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
-                    </svg>
-                    Projects
-                </button>
-                <button class="sidebar-btn" data-admin-tab="languages" id="languagesTabBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.01-4.65.83-6.99l2.53 2.53c1.53 1.53 1.53 4.01 0 5.54z"/>
-                        <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.01-4.65.83-6.99l2.53 2.53c1.53 1.53 1.53 4.01 0 5.54z"/>
-                    </svg>
-                    Language Pricing
-                </button>
-                <button class="sidebar-btn" data-admin-tab="users" id="usersTabBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01 1l-1.7 2.26A6.003 6.003 0 0 0 10 16c0 1.1.9 2 2 2s2-.9 2-2c0-.73-.4-1.38-1-1.73V22h3z"/>
-                    </svg>
-                    User Management
-                </button>
-                <button class="sidebar-btn" data-admin-tab="contacts" id="contactsTabBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
-                    </svg>
-                    Contact Messages
-                    <span id="contactsNotification" class="notification-badge" style="display: none;">0</span>
-                </button>
-                
-                <button class="sidebar-btn" data-admin-tab="email-templates" id="emailTemplatesTabBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-2 14H6V8h12v10z"/>
-                    </svg>
-                    Email Templates
-                </button>
-                <button class="sidebar-btn" data-admin-tab="create-project" id="createProjectTabBtn">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
-                    Create Project
-                </button>
-                <button class="sidebar-btn" data-admin-tab="admins" id="adminsTabBtn" style="display: none;">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                    Admin Management
-                </button>
+                <!-- Main Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-header">Main</div>
+                    <button class="sidebar-btn active" data-admin-tab="dashboard" id="dashboardTabBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        Dashboard
+                    </button>
+                    <button class="sidebar-btn" data-admin-tab="projects" id="projectsTabBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Projects
+                    </button>
+                    <button class="sidebar-btn" data-admin-tab="create-project" id="createProjectTabBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="16"/>
+                            <line x1="8" y1="12" x2="16" y2="12"/>
+                        </svg>
+                        Create Project
+                    </button>
+                </div>
+
+                <!-- Management Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-header">Management</div>
+                    <button class="sidebar-btn" data-admin-tab="users" id="usersTabBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        User Management
+                    </button>
+                    <button class="sidebar-btn" data-admin-tab="admins" id="adminsTabBtn" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        Admin Management
+                    </button>
+                    <button class="sidebar-btn" data-admin-tab="languages" id="languagesTabBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        Language Pricing
+                    </button>
+                </div>
+
+                <!-- Communication Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-header">Communication</div>
+                    <button class="sidebar-btn" data-admin-tab="contacts" id="contactsTabBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        Contact Messages
+                        <span id="contactsNotification" class="notification-badge" style="display: none;">0</span>
+                    </button>
+                    <button class="sidebar-btn" data-admin-tab="email-templates" id="emailTemplatesTabBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                        Email Templates
+                    </button>
+                </div>
             </nav>
             
-            <!-- Sidebar Navigation Buttons -->
-            <div style="margin-top: auto; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1);">
-                <button class="sidebar-btn" onclick="window.location.href='/dashboard.html'" style="width: 100%; margin-bottom: 10px; background: rgba(255,255,255,0.1);">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            <!-- Account Section -->
+            <div class="sidebar-footer">
+                <button class="sidebar-btn" onclick="window.location.href='/dashboard.html'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
                     </svg>
                     User Dashboard
                 </button>
-                <button class="sidebar-btn" onclick="logout()" style="width: 100%; background: rgba(220,53,69,0.8);">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                <button class="sidebar-btn" onclick="logout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16,17 21,12 16,7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
                     </svg>
                     Logout
                 </button>
