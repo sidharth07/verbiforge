@@ -2580,6 +2580,10 @@
         };
 
         // Check authentication on page load
+        // First, try to get user from localStorage
+        currentUser = Auth.getUser();
+        console.log('🔍 Initial currentUser from localStorage:', currentUser);
+        
         checkAuth();
 
         async function checkAuth() {
@@ -3286,6 +3290,15 @@
             const container = document.getElementById(containerId);
 
             console.log('Rendering projects:', projects, 'in container:', containerId);
+            
+            // Ensure currentUser is available, fallback to localStorage
+            if (!currentUser) {
+                currentUser = Auth.getUser();
+                console.log('🔍 Fallback: Got currentUser from localStorage:', currentUser);
+            }
+            
+            console.log('🔍 Current user during render:', currentUser);
+            console.log('🔍 Current user license:', currentUser?.license);
 
             if (projects.length === 0) {
                 const emptyMessage = containerId === 'completedProjectsList' 
