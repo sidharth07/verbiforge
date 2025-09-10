@@ -2610,6 +2610,8 @@
                     currentUser = userData.user || userData;
                     console.log('👤 Current user object:', currentUser);
                     console.log('👤 User object keys:', Object.keys(currentUser));
+                    console.log('👤 User license from API:', currentUser.license);
+                    console.log('👤 License type check:', typeof currentUser.license);
                     console.log('👤 User name property:', currentUser.name);
                     console.log('👤 User email property:', currentUser.email);
                     
@@ -3299,6 +3301,8 @@
             
             console.log('🔍 Current user during render:', currentUser);
             console.log('🔍 Current user license:', currentUser?.license);
+            console.log('🔍 License check result:', currentUser && currentUser.license === 'Free');
+            console.log('🔍 Will show locked button:', currentUser && currentUser.license === 'Free' ? 'YES' : 'NO');
 
             if (projects.length === 0) {
                 const emptyMessage = containerId === 'completedProjectsList' 

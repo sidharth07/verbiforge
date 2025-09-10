@@ -1147,7 +1147,9 @@ app.get('/me', requireAuth, (req, res) => {
             id: req.user.id,
             email: req.user.email,
             name: req.user.name,
-            role: req.user.role
+            role: req.user.role,
+            license: req.user.license || 'Free',
+            user_id: req.user.user_id
         }
     });
 });
