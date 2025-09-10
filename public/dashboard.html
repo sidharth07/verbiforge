@@ -1402,6 +1402,17 @@
             color: #1e293b;
         }
         
+        .menu-item.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            color: #94a3b8;
+        }
+        
+        .menu-item.locked:hover {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+        
         .menu-item svg {
             width: 16px;
             height: 16px;
@@ -3308,12 +3319,22 @@
                                         <button class="kebab-btn" data-project-id="${project.id}" aria-haspopup="true" aria-expanded="false" aria-label="Actions">⋮</button>
                                         <div class="action-menu" data-project-id="${project.id}">
                                             ${project.status === 'quote_generated' ? `
-                                                <button class="menu-item submit-project-btn" data-project-id="${project.id}">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                    </svg>
-                                                    Submit Project
-                                                </button>
+                                                ${currentUser && currentUser.license === 'Free' ? `
+                                                    <button class="menu-item submit-project-btn locked" data-project-id="${project.id}" disabled title="You are on a Free license, please upgrade to proceed. Contact sales@verbiforge.com">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/>
+                                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                                        </svg>
+                                                        Submit Project
+                                                    </button>
+                                                ` : `
+                                                    <button class="menu-item submit-project-btn" data-project-id="${project.id}">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                        </svg>
+                                                        Submit Project
+                                                    </button>
+                                                `}
                                                 <button class="menu-item delete-project-btn" data-project-id="${project.id}">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                         <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -3638,6 +3659,12 @@
             // Submit project buttons
             document.querySelectorAll('.submit-project-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
+                    // Check if button is locked (Free license)
+                    if (this.classList.contains('locked') || this.disabled) {
+                        console.log('🔧 Submit project blocked for Free license user');
+                        return;
+                    }
+                    
                     const projectId = this.getAttribute('data-project-id');
                     console.log('🔧 Submit project clicked:', projectId);
                     submitProject(projectId);
@@ -4163,6 +4190,12 @@
             // Project action buttons (delegated event listeners)
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('submit-project-btn')) {
+                    // Check if button is locked (Free license)
+                    if (e.target.classList.contains('locked') || e.target.disabled) {
+                        console.log('🔧 Submit project blocked for Free license user');
+                        return;
+                    }
+                    
                     const projectId = e.target.getAttribute('data-project-id');
                     submitProject(projectId);
                 }
