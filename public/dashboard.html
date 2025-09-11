@@ -1514,6 +1514,32 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #dc2626;
+        }
+        
+        .retry-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .retry-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
 
         .org-project-card .card-header {
             display: flex;
@@ -2917,12 +2943,16 @@
             }
             
             // Add active class to selected tab content
-            const selectedTabContent = document.getElementById(tab + 'Tab');
+            let tabContentId = tab + 'Tab';
+            if (tab === 'org-projects') {
+                tabContentId = 'orgProjectsTab';
+            }
+            const selectedTabContent = document.getElementById(tabContentId);
             if (selectedTabContent) {
                 selectedTabContent.classList.add('active');
                 console.log('✅ Added active to tab content:', selectedTabContent.id);
             } else {
-                console.log('❌ Tab content not found for:', tab + 'Tab');
+                console.log('❌ Tab content not found for:', tabContentId);
             }
 
             // Load content based on tab
@@ -3479,8 +3509,34 @@
         async function loadOrgProjects() {
             console.log('🏢 Loading organization projects...');
             try {
+                // First check if user has sub-accounts
+                const checkResponse = await Auth.authFetch('/api/has-sub-accounts');
+                if (!checkResponse.ok) {
+                    throw new Error(`Check API returned ${checkResponse.status}`);
+                }
+                
+                const checkData = await checkResponse.json();
+                console.log('🏢 Sub-accounts check:', checkData);
+                
+                if (!checkData.hasSubAccounts) {
+                    console.log('🏢 No sub-accounts found, showing empty state');
+                    document.getElementById('orgProjectsList').innerHTML = `
+                        <div class="empty-state">
+                            <p>No sub-accounts found. Add sub-users to see their projects here.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Try to load projects from the complex endpoint
+                console.log('🏢 Attempting to load projects from sub-accounts...');
                 const response = await Auth.authFetch('/api/sub-account-projects');
+                if (!response.ok) {
+                    throw new Error(`Projects API returned ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('🏢 Org projects data:', data);
                 
                 allOrgProjects = data.projects || [];
                 allSubUsers = data.subUsers || [];
@@ -3490,10 +3546,15 @@
                 
             } catch (error) {
                 console.error('❌ Error loading organization projects:', error);
+                console.error('❌ Error details:', error.message);
+                
+                // Show a more helpful error message
                 document.getElementById('orgProjectsList').innerHTML = `
-                    <div class="empty-state">
-                        <h3>Error loading organization projects</h3>
-                        <p>Please try again later.</p>
+                    <div class="error-message">
+                        <p>⚠️ Unable to load organization projects</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>This might be due to database schema issues. Please check the server logs.</p>
+                        <button onclick="loadOrgProjects()" class="retry-btn">🔄 Retry</button>
                     </div>
                 `;
             }
