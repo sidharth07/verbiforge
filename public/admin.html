@@ -28,7 +28,7 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 10000;
+            z-index: 20000;
             backdrop-filter: blur(5px);
         }
 
@@ -6531,6 +6531,8 @@
                 showError('Please enter a User ID');
                 return;
             }
+            
+            console.log('🔍 Adding sub-user:', { parentUserId, subUserId });
             
             try {
                 const response = await Auth.authFetch(`/admin/users/${parentUserId}/sub-users`, {

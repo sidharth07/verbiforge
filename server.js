@@ -2619,6 +2619,8 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
         const { parentUserId } = req.params;
         const { subUserId } = req.body;
 
+        console.log('🔍 Add sub-user request:', { parentUserId, subUserId });
+
         if (!subUserId) {
             return res.status(400).json({ error: 'Sub-user ID is required' });
         }
@@ -2628,6 +2630,8 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
             SELECT id, email, license FROM users WHERE user_id = $1
         `, [parentUserId]);
 
+        console.log('🔍 Parent user found:', parentUser);
+
         if (!parentUser) {
             return res.status(404).json({ error: 'Parent user not found' });
         }
@@ -2636,6 +2640,8 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
         const subUser = await dbHelpers.get(`
             SELECT id, email, license, parent_user_id FROM users WHERE user_id = $1
         `, [subUserId]);
+
+        console.log('🔍 Sub-user found:', subUser);
 
         if (!subUser) {
             return res.status(404).json({ error: 'Sub-user not found' });
