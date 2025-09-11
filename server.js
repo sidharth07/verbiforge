@@ -2661,7 +2661,7 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
             UPDATE users 
             SET parent_user_id = $1, license = $2
             WHERE id = $3
-        `, [parentUserId, newLicense, subUserId]);
+        `, [parentUser.id, newLicense, subUser.id]);
 
         console.log(`✅ Added sub-user ${subUser.email} under parent ${parentUser.email}`);
         res.json({ 
@@ -2726,7 +2726,7 @@ app.delete('/admin/users/:parentUserId/sub-users/:subUserId', requireAuth, async
             UPDATE users 
             SET parent_user_id = NULL, license = $1
             WHERE id = $2
-        `, [newLicense, subUserId]);
+        `, [newLicense, subUser.id]);
 
         console.log(`✅ Removed sub-user ${subUser.email} from parent`);
         res.json({ 
