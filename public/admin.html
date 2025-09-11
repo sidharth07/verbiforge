@@ -1925,18 +1925,31 @@
                         Contact Messages
                         <span id="contactsNotification" class="notification-badge" style="display: none;">0</span>
                     </button>
-                    <button class="sidebar-btn" data-admin-tab="email-templates" id="emailTemplatesTabBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14,2 14,8 20,8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <polyline points="10,9 9,9 8,9"/>
-                        </svg>
-                        Email Templates
-                    </button>
-                </div>
-            </nav>
+                <button class="sidebar-btn" data-admin-tab="email-templates" id="emailTemplatesTabBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    Email Templates
+                </button>
+            </div>
+            
+            <!-- Database Tools Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">Database Tools</div>
+                <button class="sidebar-btn" data-admin-tab="database-tools" id="databaseToolsTabBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                        <path d="M3 5v14a9 3 0 0 0 9 3"/>
+                        <path d="M21 5v14a9 3 0 0 1-9 3"/>
+                    </svg>
+                    Database Tools
+                </button>
+            </div>
+        </nav>
             
             <!-- Account Section -->
             <div class="sidebar-footer">
@@ -2486,6 +2499,82 @@
                     <div id="emailTemplatesEmpty" class="empty-state" style="display: none;">
                         <h3>No email templates</h3>
                         <p>No email templates found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Database Tools Tab -->
+        <div id="databaseToolsTab" class="tab-content">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>Database Tools</h2>
+                    <p>Database maintenance and migration tools</p>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <!-- Schema Check Section -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e9ecef;">
+                        <h3 style="margin: 0 0 15px 0; color: #333;">Database Schema Check</h3>
+                        <p style="margin: 0 0 15px 0; color: #666;">Check the current database schema and sample data</p>
+                        <button id="checkSchemaBtn" class="btn btn-primary" style="margin-right: 10px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 8px;">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                <line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
+                            Check Schema
+                        </button>
+                        <div id="schemaResults" style="margin-top: 15px; display: none;">
+                            <div id="schemaLoading" class="loading" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Checking database schema...</p>
+                            </div>
+                            <div id="schemaContent" style="display: none;">
+                                <!-- Schema results will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Database Migration Section -->
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeaa7;">
+                        <h3 style="margin: 0 0 15px 0; color: #856404;">Database Schema Migration</h3>
+                        <p style="margin: 0 0 15px 0; color: #856404;">Fix missing columns and data in Users and Projects tables</p>
+                        <div style="background: #fff; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #ffeaa7;">
+                            <h4 style="margin: 0 0 10px 0; color: #856404;">What this will fix:</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #856404;">
+                                <li><strong>Users Table:</strong> Add user_id column and assign 5-digit IDs (70000+)</li>
+                                <li><strong>Projects Table:</strong> Add project_id column and generate PROJ-XXXXX IDs</li>
+                            </ul>
+                        </div>
+                        <button id="fixDatabaseBtn" class="btn btn-warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 8px;">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                            </svg>
+                            Fix Database Schema
+                        </button>
+                        <div id="migrationResults" style="margin-top: 15px; display: none;">
+                            <div id="migrationLoading" class="loading" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Running database migration...</p>
+                            </div>
+                            <div id="migrationContent" style="display: none;">
+                                <!-- Migration results will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Instructions Section -->
+                    <div style="background: #d1ecf1; padding: 20px; border-radius: 8px; border: 1px solid #bee5eb;">
+                        <h3 style="margin: 0 0 15px 0; color: #0c5460;">Instructions</h3>
+                        <ol style="margin: 0; padding-left: 20px; color: #0c5460;">
+                            <li><strong>Step 1:</strong> Click "Check Schema" to see current database structure</li>
+                            <li><strong>Step 2:</strong> Click "Fix Database Schema" to run the migration</li>
+                            <li><strong>Step 3:</strong> Verify the results and check your Neon Tech database</li>
+                        </ol>
+                        <div style="background: #fff; padding: 10px; border-radius: 4px; margin-top: 10px; border: 1px solid #bee5eb;">
+                            <strong style="color: #0c5460;">Note:</strong> This migration is safe and will not delete any existing data.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3327,6 +3416,8 @@
                 tabBtnId = 'createProjectTabBtn';
             } else if (tab === 'email-templates') {
                 tabBtnId = 'emailTemplatesTabBtn';
+            } else if (tab === 'database-tools') {
+                tabBtnId = 'databaseToolsTabBtn';
             }
             
             const tabBtn = document.getElementById(tabBtnId);
@@ -3346,6 +3437,8 @@
                 tabContentId = 'createProjectTab';
             } else if (tab === 'email-templates') {
                 tabContentId = 'emailTemplatesTab';
+            } else if (tab === 'database-tools') {
+                tabContentId = 'databaseToolsTab';
             }
             
             const tabContent = document.getElementById(tabContentId);
@@ -3372,6 +3465,9 @@
                 resetProjectCreation();
             } else if (tab === 'email-templates') {
                 loadEmailTemplates();
+            } else if (tab === 'database-tools') {
+                // Database tools tab doesn't need to load data on switch
+                // Data is loaded when buttons are clicked
             }
         }
 
@@ -4032,6 +4128,237 @@
                     }
                 });
             });
+        }
+
+        // Database Tools Functions
+        async function checkDatabaseSchema() {
+            try {
+                console.log('🔍 Checking database schema...');
+                
+                const loadingDiv = document.getElementById('schemaLoading');
+                const resultsDiv = document.getElementById('schemaResults');
+                const contentDiv = document.getElementById('schemaContent');
+                
+                loadingDiv.style.display = 'block';
+                resultsDiv.style.display = 'block';
+                contentDiv.style.display = 'none';
+                
+                const response = await Auth.authFetch('/debug/schema');
+                if (response.ok) {
+                    const data = await response.json();
+                    displaySchemaResults(data.schema);
+                } else {
+                    const error = await response.json();
+                    displaySchemaError(error.error || 'Failed to check schema');
+                }
+            } catch (error) {
+                console.error('❌ Error checking database schema:', error);
+                displaySchemaError('Network error checking schema');
+            } finally {
+                const loadingDiv = document.getElementById('schemaLoading');
+                const contentDiv = document.getElementById('schemaContent');
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+            }
+        }
+
+        function displaySchemaResults(schema) {
+            const contentDiv = document.getElementById('schemaContent');
+            
+            contentDiv.innerHTML = `
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+                    <h4 style="margin: 0 0 15px 0; color: #333;">Users Table Schema</h4>
+                    <div style="background: #fff; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e9ecef;">
+                        <h5 style="margin: 0 0 10px 0; color: #666;">Columns:</h5>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Column</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Type</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Nullable</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Default</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${schema.users.columns.map(col => `
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef; font-weight: ${col.column_name === 'user_id' ? 'bold' : 'normal'}">${col.column_name}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${col.data_type}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${col.is_nullable}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${col.column_default || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <h5 style="margin: 0 0 10px 0; color: #666;">Sample Data:</h5>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">ID</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">User ID</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Email</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Name</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">License</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${schema.users.sampleData.map(user => `
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef; font-family: monospace; font-size: 12px;">${user.id.substring(0, 8)}...</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef; font-weight: ${user.user_id ? 'bold' : 'normal'}; color: ${user.user_id ? '#28a745' : '#dc3545'}">${user.user_id || 'NULL'}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${user.email}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${user.name}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${user.license || 'NULL'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; margin-top: 20px;">
+                    <h4 style="margin: 0 0 15px 0; color: #333;">Projects Table Schema</h4>
+                    <div style="background: #fff; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e9ecef;">
+                        <h5 style="margin: 0 0 10px 0; color: #666;">Columns:</h5>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Column</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Type</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Nullable</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Default</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${schema.projects.columns.map(col => `
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef; font-weight: ${col.column_name === 'project_id' ? 'bold' : 'normal'}">${col.column_name}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${col.data_type}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${col.is_nullable}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${col.column_default || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <h5 style="margin: 0 0 10px 0; color: #666;">Sample Data:</h5>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">ID</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">User ID</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Project ID</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Name</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #e9ecef;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${schema.projects.sampleData.map(project => `
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef; font-family: monospace; font-size: 12px;">${project.id.substring(0, 8)}...</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef; font-family: monospace; font-size: 12px;">${project.user_id.substring(0, 8)}...</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef; font-weight: ${project.project_id ? 'bold' : 'normal'}; color: ${project.project_id ? '#28a745' : '#dc3545'}">${project.project_id || 'NULL'}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${project.name}</td>
+                                        <td style="padding: 8px; border: 1px solid #e9ecef;">${project.status}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displaySchemaError(error) {
+            const contentDiv = document.getElementById('schemaContent');
+            contentDiv.innerHTML = `
+                <div style="background: #f8d7da; padding: 20px; border-radius: 8px; border: 1px solid #f5c6cb;">
+                    <h4 style="margin: 0 0 10px 0; color: #721c24;">Error Checking Schema</h4>
+                    <p style="margin: 0; color: #721c24;">${error}</p>
+                </div>
+            `;
+        }
+
+        async function fixDatabaseSchema() {
+            try {
+                console.log('🔧 Fixing database schema...');
+                
+                const loadingDiv = document.getElementById('migrationLoading');
+                const resultsDiv = document.getElementById('migrationResults');
+                const contentDiv = document.getElementById('migrationContent');
+                
+                loadingDiv.style.display = 'block';
+                resultsDiv.style.display = 'block';
+                contentDiv.style.display = 'none';
+                
+                const response = await Auth.authFetch('/fix-database-schema', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayMigrationResults(data.results);
+                } else {
+                    const error = await response.json();
+                    displayMigrationError(error.error || 'Failed to fix database schema');
+                }
+            } catch (error) {
+                console.error('❌ Error fixing database schema:', error);
+                displayMigrationError('Network error fixing database schema');
+            } finally {
+                const loadingDiv = document.getElementById('migrationLoading');
+                const contentDiv = document.getElementById('migrationContent');
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+            }
+        }
+
+        function displayMigrationResults(results) {
+            const contentDiv = document.getElementById('migrationContent');
+            
+            contentDiv.innerHTML = `
+                <div style="background: #d4edda; padding: 20px; border-radius: 8px; border: 1px solid #c3e6cb;">
+                    <h4 style="margin: 0 0 15px 0; color: #155724;">Migration Results</h4>
+                    
+                    <div style="background: #fff; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #c3e6cb;">
+                        <h5 style="margin: 0 0 10px 0; color: #155724;">Users Table: ${results.usersTable.success ? '✅ Success' : '❌ Failed'}</h5>
+                        <p style="margin: 0 0 10px 0; color: #155724;">${results.usersTable.message}</p>
+                        ${results.usersTable.details.length > 0 ? `
+                            <ul style="margin: 0; padding-left: 20px; color: #155724;">
+                                ${results.usersTable.details.map(detail => `<li>${detail}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #c3e6cb;">
+                        <h5 style="margin: 0 0 10px 0; color: #155724;">Projects Table: ${results.projectsTable.success ? '✅ Success' : '❌ Failed'}</h5>
+                        <p style="margin: 0 0 10px 0; color: #155724;">${results.projectsTable.message}</p>
+                        ${results.projectsTable.details.length > 0 ? `
+                            <ul style="margin: 0; padding-left: 20px; color: #155724;">
+                                ${results.projectsTable.details.map(detail => `<li>${detail}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="background: #d1ecf1; padding: 15px; border-radius: 6px; border: 1px solid #bee5eb; margin-top: 15px;">
+                        <h5 style="margin: 0 0 10px 0; color: #0c5460;">Next Steps</h5>
+                        <p style="margin: 0; color: #0c5460;">Please check your Neon Tech database to verify the changes. You can also click "Check Schema" to see the updated structure.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayMigrationError(error) {
+            const contentDiv = document.getElementById('migrationContent');
+            contentDiv.innerHTML = `
+                <div style="background: #f8d7da; padding: 20px; border-radius: 8px; border: 1px solid #f5c6cb;">
+                    <h4 style="margin: 0 0 10px 0; color: #721c24;">Migration Failed</h4>
+                    <p style="margin: 0; color: #721c24;">${error}</p>
+                </div>
+            `;
         }
 
         async function loadLanguages() {
@@ -5133,6 +5460,10 @@
             document.getElementById('applyGlobalPricingBtn').addEventListener('click', applyGlobalPricing);
             document.getElementById('addNewLanguageBtn').addEventListener('click', addNewLanguage);
             document.getElementById('updateMultiplierBtn').addEventListener('click', updateMultiplier);
+            
+            // Database tools buttons
+            document.getElementById('checkSchemaBtn').addEventListener('click', checkDatabaseSchema);
+            document.getElementById('fixDatabaseBtn').addEventListener('click', fixDatabaseSchema);
             const saveAllBtn = document.getElementById('saveAllLanguagePricingBtn');
             if (saveAllBtn) {
                 saveAllBtn.addEventListener('click', saveAllLanguagePricing);
