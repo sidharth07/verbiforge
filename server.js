@@ -2604,6 +2604,7 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
                 p.total,
                 p.created_at,
                 p.project_type,
+                p.user_id,
                 u.name as user_name,
                 u.user_id as user_display_id
             FROM projects p
