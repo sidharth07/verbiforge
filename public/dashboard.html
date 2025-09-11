@@ -1446,24 +1446,28 @@
         
         /* Org Projects Styling */
         .org-projects-header {
-            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
             padding: 24px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
         }
 
-        .org-projects-header h2 {
+        .header-content h2 {
             margin: 0 0 8px 0;
-            color: #1f2937;
-            font-size: 28px;
-            font-weight: 700;
+            color: #111827;
+            font-size: 24px;
+            font-weight: 600;
         }
 
-        .org-projects-header p {
-            margin: 0 0 24px 0;
+        .header-content p {
+            margin: 0;
             color: #6b7280;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .filter-section {
@@ -1473,20 +1477,21 @@
         }
 
         .filter-section label {
-            font-weight: 600;
+            font-weight: 500;
             color: #374151;
             font-size: 14px;
         }
 
         .filter-section select {
-            padding: 8px 16px;
+            padding: 8px 12px;
             border: 1px solid #d1d5db;
-            border-radius: 8px;
+            border-radius: 6px;
             background: white;
-            color: #374151;
             font-size: 14px;
-            min-width: 200px;
+            color: #374151;
+            cursor: pointer;
             transition: all 0.2s ease;
+            min-width: 200px;
         }
 
         .filter-section select:focus {
@@ -1495,26 +1500,127 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        /* Org Project Card Styling */
-        .org-project-card {
+        .table-container {
             background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            width: 286px;
-            transition: all 0.3s ease;
-            border: 1px solid #f1f5f9;
-            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
         }
 
-        .org-project-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        .org-projects-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
         }
-        
+
+        .org-projects-table thead {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .org-projects-table th {
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .org-projects-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            vertical-align: middle;
+        }
+
+        .org-projects-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .org-projects-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .project-name {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .project-cost {
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.quote_generated {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.in_progress {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-badge.completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .sub-user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sub-user-name {
+            font-weight: 500;
+            color: #111827;
+            font-size: 14px;
+        }
+
+        .sub-user-id {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .project-languages {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .project-date {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
         .error-message {
             text-align: center;
             padding: 2rem;
@@ -1539,88 +1645,6 @@
         .retry-btn:hover {
             background: #2563eb;
             transform: translateY(-1px);
-        }
-
-        .org-project-card .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .org-project-card .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1f2937;
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        .org-project-card .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .org-project-card .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .org-project-card .status-quote_generated {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .org-project-card .status-approved {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .org-project-card .status-in_progress {
-            background: #e0e7ff;
-            color: #3730a3;
-        }
-
-        .org-project-card .status-completed {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .org-project-card .card-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .org-project-card .price-info {
-            font-size: 20px;
-            font-weight: 700;
-            color: #059669;
-        }
-
-        .org-project-card .sub-user-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .org-project-card .sub-user-icon {
-            width: 20px;
-            height: 20px;
-            background: #e5e7eb;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #374151;
         }
 
         /* Responsive Sidebar */
@@ -2329,8 +2353,10 @@
 
         <div id="orgProjectsTab" class="tab-content">
             <div class="org-projects-header">
-                <h2>Organization Projects</h2>
-                <p>View and manage projects created by your sub-accounts</p>
+                <div class="header-content">
+                    <h2>Organization Projects</h2>
+                    <p>View and manage projects created by your sub-accounts</p>
+                </div>
                 
                 <div class="filter-section">
                     <label for="subUserFilter">Filter by Sub-Account:</label>
@@ -2340,9 +2366,11 @@
                 </div>
             </div>
             
-            <div id="orgProjectsList" class="cards-container">
-                <div class="empty-state">
-                    <h3>Loading organization projects...</h3>
+            <div class="table-container">
+                <div id="orgProjectsTable" class="org-projects-table-wrapper">
+                    <div class="empty-state">
+                        <h3>Loading organization projects...</h3>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3517,7 +3545,7 @@
                 const checkData = await checkResponse.json();
                 
                 if (!checkData.hasSubAccounts) {
-                    document.getElementById('orgProjectsList').innerHTML = `
+                    document.getElementById('orgProjectsTable').innerHTML = `
                         <div class="empty-state">
                             <p>No sub-accounts found. Add sub-users to see their projects here.</p>
                         </div>
@@ -3542,12 +3570,12 @@
             } catch (error) {
                 console.error('❌ Error loading organization projects:', error);
                 
-                const orgProjectsList = document.getElementById('orgProjectsList');
-                if (!orgProjectsList) {
+                const orgProjectsTable = document.getElementById('orgProjectsTable');
+                if (!orgProjectsTable) {
                     return;
                 }
                 
-                orgProjectsList.innerHTML = `
+                orgProjectsTable.innerHTML = `
                     <div class="error-message">
                         <p>⚠️ Unable to load organization projects</p>
                         <p><strong>Error:</strong> ${error.message}</p>
@@ -3582,7 +3610,7 @@
         }
 
         function renderOrgProjects(projects) {
-            const container = document.getElementById('orgProjectsList');
+            const container = document.getElementById('orgProjectsTable');
             
             if (!projects || projects.length === 0) {
                 container.innerHTML = `
@@ -3594,28 +3622,58 @@
                 return;
             }
             
-            let html = '';
+            let html = `
+                <table class="org-projects-table">
+                    <thead>
+                        <tr>
+                            <th>Project Name</th>
+                            <th>Cost</th>
+                            <th>Status</th>
+                            <th>Languages</th>
+                            <th>Sub-Account</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
             projects.forEach(project => {
                 const statusClass = getOrgStatusClass(project.status);
                 const price = project.total ? `$${parseFloat(project.total).toFixed(2)}` : 'TBD';
+                const createdDate = new Date(project.created_at).toLocaleDateString();
+                const languages = project.project_type || 'N/A';
                 
                 html += `
-                    <div class="org-project-card">
-                        <div class="card-header">
-                            <div class="card-title">${project.name}</div>
-                            <div class="status-badge status-${statusClass}">${project.status.replace('_', ' ')}</div>
-                        </div>
-                        
-                        <div class="card-meta">
-                            <div class="price-info">${price}</div>
+                    <tr>
+                        <td>
+                            <div class="project-name">${project.name}</div>
+                        </td>
+                        <td>
+                            <div class="project-cost">${price}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${project.status.replace('_', ' ')}</span>
+                        </td>
+                        <td>
+                            <div class="project-languages">${languages}</div>
+                        </td>
+                        <td>
                             <div class="sub-user-info">
-                                <div class="sub-user-icon">👤</div>
-                                <span>${project.user_name} (${project.user_display_id})</span>
+                                <div class="sub-user-name">${project.user_name}</div>
+                                <div class="sub-user-id">ID: ${project.user_display_id}</div>
                             </div>
-                        </div>
-                    </div>
+                        </td>
+                        <td>
+                            <div class="project-date">${createdDate}</div>
+                        </td>
+                    </tr>
                 `;
             });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
             
             container.innerHTML = html;
         }
