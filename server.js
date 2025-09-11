@@ -2637,6 +2637,32 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
     }
 });
 
+// Simple test endpoint to check if user has sub-accounts
+app.get('/api/has-sub-accounts', requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        console.log('🔍 Checking if user has sub-accounts:', userId);
+        
+        const subUsers = await dbHelpers.query(`
+            SELECT id, user_id, email, name 
+            FROM users 
+            WHERE parent_user_id = $1
+        `, [userId]);
+        
+        console.log('🔍 Sub-users found:', subUsers.length);
+        
+        res.json({
+            success: true,
+            hasSubAccounts: subUsers.length > 0,
+            subUsersCount: subUsers.length
+        });
+        
+    } catch (error) {
+        console.error('❌ Error checking sub-accounts:', error);
+        res.status(500).json({ error: 'Failed to check sub-accounts: ' + error.message });
+    }
+});
+
 // Get user details with sub-users (admin only)
 app.get('/admin/users/:userId', requireAuth, async (req, res) => {
     try {

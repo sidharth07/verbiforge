@@ -3575,21 +3575,21 @@
         async function checkAndShowOrgProjectsButton() {
             console.log('🔍 Checking for sub-accounts to show Org Projects button...');
             try {
-                const response = await Auth.authFetch('/api/sub-account-projects');
-                console.log('🔍 API response status:', response.status);
+                // First try the simple endpoint
+                const response = await Auth.authFetch('/api/has-sub-accounts');
+                console.log('🔍 Simple API response status:', response.status);
                 
                 if (!response.ok) {
-                    console.error('❌ API response not OK:', response.status);
-                    throw new Error(`API returned ${response.status}`);
+                    console.error('❌ Simple API response not OK:', response.status);
+                    throw new Error(`Simple API returned ${response.status}`);
                 }
                 
                 const data = await response.json();
-                console.log('🔍 API response data:', data);
+                console.log('🔍 Simple API response data:', data);
                 
-                const hasSubAccounts = data.subUsers && data.subUsers.length > 0;
+                const hasSubAccounts = data.hasSubAccounts;
                 console.log('🔍 Has sub-accounts:', hasSubAccounts);
-                console.log('🔍 Sub-users count:', data.subUsers ? data.subUsers.length : 0);
-                console.log('🔍 Sub-users data:', data.subUsers);
+                console.log('🔍 Sub-users count:', data.subUsersCount);
                 
                 const orgProjectsBtn = document.getElementById('orgProjectsBtn');
                 console.log('🔍 Org Projects button element:', orgProjectsBtn);
