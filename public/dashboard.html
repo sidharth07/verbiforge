@@ -3616,7 +3616,7 @@
             let html = '';
             projects.forEach(project => {
                 const statusClass = getOrgStatusClass(project.status);
-                const price = project.total_cost ? `$${parseFloat(project.total_cost).toFixed(2)}` : 'TBD';
+                const price = project.total ? `$${parseFloat(project.total).toFixed(2)}` : 'TBD';
                 
                 html += `
                     <div class="org-project-card">

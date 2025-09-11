@@ -2601,7 +2601,7 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
                 p.id,
                 p.name,
                 p.status,
-                p.total_cost,
+                p.total,
                 p.created_at,
                 p.project_type,
                 u.name as user_name,
@@ -2724,7 +2724,7 @@ app.get('/api/debug-sub-accounts', requireAuth, async (req, res) => {
         
         // Test 5: Try the full query without JOIN first
         const projectsWithoutJoin = await dbHelpers.query(`
-            SELECT id, name, status, total_cost, created_at, project_type, user_id
+            SELECT id, name, status, total, created_at, project_type, user_id
             FROM projects 
             WHERE user_id IN (${subUserIds.map((_, i) => `$${i + 1}`).join(',')})
             ORDER BY created_at DESC
