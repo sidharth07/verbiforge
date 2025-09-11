@@ -2623,9 +2623,9 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
             return res.status(400).json({ error: 'Sub-user ID is required' });
         }
 
-        // Check if parent user exists
+        // Check if parent user exists by user_id
         const parentUser = await dbHelpers.get(`
-            SELECT id, email, license FROM users WHERE id = $1
+            SELECT id, email, license FROM users WHERE user_id = $1
         `, [parentUserId]);
 
         if (!parentUser) {
@@ -2634,7 +2634,7 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
 
         // Check if sub-user exists and is not already a sub-user
         const subUser = await dbHelpers.get(`
-            SELECT id, email, license, parent_user_id FROM users WHERE id = $1
+            SELECT id, email, license, parent_user_id FROM users WHERE user_id = $1
         `, [subUserId]);
 
         if (!subUser) {
@@ -2684,14 +2684,29 @@ app.delete('/admin/users/:parentUserId/sub-users/:subUserId', requireAuth, async
 
         const { parentUserId, subUserId } = req.params;
 
-        // Get sub-user details
-        const subUser = await dbHelpers.get(`
-            SELECT id, email, license FROM users WHERE id = $1 AND parent_user_id = $2
-        `, [subUserId, parentUserId]);
-
-        if (!subUser) {
+        // Get parent user by user_id first
+        const parentUser = await dbHelpers.get(`
+            SELECT id FROM users WHERE user_id = $1
+        `, [parentUserId]);
+        
+        if (!parentUser) {
+            return res.status(404).json({ error: 'Parent user not found' });
+        }
+        
+        // Get sub-user details by user_id first, then check parent relationship
+        const subUserByUserId = await dbHelpers.get(`
+            SELECT id, email, license, parent_user_id FROM users WHERE user_id = $1
+        `, [subUserId]);
+        
+        if (!subUserByUserId) {
+            return res.status(404).json({ error: 'Sub-user not found' });
+        }
+        
+        if (subUserByUserId.parent_user_id !== parentUser.id) {
             return res.status(404).json({ error: 'Sub-user not found under this parent' });
         }
+        
+        const subUser = subUserByUserId;
 
         // Restore original license if it was Professional - Sub Account
         let newLicense = subUser.license;

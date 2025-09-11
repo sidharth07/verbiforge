@@ -6440,7 +6440,7 @@
                                     <input type="text" id="subUserIdInput" placeholder="Enter User ID to add as sub-user" 
                                            style="width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: white;">
                                 </div>
-                                <button onclick="addSubUser('${user.id}')" 
+                                <button onclick="addSubUser('${user.user_id}')" 
                                         style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.5px;">
                                     Add Sub-User
                                 </button>
@@ -6491,7 +6491,7 @@
                                                 </td>
                                                 <td style="color: #6b7280;">${new Date(subUser.created_at).toLocaleDateString()}</td>
                                                 <td>
-                                                    <button onclick="removeSubUser('${user.id}', '${subUser.id}')" 
+                                                    <button onclick="removeSubUser('${user.user_id}', '${subUser.user_id}')" 
                                                             class="action-btn remove">
                                                         Remove
                                                     </button>
