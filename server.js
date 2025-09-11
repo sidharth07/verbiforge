@@ -2569,6 +2569,7 @@ app.put('/admin/users/update-license', requireAuth, async (req, res) => {
 app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
+        console.log('🔍 Sub-account projects request for user ID:', userId);
         
         // Get all sub-users for this main user
         const subUsers = await dbHelpers.query(`
@@ -2576,6 +2577,8 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
             FROM users 
             WHERE parent_user_id = $1
         `, [userId]);
+        
+        console.log('🔍 Found sub-users:', subUsers.length, subUsers);
         
         if (subUsers.length === 0) {
             return res.json({ 

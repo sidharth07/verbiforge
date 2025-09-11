@@ -3573,25 +3573,76 @@
         }
 
         async function checkAndShowOrgProjectsButton() {
+            console.log('🔍 Checking for sub-accounts to show Org Projects button...');
             try {
                 const response = await Auth.authFetch('/api/sub-account-projects');
+                console.log('🔍 API response status:', response.status);
+                
+                if (!response.ok) {
+                    console.error('❌ API response not OK:', response.status);
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('🔍 API response data:', data);
+                
                 const hasSubAccounts = data.subUsers && data.subUsers.length > 0;
+                console.log('🔍 Has sub-accounts:', hasSubAccounts);
+                console.log('🔍 Sub-users count:', data.subUsers ? data.subUsers.length : 0);
+                console.log('🔍 Sub-users data:', data.subUsers);
                 
                 const orgProjectsBtn = document.getElementById('orgProjectsBtn');
+                console.log('🔍 Org Projects button element:', orgProjectsBtn);
+                
                 if (orgProjectsBtn) {
-                    orgProjectsBtn.style.display = hasSubAccounts ? 'flex' : 'none';
-                    console.log('🏢 Org Projects button visibility:', hasSubAccounts ? 'shown' : 'hidden');
+                    const displayValue = hasSubAccounts ? 'flex' : 'none';
+                    orgProjectsBtn.style.display = displayValue;
+                    console.log('🏢 Org Projects button visibility set to:', displayValue);
+                    console.log('🏢 Button should be visible:', hasSubAccounts);
+                } else {
+                    console.error('❌ Org Projects button element not found!');
                 }
             } catch (error) {
                 console.error('❌ Error checking sub-accounts:', error);
+                console.error('❌ Error details:', error.message);
                 // Hide the button on error
                 const orgProjectsBtn = document.getElementById('orgProjectsBtn');
                 if (orgProjectsBtn) {
                     orgProjectsBtn.style.display = 'none';
+                    console.log('🏢 Button hidden due to error');
                 }
             }
         }
+
+        // Manual debug function - can be called from browser console
+        window.debugOrgProjects = async function() {
+            console.log('🔧 Manual debug: Checking Org Projects button...');
+            
+            // Check if button exists
+            const orgProjectsBtn = document.getElementById('orgProjectsBtn');
+            console.log('🔧 Button element found:', orgProjectsBtn);
+            if (orgProjectsBtn) {
+                console.log('🔧 Button current display:', orgProjectsBtn.style.display);
+                console.log('🔧 Button computed display:', window.getComputedStyle(orgProjectsBtn).display);
+            }
+            
+            // Test API call
+            try {
+                console.log('🔧 Testing API call...');
+                const response = await Auth.authFetch('/api/sub-account-projects');
+                console.log('🔧 API response:', response);
+                const data = await response.json();
+                console.log('🔧 API data:', data);
+                
+                // Manually show button
+                if (orgProjectsBtn) {
+                    orgProjectsBtn.style.display = 'flex';
+                    console.log('🔧 Manually set button to visible');
+                }
+            } catch (error) {
+                console.error('🔧 API error:', error);
+            }
+        };
 
         function renderProjects(projects, containerId = 'projectsList') {
             const container = document.getElementById(containerId);
