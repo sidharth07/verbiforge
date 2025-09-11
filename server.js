@@ -462,7 +462,9 @@ async function initializeDatabase() {
                 name TEXT NOT NULL,
                 role TEXT DEFAULT 'user',
                 license TEXT DEFAULT 'Free',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                parent_user_id TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (parent_user_id) REFERENCES users (id)
             )
         `);
         console.log('✅ Users table ready');
@@ -488,6 +490,16 @@ async function initializeDatabase() {
             await assignUserIdsToExistingUsers();
         } catch (error) {
             console.log('ℹ️ User ID column already exists or error adding it:', error.message);
+        }
+
+        // Add parent_user_id column for sub-user relationships
+        try {
+            await dbHelpers.query(`
+                ALTER TABLE users ADD COLUMN IF NOT EXISTS parent_user_id TEXT
+            `);
+            console.log('✅ Parent User ID column added to users table');
+        } catch (error) {
+            console.log('ℹ️ Parent User ID column already exists or error adding it:', error.message);
         }
 
         // Create projects table
@@ -2338,7 +2350,7 @@ app.get('/admin/users', requireAuth, async (req, res) => {
         
         // First, let's try a simpler query to see if the basic connection works
         console.log('🔍 Testing basic users query...');
-        const basicUsers = await dbHelpers.query('SELECT id, user_id, email, name, role, license, created_at FROM users ORDER BY created_at DESC');
+        const basicUsers = await dbHelpers.query('SELECT id, user_id, email, name, role, license, parent_user_id, created_at FROM users ORDER BY created_at DESC');
         console.log('✅ Basic users query successful, found:', basicUsers.length, 'users');
         
         // Now let's get project counts and totals for each user
@@ -2550,6 +2562,159 @@ app.put('/admin/users/update-license', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('❌ Error updating user license:', error);
         res.status(500).json({ error: 'Failed to update user license: ' + error.message });
+    }
+});
+
+// Get user details with sub-users (admin only)
+app.get('/admin/users/:userId', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { userId } = req.params;
+
+        // Get main user details
+        const user = await dbHelpers.get(`
+            SELECT id, user_id, email, name, role, license, parent_user_id, created_at
+            FROM users 
+            WHERE id = $1
+        `, [userId]);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Get sub-users if this user is a parent
+        const subUsers = await dbHelpers.query(`
+            SELECT id, user_id, email, name, role, license, created_at
+            FROM users 
+            WHERE parent_user_id = $1
+            ORDER BY created_at DESC
+        `, [userId]);
+
+        res.json({
+            success: true,
+            user: {
+                ...user,
+                subUsers: subUsers
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error getting user details:', error);
+        res.status(500).json({ error: 'Failed to get user details: ' + error.message });
+    }
+});
+
+// Add sub-user (admin only)
+app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { parentUserId } = req.params;
+        const { subUserId } = req.body;
+
+        if (!subUserId) {
+            return res.status(400).json({ error: 'Sub-user ID is required' });
+        }
+
+        // Check if parent user exists
+        const parentUser = await dbHelpers.get(`
+            SELECT id, email, license FROM users WHERE id = $1
+        `, [parentUserId]);
+
+        if (!parentUser) {
+            return res.status(404).json({ error: 'Parent user not found' });
+        }
+
+        // Check if sub-user exists and is not already a sub-user
+        const subUser = await dbHelpers.get(`
+            SELECT id, email, license, parent_user_id FROM users WHERE id = $1
+        `, [subUserId]);
+
+        if (!subUser) {
+            return res.status(404).json({ error: 'Sub-user not found' });
+        }
+
+        if (subUser.parent_user_id) {
+            return res.status(400).json({ error: 'User is already a sub-user of another account' });
+        }
+
+        // Update sub-user to have parent_user_id and modify license if Professional
+        let newLicense = subUser.license;
+        if (subUser.license === 'Professional') {
+            newLicense = 'Professional - Sub Account';
+        }
+
+        await dbHelpers.run(`
+            UPDATE users 
+            SET parent_user_id = $1, license = $2
+            WHERE id = $3
+        `, [parentUserId, newLicense, subUserId]);
+
+        console.log(`✅ Added sub-user ${subUser.email} under parent ${parentUser.email}`);
+        res.json({ 
+            success: true, 
+            message: 'Sub-user added successfully',
+            subUser: {
+                ...subUser,
+                license: newLicense,
+                parent_user_id: parentUserId
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error adding sub-user:', error);
+        res.status(500).json({ error: 'Failed to add sub-user: ' + error.message });
+    }
+});
+
+// Remove sub-user (admin only)
+app.delete('/admin/users/:parentUserId/sub-users/:subUserId', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { parentUserId, subUserId } = req.params;
+
+        // Get sub-user details
+        const subUser = await dbHelpers.get(`
+            SELECT id, email, license FROM users WHERE id = $1 AND parent_user_id = $2
+        `, [subUserId, parentUserId]);
+
+        if (!subUser) {
+            return res.status(404).json({ error: 'Sub-user not found under this parent' });
+        }
+
+        // Restore original license if it was Professional - Sub Account
+        let newLicense = subUser.license;
+        if (subUser.license === 'Professional - Sub Account') {
+            newLicense = 'Professional';
+        }
+
+        // Remove parent_user_id and restore license
+        await dbHelpers.run(`
+            UPDATE users 
+            SET parent_user_id = NULL, license = $1
+            WHERE id = $2
+        `, [newLicense, subUserId]);
+
+        console.log(`✅ Removed sub-user ${subUser.email} from parent`);
+        res.json({ 
+            success: true, 
+            message: 'Sub-user removed successfully' 
+        });
+
+    } catch (error) {
+        console.error('❌ Error removing sub-user:', error);
+        res.status(500).json({ error: 'Failed to remove sub-user: ' + error.message });
     }
 });
 
