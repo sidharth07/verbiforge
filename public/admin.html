@@ -341,30 +341,30 @@
         /* Modern SaaS Sidebar */
         .admin-sidebar {
             width: 280px;
-            background: #ffffff;
-            color: #374151;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: #cbd5e1;
             position: fixed;
             top: 72px;
             left: 0;
             height: calc(100vh - 72px);
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #e5e7eb;
+            border-right: 1px solid #334155;
         }
 
         .sidebar-header {
             padding: 24px 20px 16px;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid #334155;
         }
 
         .sidebar-header h2 {
             margin: 0;
             font-size: 1.1em;
             font-weight: 600;
-            color: #111827;
+            color: white;
             letter-spacing: -0.025em;
         }
 
@@ -381,7 +381,7 @@
             padding: 8px 20px 12px;
             font-size: 11px;
             font-weight: 600;
-            color: #6b7280;
+            color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 4px;
@@ -395,7 +395,7 @@
             padding: 10px 20px;
             background: none;
             border: none;
-            color: #6b7280;
+            color: #cbd5e1;
             text-align: left;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -404,28 +404,20 @@
             border-radius: 0;
             position: relative;
             margin: 2px 0;
+            border-left: 3px solid transparent;
         }
 
         .sidebar-btn:hover {
-            background: #f9fafb;
-            color: #374151;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-left-color: #667eea;
         }
 
         .sidebar-btn.active {
-            background: #f0f9ff;
-            color: #0369a1;
+            background: rgba(102, 126, 234, 0.1);
+            color: white;
             font-weight: 600;
-        }
-
-        .sidebar-btn.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: #0369a1;
-            border-radius: 0 2px 2px 0;
+            border-left-color: #667eea;
         }
 
         .sidebar-btn svg {
@@ -453,7 +445,7 @@
 
         .sidebar-footer {
             padding: 16px 20px 24px;
-            border-top: 1px solid #f3f4f6;
+            border-top: 1px solid #334155;
             margin-top: auto;
         }
 
@@ -461,26 +453,13 @@
             padding: 12px 20px;
             border-radius: 8px;
             margin: 4px 0;
+            justify-content: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: none;
         }
 
-        .sidebar-footer .sidebar-btn:first-child {
-            background: #f8fafc;
-            color: #475569;
-        }
-
-        .sidebar-footer .sidebar-btn:first-child:hover {
-            background: #f1f5f9;
-            color: #334155;
-        }
-
-        .sidebar-footer .sidebar-btn:last-child {
-            background: #fef2f2;
-            color: #dc2626;
-        }
-
-        .sidebar-footer .sidebar-btn:last-child:hover {
-            background: #fee2e2;
-            color: #b91c1c;
+        .sidebar-footer .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         /* Main Content */
@@ -1420,21 +1399,22 @@
 
         .sidebar-toggle {
             display: none;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #334155;
             padding: 8px 12px;
             border-radius: 8px;
             cursor: pointer;
-            color: #374151;
+            color: #cbd5e1;
             font-size: 14px;
             font-weight: 500;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
             transition: all 0.15s ease;
         }
         
         .sidebar-toggle:hover {
-            background: #f9fafb;
-            border-color: #d1d5db;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #475569;
+            color: white;
         }
         
         @media (max-width: 992px) {
