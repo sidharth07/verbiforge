@@ -44,6 +44,12 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - File encryption and security
 - SEO optimization with sitemap and robots.txt
 - Professional footer with LLP registration information
+- **License System**: Free/Professional license management with restrictions
+- **User ID System**: Unique 5-digit incremental user IDs starting from 70000
+- **Main User & Sub-Users**: Organization structure with main users and sub-accounts
+- **Organization Projects**: Main users can view all projects from their sub-accounts
+- **Professional Admin UI**: Modern SaaS-style admin interface with sidebar redesign
+- **Database Management Tools**: Admin panel for database schema management
 
 ## Deployment Information
 
@@ -92,13 +98,14 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - `APP_URL`: Application URL
 
 ## Database Schema
-- **users**: User accounts and authentication with license system (Free/Professional)
-- **projects**: Translation projects
+- **users**: User accounts and authentication with license system (Free/Professional/Professional - Sub Account)
+- **projects**: Translation projects with user relationships
 - **files**: Uploaded file metadata
 - **translations**: Translation requests and status
 - **email_templates**: Customizable email templates with variables
 - **settings**: Application settings and configuration
 - **contacts**: Contact form submissions
+- **user_relationships**: Main user and sub-user relationships for organization structure
 
 ## SEO Features
 - **Sitemap.xml**: Complete site structure with all 8 pages, priorities, and change frequencies
@@ -114,6 +121,15 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - Calculates pricing based on word count and language
 - Stores files securely with encryption
 
+## Organization Projects Feature
+- **Main User Dashboard**: "Org. Projects" button in sidebar for main users
+- **Project Aggregation**: View all projects created by sub-accounts
+- **Professional Table Layout**: Clean SaaS-style table showing project details
+- **Sub-Account Filter**: Dropdown to filter projects by specific sub-account
+- **Project Details**: Name, Cost, Status, Languages, Sub-Account, Created Date
+- **Real-time Updates**: Projects update automatically when sub-accounts create new ones
+- **Responsive Design**: Mobile-friendly table with proper spacing
+
 ## Authentication System
 - JWT-based authentication
 - Google OAuth integration
@@ -124,6 +140,28 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - **Super Admin Accounts**:
   - `sid@verbiforge.com` (password: admin123)
   - `sid.bandewar@gmail.com` (password: admin123)
+
+## License System & User Management
+- **Default License**: All new users automatically assigned "Free" license
+- **License Restrictions**: Free users cannot submit projects with "Quote Generated" status
+- **License Upgrade**: Professional license allows full project submission
+- **User ID System**: Unique 5-digit incremental IDs starting from 70000
+- **Main User & Sub-Users**: Organization structure for enterprise users
+- **Sub-User License**: Automatically changes to "Professional - Sub Account" when attached
+- **Organization Projects**: Main users can view all projects from sub-accounts
+- **Admin License Management**: Change user licenses from admin panel
+- **User Details Modal**: Professional popup with license management and organization structure
+
+## Admin Panel UI & Features
+- **Professional Sidebar**: Modern SaaS-style sidebar with section headers (Main, Management, Communication, Account)
+- **Custom Scrollbar**: Professional gray gradient scrollbar matching admin theme
+- **Dashboard Redesign**: Compact cards in single row for professional appearance
+- **User Management**: Enhanced table with User ID search and license management
+- **User Details Modal**: Professional popup with license management and organization structure
+- **Organization Structure Table**: Compact 5-column layout (Type, Name, Email, License, Actions)
+- **Database Management Tools**: Admin panel for database schema management and migrations
+- **Professional Modals**: Consistent styling with proper z-index management
+- **Responsive Design**: Mobile-friendly interface with proper spacing
 
 ## Email Template Management System
 - **WYSIWYG Editor**: Visual email template editor with live preview
@@ -209,6 +247,11 @@ curl www.verbiforge.com/robots.txt
 - **Database Issues**: Verify Neon connection strings are correct for each environment
 - **ON CONFLICT Errors**: Check if database constraints are properly set up after migration
 - **Neon Migration**: Both Development and Production branches are active and working
+- **Organization Structure Table**: Buttons may get cut off - use compact layout with reduced padding
+- **Modal Z-Index Issues**: Ensure proper z-index values for overlapping modals
+- **License Restrictions**: Free users cannot submit projects with "Quote Generated" status
+- **Sub-User License Changes**: License automatically changes to "Professional - Sub Account" when attached
+- **Organization Projects**: Ensure main users have sub-accounts before showing "Org. Projects" button
 
 ## Database Migration to Neon Tech
 - **Migration Status**: ✅ Complete - Successfully migrated from Render PostgreSQL to Neon Tech
