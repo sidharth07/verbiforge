@@ -2625,10 +2625,10 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
             return res.status(400).json({ error: 'Sub-user ID is required' });
         }
 
-        // Check if parent user exists by user_id
+        // Check if parent user exists by user_id (convert to integer)
         const parentUser = await dbHelpers.get(`
             SELECT id, email, license FROM users WHERE user_id = $1
-        `, [parentUserId]);
+        `, [parseInt(parentUserId)]);
 
         console.log('🔍 Parent user found:', parentUser);
 
@@ -2636,10 +2636,10 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
             return res.status(404).json({ error: 'Parent user not found' });
         }
 
-        // Check if sub-user exists and is not already a sub-user
+        // Check if sub-user exists and is not already a sub-user (convert to integer)
         const subUser = await dbHelpers.get(`
             SELECT id, email, license, parent_user_id FROM users WHERE user_id = $1
-        `, [subUserId]);
+        `, [parseInt(subUserId)]);
 
         console.log('🔍 Sub-user found:', subUser);
 
@@ -2676,6 +2676,7 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
 
     } catch (error) {
         console.error('❌ Error adding sub-user:', error);
+        console.error('❌ Error details:', error.message, error.stack);
         res.status(500).json({ error: 'Failed to add sub-user: ' + error.message });
     }
 });
@@ -2690,19 +2691,19 @@ app.delete('/admin/users/:parentUserId/sub-users/:subUserId', requireAuth, async
 
         const { parentUserId, subUserId } = req.params;
 
-        // Get parent user by user_id first
+        // Get parent user by user_id first (convert to integer)
         const parentUser = await dbHelpers.get(`
             SELECT id FROM users WHERE user_id = $1
-        `, [parentUserId]);
+        `, [parseInt(parentUserId)]);
         
         if (!parentUser) {
             return res.status(404).json({ error: 'Parent user not found' });
         }
         
-        // Get sub-user details by user_id first, then check parent relationship
+        // Get sub-user details by user_id first, then check parent relationship (convert to integer)
         const subUserByUserId = await dbHelpers.get(`
             SELECT id, email, license, parent_user_id FROM users WHERE user_id = $1
-        `, [subUserId]);
+        `, [parseInt(subUserId)]);
         
         if (!subUserByUserId) {
             return res.status(404).json({ error: 'Sub-user not found' });

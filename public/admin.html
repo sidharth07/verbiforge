@@ -6550,11 +6550,12 @@
                     showUserDetails(parentUserId);
                 } else {
                     const error = await response.json();
+                    console.error('❌ API Error:', error);
                     showError('Failed to add sub-user: ' + error.error);
                 }
             } catch (error) {
-                console.error('❌ Error adding sub-user:', error);
-                showError('Network error adding sub-user');
+                console.error('❌ Network Error adding sub-user:', error);
+                showError('Network error adding sub-user: ' + error.message);
             }
         }
 
