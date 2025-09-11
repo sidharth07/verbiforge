@@ -2569,8 +2569,6 @@ app.put('/admin/users/update-license', requireAuth, async (req, res) => {
 app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        console.log('🔍 Sub-account projects request for user ID:', userId);
-        
         // Get all sub-users for this main user
         const subUsers = await dbHelpers.query(`
             SELECT id, user_id, email, name 
@@ -2578,10 +2576,7 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
             WHERE parent_user_id = $1
         `, [userId]);
         
-        console.log('🔍 Found sub-users:', subUsers.length, subUsers);
-        
         if (subUsers.length === 0) {
-            console.log('🔍 No sub-users found, returning empty response');
             return res.json({ 
                 success: true, 
                 projects: [], 
@@ -2591,10 +2586,7 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
         
         // Get all project IDs for sub-users
         const subUserIds = subUsers.map(sub => sub.id);
-        console.log('🔍 Sub-user IDs for project query:', subUserIds);
-        
         const placeholders = subUserIds.map((_, index) => `$${index + 1}`).join(',');
-        console.log('🔍 SQL placeholders:', placeholders);
         
         const query = `
             SELECT 
@@ -2613,11 +2605,7 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
             ORDER BY p.created_at DESC
         `;
         
-        console.log('🔍 Executing projects query:', query);
-        console.log('🔍 Query parameters:', subUserIds);
-        
         const projects = await dbHelpers.query(query, subUserIds);
-        console.log('🔍 Found projects:', projects.length, projects);
         
         res.json({
             success: true,
@@ -2661,99 +2649,6 @@ app.get('/api/has-sub-accounts', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('❌ Error checking sub-accounts:', error);
         res.status(500).json({ error: 'Failed to check sub-accounts: ' + error.message });
-    }
-});
-
-// Debug endpoint to test database queries step by step
-app.get('/api/debug-sub-accounts', requireAuth, async (req, res) => {
-    try {
-        const userId = req.user.id;
-        console.log('🔧 DEBUG: Testing sub-accounts query for user:', userId);
-        
-        // Test 1: Check if user exists
-        const userCheck = await dbHelpers.query(`
-            SELECT id, email, name, parent_user_id 
-            FROM users 
-            WHERE id = $1
-        `, [userId]);
-        
-        console.log('🔧 DEBUG: User check result:', userCheck);
-        
-        if (userCheck.length === 0) {
-            return res.json({ error: 'User not found' });
-        }
-        
-        // Test 2: Check sub-users query
-        const subUsers = await dbHelpers.query(`
-            SELECT id, user_id, email, name 
-            FROM users 
-            WHERE parent_user_id = $1
-        `, [userId]);
-        
-        console.log('🔧 DEBUG: Sub-users query result:', subUsers);
-        
-        if (subUsers.length === 0) {
-            return res.json({ 
-                success: true, 
-                message: 'No sub-users found',
-                user: userCheck[0],
-                subUsers: []
-            });
-        }
-        
-        // Test 3: Check projects table structure
-        const projectsStructure = await dbHelpers.query(`
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
-            WHERE table_name = 'projects'
-            ORDER BY ordinal_position
-        `);
-        
-        console.log('🔧 DEBUG: Projects table structure:', projectsStructure);
-        
-        // Test 4: Check if sub-users have projects (simple query)
-        const subUserIds = subUsers.map(sub => sub.id);
-        console.log('🔧 DEBUG: Sub-user IDs:', subUserIds);
-        
-        const projectsCount = await dbHelpers.query(`
-            SELECT COUNT(*) as count
-            FROM projects 
-            WHERE user_id IN (${subUserIds.map((_, i) => `$${i + 1}`).join(',')})
-        `, subUserIds);
-        
-        console.log('🔧 DEBUG: Projects count query result:', projectsCount);
-        
-        // Test 5: Try the full query without JOIN first
-        const projectsWithoutJoin = await dbHelpers.query(`
-            SELECT id, name, status, total, created_at, project_type, user_id
-            FROM projects 
-            WHERE user_id IN (${subUserIds.map((_, i) => `$${i + 1}`).join(',')})
-            ORDER BY created_at DESC
-        `, subUserIds);
-        
-        console.log('🔧 DEBUG: Projects without JOIN result:', projectsWithoutJoin);
-        
-        res.json({
-            success: true,
-            user: userCheck[0],
-            subUsers: subUsers,
-            projectsTableStructure: projectsStructure,
-            projectsCount: projectsCount[0],
-            projectsWithoutJoin: projectsWithoutJoin
-        });
-        
-    } catch (error) {
-        console.error('🔧 DEBUG: Error in debug endpoint:', error);
-        res.status(500).json({ 
-            error: 'Debug failed: ' + error.message,
-            stack: error.stack,
-            details: {
-                message: error.message,
-                code: error.code,
-                detail: error.detail,
-                hint: error.hint
-            }
-        });
     }
 });
 

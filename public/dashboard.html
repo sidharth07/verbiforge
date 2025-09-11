@@ -3507,7 +3507,6 @@
         let allSubUsers = [];
 
         async function loadOrgProjects() {
-            console.log('🏢 Loading organization projects...');
             try {
                 // First check if user has sub-accounts
                 const checkResponse = await Auth.authFetch('/api/has-sub-accounts');
@@ -3516,10 +3515,8 @@
                 }
                 
                 const checkData = await checkResponse.json();
-                console.log('🏢 Sub-accounts check:', checkData);
                 
                 if (!checkData.hasSubAccounts) {
-                    console.log('🏢 No sub-accounts found, showing empty state');
                     document.getElementById('orgProjectsList').innerHTML = `
                         <div class="empty-state">
                             <p>No sub-accounts found. Add sub-users to see their projects here.</p>
@@ -3528,15 +3525,13 @@
                     return;
                 }
                 
-                // Try to load projects from the complex endpoint
-                console.log('🏢 Attempting to load projects from sub-accounts...');
+                // Load projects from sub-accounts
                 const response = await Auth.authFetch('/api/sub-account-projects');
                 if (!response.ok) {
                     throw new Error(`Projects API returned ${response.status}`);
                 }
                 
                 const data = await response.json();
-                console.log('🏢 Org projects data:', data);
                 
                 allOrgProjects = data.projects || [];
                 allSubUsers = data.subUsers || [];
@@ -3546,34 +3541,20 @@
                 
             } catch (error) {
                 console.error('❌ Error loading organization projects:', error);
-                console.error('❌ Error details:', error.message);
                 
-                // Debug: Check if orgProjectsList element exists
                 const orgProjectsList = document.getElementById('orgProjectsList');
-                console.log('🔧 DEBUG: orgProjectsList element:', orgProjectsList);
-                
                 if (!orgProjectsList) {
-                    console.error('❌ orgProjectsList element not found!');
                     return;
                 }
                 
-                // Show a more helpful error message
-                const errorHtml = `
-                    <div class="error-message" style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 2rem; margin: 2rem; color: #dc2626; font-size: 16px;">
-                        <h3 style="color: #dc2626; margin-top: 0;">⚠️ Unable to load organization projects</h3>
+                orgProjectsList.innerHTML = `
+                    <div class="error-message">
+                        <p>⚠️ Unable to load organization projects</p>
                         <p><strong>Error:</strong> ${error.message}</p>
-                        <p>This might be due to database schema issues. Please check the server logs.</p>
-                        <div style="margin-top: 1rem;">
-                            <button onclick="loadOrgProjects()" class="retry-btn">🔄 Retry</button>
-                            <button onclick="debugSubAccounts()" class="retry-btn" style="background: #10b981; margin-left: 10px;">🔧 Debug</button>
-                        </div>
+                        <p>Please try again later.</p>
+                        <button onclick="loadOrgProjects()" class="retry-btn">🔄 Retry</button>
                     </div>
                 `;
-                
-                console.log('🔧 DEBUG: Setting error HTML:', errorHtml);
-                orgProjectsList.innerHTML = errorHtml;
-                console.log('🔧 DEBUG: Error HTML set successfully');
-                console.log('🔧 DEBUG: Element innerHTML after setting:', orgProjectsList.innerHTML);
             }
         }
 
@@ -3651,117 +3632,30 @@
         }
 
         async function checkAndShowOrgProjectsButton() {
-            console.log('🔍 Checking for sub-accounts to show Org Projects button...');
             try {
-                // First try the simple endpoint
                 const response = await Auth.authFetch('/api/has-sub-accounts');
-                console.log('🔍 Simple API response status:', response.status);
                 
                 if (!response.ok) {
-                    console.error('❌ Simple API response not OK:', response.status);
-                    throw new Error(`Simple API returned ${response.status}`);
+                    throw new Error(`API returned ${response.status}`);
                 }
                 
                 const data = await response.json();
-                console.log('🔍 Simple API response data:', data);
-                
                 const hasSubAccounts = data.hasSubAccounts;
-                console.log('🔍 Has sub-accounts:', hasSubAccounts);
-                console.log('🔍 Sub-users count:', data.subUsersCount);
                 
                 const orgProjectsBtn = document.getElementById('orgProjectsBtn');
-                console.log('🔍 Org Projects button element:', orgProjectsBtn);
-                
                 if (orgProjectsBtn) {
-                    const displayValue = hasSubAccounts ? 'flex' : 'none';
-                    orgProjectsBtn.style.display = displayValue;
-                    console.log('🏢 Org Projects button visibility set to:', displayValue);
-                    console.log('🏢 Button should be visible:', hasSubAccounts);
-                } else {
-                    console.error('❌ Org Projects button element not found!');
+                    orgProjectsBtn.style.display = hasSubAccounts ? 'flex' : 'none';
                 }
             } catch (error) {
                 console.error('❌ Error checking sub-accounts:', error);
-                console.error('❌ Error details:', error.message);
-                // Hide the button on error
                 const orgProjectsBtn = document.getElementById('orgProjectsBtn');
                 if (orgProjectsBtn) {
                     orgProjectsBtn.style.display = 'none';
-                    console.log('🏢 Button hidden due to error');
                 }
             }
         }
 
-        // Manual debug function - can be called from browser console
-        window.debugOrgProjects = async function() {
-            console.log('🔧 Manual debug: Checking Org Projects button...');
-            
-            // Check if button exists
-            const orgProjectsBtn = document.getElementById('orgProjectsBtn');
-            console.log('🔧 Button element found:', orgProjectsBtn);
-            if (orgProjectsBtn) {
-                console.log('🔧 Button current display:', orgProjectsBtn.style.display);
-                console.log('🔧 Button computed display:', window.getComputedStyle(orgProjectsBtn).display);
-            }
-            
-            // Test API call
-            try {
-                console.log('🔧 Testing API call...');
-                const response = await Auth.authFetch('/api/sub-account-projects');
-                console.log('🔧 API response:', response);
-                const data = await response.json();
-                console.log('🔧 API data:', data);
-                
-                // Manually show button
-                if (orgProjectsBtn) {
-                    orgProjectsBtn.style.display = 'flex';
-                    console.log('🔧 Manually set button to visible');
-                }
-            } catch (error) {
-                console.error('🔧 API error:', error);
-            }
-        };
         
-        // Debug function for sub-accounts database queries
-        async function debugSubAccounts() {
-            console.log('🔧 Starting detailed sub-accounts debug...');
-            try {
-                const response = await Auth.authFetch('/api/debug-sub-accounts');
-                const data = await response.json();
-                console.log('🔧 DEBUG RESULTS:', data);
-                
-                // Display results in the page
-                document.getElementById('orgProjectsList').innerHTML = `
-                    <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
-                        <h3>🔧 Debug Results</h3>
-                        <pre style="background: white; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>
-                        <button onclick="loadOrgProjects()" class="retry-btn">🔄 Back to Org Projects</button>
-                    </div>
-                `;
-            } catch (error) {
-                console.error('🔧 Debug error:', error);
-                document.getElementById('orgProjectsList').innerHTML = `
-                    <div class="error-message">
-                        <p>🔧 Debug failed: ${error.message}</p>
-                        <button onclick="loadOrgProjects()" class="retry-btn">🔄 Back to Org Projects</button>
-                    </div>
-                `;
-            }
-        }
-        
-        // Manual debug function - can be called from browser console
-        window.debugSubAccountsManual = async function() {
-            console.log('🔧 Manual debug: Testing sub-accounts API...');
-            try {
-                const response = await Auth.authFetch('/api/debug-sub-accounts');
-                const data = await response.json();
-                console.log('🔧 MANUAL DEBUG RESULTS:', data);
-                return data;
-            } catch (error) {
-                console.error('🔧 Manual debug error:', error);
-                return { error: error.message };
-            }
-        };
 
         function renderProjects(projects, containerId = 'projectsList') {
             const container = document.getElementById(containerId);
