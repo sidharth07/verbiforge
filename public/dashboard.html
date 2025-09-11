@@ -1444,6 +1444,159 @@
             }
         }
         
+        /* Org Projects Styling */
+        .org-projects-header {
+            margin-bottom: 32px;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .org-projects-header h2 {
+            margin: 0 0 8px 0;
+            color: #1f2937;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .org-projects-header p {
+            margin: 0 0 24px 0;
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .filter-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-section label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .filter-section select {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            color: #374151;
+            font-size: 14px;
+            min-width: 200px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-section select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Org Project Card Styling */
+        .org-project-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            width: 286px;
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .org-project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .org-project-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .org-project-card .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .org-project-card .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .org-project-card .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .org-project-card .status-quote_generated {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .org-project-card .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .org-project-card .status-in_progress {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .org-project-card .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .org-project-card .card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .org-project-card .price-info {
+            font-size: 20px;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .org-project-card .sub-user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .org-project-card .sub-user-icon {
+            width: 20px;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #374151;
+        }
+
         /* Responsive Sidebar */
         @media (max-width: 1024px) {
             .dashboard-sidebar {
@@ -2088,6 +2241,13 @@
                 Completed Projects
             </button>
             
+            <button class="sidebar-btn" data-tab="org-projects" onclick="switchTab('org-projects')" id="orgProjectsBtn" style="display: none;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.37-2.01.99L12 11l-1.99-2.01A2.5 2.5 0 0 0 8 8H5.46c-.8 0-1.54.37-2.01.99L.95 16.37A1.5 1.5 0 0 0 2.42 18H5v4h2v-4h4v4h2v-4h4v4h2z"/>
+                </svg>
+                Org. Projects
+            </button>
+            
             <button class="sidebar-btn" data-tab="create" onclick="switchTab('create')">
                 <svg viewBox="0 0 24 24">
                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
@@ -2137,6 +2297,26 @@
             <div id="completedProjectsList">
                 <div class="empty-state">
                     <h3>Loading completed projects...</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="orgProjectsTab" class="tab-content">
+            <div class="org-projects-header">
+                <h2>Organization Projects</h2>
+                <p>View and manage projects created by your sub-accounts</p>
+                
+                <div class="filter-section">
+                    <label for="subUserFilter">Filter by Sub-Account:</label>
+                    <select id="subUserFilter" onchange="filterOrgProjects()">
+                        <option value="">All Sub-Accounts</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="orgProjectsList" class="cards-container">
+                <div class="empty-state">
+                    <h3>Loading organization projects...</h3>
                 </div>
             </div>
         </div>
@@ -2678,6 +2858,7 @@
 
                     loadLanguages();
                     loadProjects();
+                    checkAndShowOrgProjectsButton();
                 } else {
                     console.log('❌ User not authenticated, redirecting to login');
                     window.location.href = 'login.html';
@@ -2751,6 +2932,9 @@
             } else if (tab === 'completed') {
                 console.log('🔍 Loading completed projects...');
                 loadCompletedProjects();
+            } else if (tab === 'org-projects') {
+                console.log('🔍 Loading organization projects...');
+                loadOrgProjects();
             } else if (tab === 'create') {
                 console.log('🔍 Switched to create tab');
             } else if (tab === 'account') {
@@ -3285,6 +3469,127 @@
                 renderProjects(completedProjects, 'completedProjectsList');
             } catch (error) {
                 console.error('❌ Error loading completed projects:', error);
+            }
+        }
+
+        // Global variables for org projects
+        let allOrgProjects = [];
+        let allSubUsers = [];
+
+        async function loadOrgProjects() {
+            console.log('🏢 Loading organization projects...');
+            try {
+                const response = await Auth.authFetch('/api/sub-account-projects');
+                const data = await response.json();
+                
+                allOrgProjects = data.projects || [];
+                allSubUsers = data.subUsers || [];
+                
+                renderOrgProjects(allOrgProjects);
+                populateSubUserFilter(allSubUsers);
+                
+            } catch (error) {
+                console.error('❌ Error loading organization projects:', error);
+                document.getElementById('orgProjectsList').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error loading organization projects</h3>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function populateSubUserFilter(subUsers) {
+            const filter = document.getElementById('subUserFilter');
+            filter.innerHTML = '<option value="">All Sub-Accounts</option>';
+            
+            subUsers.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.name} (${user.user_id})`;
+                filter.appendChild(option);
+            });
+        }
+
+        function filterOrgProjects() {
+            const selectedUserId = document.getElementById('subUserFilter').value;
+            let filteredProjects = allOrgProjects;
+            
+            if (selectedUserId) {
+                filteredProjects = allOrgProjects.filter(project => project.user_id === selectedUserId);
+            }
+            
+            renderOrgProjects(filteredProjects);
+        }
+
+        function renderOrgProjects(projects) {
+            const container = document.getElementById('orgProjectsList');
+            
+            if (!projects || projects.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No organization projects found</h3>
+                        <p>Projects created by your sub-accounts will appear here.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            projects.forEach(project => {
+                const statusClass = getOrgStatusClass(project.status);
+                const price = project.total_cost ? `$${parseFloat(project.total_cost).toFixed(2)}` : 'TBD';
+                
+                html += `
+                    <div class="org-project-card">
+                        <div class="card-header">
+                            <div class="card-title">${project.name}</div>
+                            <div class="status-badge status-${statusClass}">${project.status.replace('_', ' ')}</div>
+                        </div>
+                        
+                        <div class="card-meta">
+                            <div class="price-info">${price}</div>
+                            <div class="sub-user-info">
+                                <div class="sub-user-icon">👤</div>
+                                <span>${project.user_name} (${project.user_display_id})</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function getOrgStatusClass(status) {
+            switch(status) {
+                case 'pending': return 'pending';
+                case 'quote_generated': return 'quote_generated';
+                case 'approved': return 'approved';
+                case 'in_progress': return 'in_progress';
+                case 'completed': return 'completed';
+                default: return 'pending';
+            }
+        }
+
+        async function checkAndShowOrgProjectsButton() {
+            try {
+                const response = await Auth.authFetch('/api/sub-account-projects');
+                const data = await response.json();
+                const hasSubAccounts = data.subUsers && data.subUsers.length > 0;
+                
+                const orgProjectsBtn = document.getElementById('orgProjectsBtn');
+                if (orgProjectsBtn) {
+                    orgProjectsBtn.style.display = hasSubAccounts ? 'flex' : 'none';
+                    console.log('🏢 Org Projects button visibility:', hasSubAccounts ? 'shown' : 'hidden');
+                }
+            } catch (error) {
+                console.error('❌ Error checking sub-accounts:', error);
+                // Hide the button on error
+                const orgProjectsBtn = document.getElementById('orgProjectsBtn');
+                if (orgProjectsBtn) {
+                    orgProjectsBtn.style.display = 'none';
+                }
             }
         }
 

@@ -2565,6 +2565,58 @@ app.put('/admin/users/update-license', requireAuth, async (req, res) => {
     }
 });
 
+// Get sub-account projects for main user
+app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Get all sub-users for this main user
+        const subUsers = await dbHelpers.query(`
+            SELECT id, user_id, email, name 
+            FROM users 
+            WHERE parent_user_id = $1
+        `, [userId]);
+        
+        if (subUsers.length === 0) {
+            return res.json({ 
+                success: true, 
+                projects: [], 
+                subUsers: [] 
+            });
+        }
+        
+        // Get all project IDs for sub-users
+        const subUserIds = subUsers.map(sub => sub.id);
+        const placeholders = subUserIds.map((_, index) => `$${index + 1}`).join(',');
+        
+        const projects = await dbHelpers.query(`
+            SELECT 
+                p.id,
+                p.name,
+                p.status,
+                p.total_cost,
+                p.created_at,
+                p.project_type,
+                u.name as user_name,
+                u.user_id as user_display_id
+            FROM projects p
+            JOIN users u ON p.user_id = u.id
+            WHERE p.user_id IN (${placeholders})
+            ORDER BY p.created_at DESC
+        `, subUserIds);
+        
+        res.json({
+            success: true,
+            projects: projects,
+            subUsers: subUsers
+        });
+        
+    } catch (error) {
+        console.error('❌ Error fetching sub-account projects:', error);
+        res.status(500).json({ error: 'Failed to fetch sub-account projects: ' + error.message });
+    }
+});
+
 // Get user details with sub-users (admin only)
 app.get('/admin/users/:userId', requireAuth, async (req, res) => {
     try {
