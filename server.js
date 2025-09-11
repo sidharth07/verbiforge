@@ -2581,6 +2581,7 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
         console.log('🔍 Found sub-users:', subUsers.length, subUsers);
         
         if (subUsers.length === 0) {
+            console.log('🔍 No sub-users found, returning empty response');
             return res.json({ 
                 success: true, 
                 projects: [], 
@@ -2590,9 +2591,12 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
         
         // Get all project IDs for sub-users
         const subUserIds = subUsers.map(sub => sub.id);
-        const placeholders = subUserIds.map((_, index) => `$${index + 1}`).join(',');
+        console.log('🔍 Sub-user IDs for project query:', subUserIds);
         
-        const projects = await dbHelpers.query(`
+        const placeholders = subUserIds.map((_, index) => `$${index + 1}`).join(',');
+        console.log('🔍 SQL placeholders:', placeholders);
+        
+        const query = `
             SELECT 
                 p.id,
                 p.name,
@@ -2606,7 +2610,13 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
             JOIN users u ON p.user_id = u.id
             WHERE p.user_id IN (${placeholders})
             ORDER BY p.created_at DESC
-        `, subUserIds);
+        `;
+        
+        console.log('🔍 Executing projects query:', query);
+        console.log('🔍 Query parameters:', subUserIds);
+        
+        const projects = await dbHelpers.query(query, subUserIds);
+        console.log('🔍 Found projects:', projects.length, projects);
         
         res.json({
             success: true,
@@ -2616,6 +2626,13 @@ app.get('/api/sub-account-projects', requireAuth, async (req, res) => {
         
     } catch (error) {
         console.error('❌ Error fetching sub-account projects:', error);
+        console.error('❌ Error stack:', error.stack);
+        console.error('❌ Error details:', {
+            message: error.message,
+            code: error.code,
+            detail: error.detail,
+            hint: error.hint
+        });
         res.status(500).json({ error: 'Failed to fetch sub-account projects: ' + error.message });
     }
 });
