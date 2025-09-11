@@ -3555,6 +3555,7 @@
                         <p><strong>Error:</strong> ${error.message}</p>
                         <p>This might be due to database schema issues. Please check the server logs.</p>
                         <button onclick="loadOrgProjects()" class="retry-btn">🔄 Retry</button>
+                        <button onclick="debugSubAccounts()" class="retry-btn" style="background: #10b981; margin-left: 10px;">🔧 Debug</button>
                     </div>
                 `;
             }
@@ -3704,6 +3705,33 @@
                 console.error('🔧 API error:', error);
             }
         };
+        
+        // Debug function for sub-accounts database queries
+        async function debugSubAccounts() {
+            console.log('🔧 Starting detailed sub-accounts debug...');
+            try {
+                const response = await Auth.authFetch('/api/debug-sub-accounts');
+                const data = await response.json();
+                console.log('🔧 DEBUG RESULTS:', data);
+                
+                // Display results in the page
+                document.getElementById('orgProjectsList').innerHTML = `
+                    <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+                        <h3>🔧 Debug Results</h3>
+                        <pre style="background: white; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>
+                        <button onclick="loadOrgProjects()" class="retry-btn">🔄 Back to Org Projects</button>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('🔧 Debug error:', error);
+                document.getElementById('orgProjectsList').innerHTML = `
+                    <div class="error-message">
+                        <p>🔧 Debug failed: ${error.message}</p>
+                        <button onclick="loadOrgProjects()" class="retry-btn">🔄 Back to Org Projects</button>
+                    </div>
+                `;
+            }
+        }
 
         function renderProjects(projects, containerId = 'projectsList') {
             const container = document.getElementById(containerId);
