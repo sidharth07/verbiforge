@@ -489,14 +489,14 @@
             font-weight: 600;
         }
 
-        /* Column width control */
-        .org-table th:nth-child(1), .org-table td:nth-child(1) { width: 8%; } /* Type */
-        .org-table th:nth-child(2), .org-table td:nth-child(2) { width: 12%; } /* ID */
-        .org-table th:nth-child(3), .org-table td:nth-child(3) { width: 18%; } /* Name */
-        .org-table th:nth-child(4), .org-table td:nth-child(4) { width: 25%; } /* Email */
-        .org-table th:nth-child(5), .org-table td:nth-child(5) { width: 15%; } /* License */
-        .org-table th:nth-child(6), .org-table td:nth-child(6) { width: 12%; } /* Joined */
-        .org-table th:nth-child(7), .org-table td:nth-child(7) { width: 10%; } /* Actions */
+        /* Column width control - more flexible layout */
+        .org-table th:nth-child(1), .org-table td:nth-child(1) { width: 60px; } /* Type */
+        .org-table th:nth-child(2), .org-table td:nth-child(2) { width: 80px; } /* ID */
+        .org-table th:nth-child(3), .org-table td:nth-child(3) { width: 120px; } /* Name */
+        .org-table th:nth-child(4), .org-table td:nth-child(4) { width: 200px; } /* Email */
+        .org-table th:nth-child(5), .org-table td:nth-child(5) { width: 150px; } /* License */
+        .org-table th:nth-child(6), .org-table td:nth-child(6) { width: 100px; } /* Joined */
+        .org-table th:nth-child(7), .org-table td:nth-child(7) { width: 120px; } /* Actions */
 
         .org-table td {
             padding: 12px 16px;
@@ -507,12 +507,18 @@
             overflow: hidden;
         }
 
-        /* Text truncation for long content */
-        .org-table td:nth-child(3), .org-table td:nth-child(4) {
+        /* Text truncation for long content - only for email */
+        .org-table td:nth-child(4) {
             max-width: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        /* Actions column styling */
+        .org-table td:nth-child(7) {
+            text-align: center;
+            padding: 8px 4px;
         }
 
         .org-table tr:hover {

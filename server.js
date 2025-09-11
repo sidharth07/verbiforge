@@ -2651,19 +2651,11 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
             return res.status(400).json({ error: 'User is already a sub-user of another account' });
         }
 
-        // Update sub-user to have parent_user_id and modify license if Professional
-        let newLicense = subUser.license;
+        // Update sub-user to have parent_user_id and change license to Professional - Sub Account
+        let newLicense = 'Professional - Sub Account';
         console.log('🔍 Sub-user current license:', JSON.stringify(subUser.license));
         console.log('🔍 License type:', typeof subUser.license);
-        console.log('🔍 License length:', subUser.license ? subUser.license.length : 'null');
-        console.log('🔍 License comparison result:', subUser.license === 'Professional');
-        
-        if (subUser.license === 'Professional') {
-            newLicense = 'Professional - Sub Account';
-            console.log('🔄 Changing license from Professional to Professional - Sub Account');
-        } else {
-            console.log('ℹ️ License remains:', newLicense, '(not Professional)');
-        }
+        console.log('🔄 Changing license from', subUser.license, 'to Professional - Sub Account');
 
         await dbHelpers.run(`
             UPDATE users 
@@ -2724,11 +2716,9 @@ app.delete('/admin/users/:parentUserId/sub-users/:subUserId', requireAuth, async
         
         const subUser = subUserByUserId;
 
-        // Restore original license if it was Professional - Sub Account
-        let newLicense = subUser.license;
-        if (subUser.license === 'Professional - Sub Account') {
-            newLicense = 'Professional';
-        }
+        // Restore license to Free when removing sub-user
+        let newLicense = 'Free';
+        console.log('🔄 Removing sub-user, restoring license to Free');
 
         // Remove parent_user_id and restore license
         await dbHelpers.run(`
