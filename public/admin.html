@@ -6400,6 +6400,9 @@
                     const data = await response.json();
                     const user = data.user;
                     
+                    console.log('🔍 User data received:', user);
+                    console.log('🔍 Sub-users data:', user.subUsers);
+                    
                     title.textContent = `User Details - ${user.name}`;
                     
                     content.innerHTML = `
@@ -6553,10 +6556,13 @@
                 });
                 
                 if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Sub-user added successfully:', result);
                     showSuccess('Sub-user added successfully');
                     subUserIdInput.value = '';
                     // Reload user details using stored database ID
                     if (currentUserId) {
+                        console.log('🔄 Reloading user details with ID:', currentUserId);
                         showUserDetails(currentUserId);
                     }
                 } else {
