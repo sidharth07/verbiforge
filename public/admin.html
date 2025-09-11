@@ -430,118 +430,107 @@
         }
 
         .modal-body {
-            padding: 32px;
+            padding: 24px;
             background: #fafbfc;
+            overflow-x: hidden;
         }
 
-        /* Organization Table Styles */
+        /* Professional Organization Table Styles */
         .org-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 16px;
             background: white;
-            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .org-table th {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            color: #475569;
-            font-weight: 600;
-            padding: 16px 20px;
+            background: #f9fafb;
+            color: #374151;
+            font-weight: 500;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 2px solid #e2e8f0;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         .org-table td {
-            padding: 16px 20px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            font-size: 14px;
         }
 
         .org-table tr:hover {
-            background: #f8fafc;
+            background: #f9fafb;
         }
 
         .org-table tr:last-child td {
             border-bottom: none;
         }
 
-        .user-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 20px;
+        .user-type {
             font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 500;
+            color: #6b7280;
         }
 
-        .user-badge.main-user {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .user-type.main {
+            color: #1f2937;
         }
 
-        .user-badge.sub-user {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
+        .user-type.sub {
+            color: #059669;
         }
 
-        .license-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .license-text {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f3f4f6;
+            color: #374151;
         }
 
-        .license-badge.free {
+        .license-text.free {
             background: #fef2f2;
             color: #dc2626;
-            border: 1px solid #fecaca;
         }
 
-        .license-badge.professional {
+        .license-text.professional {
             background: #f0fdf4;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
+            color: #059669;
         }
 
-        .license-badge.sub-account {
-            background: #fef3c7;
+        .license-text.sub-account {
+            background: #fffbeb;
             color: #d97706;
-            border: 1px solid #fde68a;
         }
 
         .action-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
+            padding: 4px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transition: all 0.15s ease;
+            background: white;
+            color: #374151;
         }
 
         .action-btn.remove {
-            background: #fee2e2;
+            border-color: #fca5a5;
             color: #dc2626;
-            border: 1px solid #fecaca;
         }
 
         .action-btn.remove:hover {
             background: #dc2626;
             color: white;
+            border-color: #dc2626;
         }
 
         @keyframes fadeIn {
@@ -6407,9 +6396,9 @@
                     
                     content.innerHTML = `
                         <!-- User Information Card -->
-                        <div style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb;">
-                            <h3 style="margin: 0 0 20px 0; color: #1f2937; font-size: 18px; font-weight: 600;">User Information</h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+                            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 16px; font-weight: 600;">User Information</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                                 <div>
                                     <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">User ID</label>
                                     <div style="font-size: 16px; font-weight: 600; color: #1f2937;">${user.user_id || 'N/A'}</div>
@@ -6443,8 +6432,8 @@
                         </div>
 
                         <!-- Add Sub-User Section -->
-                        <div style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb;">
-                            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; font-weight: 600;">Add Sub-User</h3>
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+                            <h3 style="margin: 0 0 12px 0; color: #1f2937; font-size: 16px; font-weight: 600;">Add Sub-User</h3>
                             <div style="display: flex; gap: 12px; align-items: end;">
                                 <div style="flex: 1;">
                                     <label style="display: block; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">User ID</label>
@@ -6459,13 +6448,13 @@
                         </div>
 
                         <!-- Organization Table -->
-                        <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb;">
-                            <h3 style="margin: 0 0 20px 0; color: #1f2937; font-size: 18px; font-weight: 600;">Organization Structure</h3>
+                        <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 16px; font-weight: 600;">Organization Structure</h3>
                             <table class="org-table">
                                 <thead>
                                     <tr>
-                                        <th>User Type</th>
-                                        <th>User ID</th>
+                                        <th>Type</th>
+                                        <th>ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>License</th>
@@ -6476,12 +6465,12 @@
                                 <tbody>
                                     <!-- Main User Row -->
                                     <tr>
-                                        <td><span class="user-badge main-user">Main User</span></td>
-                                        <td style="font-weight: 600; color: #1f2937;">${user.user_id || 'N/A'}</td>
-                                        <td style="font-weight: 600; color: #1f2937;">${user.name}</td>
+                                        <td><span class="user-type main">Main</span></td>
+                                        <td style="font-weight: 500;">${user.user_id || 'N/A'}</td>
+                                        <td style="font-weight: 500;">${user.name}</td>
                                         <td style="color: #6b7280;">${user.email}</td>
                                         <td>
-                                            <span class="license-badge ${user.license.toLowerCase().replace(' ', '-').replace(' ', '-')}">
+                                            <span class="license-text ${user.license.toLowerCase().replace(' ', '-').replace(' ', '-')}">
                                                 ${user.license}
                                             </span>
                                         </td>
@@ -6491,12 +6480,12 @@
                                     ${user.subUsers && user.subUsers.length > 0 ? 
                                         user.subUsers.map(subUser => `
                                             <tr>
-                                                <td><span class="user-badge sub-user">Sub-User</span></td>
-                                                <td style="font-weight: 600; color: #1f2937;">${subUser.user_id}</td>
-                                                <td style="font-weight: 600; color: #1f2937;">${subUser.name}</td>
+                                                <td><span class="user-type sub">Sub</span></td>
+                                                <td style="font-weight: 500;">${subUser.user_id}</td>
+                                                <td style="font-weight: 500;">${subUser.name}</td>
                                                 <td style="color: #6b7280;">${subUser.email}</td>
                                                 <td>
-                                                    <span class="license-badge ${subUser.license.toLowerCase().replace(' ', '-').replace(' ', '-')}">
+                                                    <span class="license-text ${subUser.license.toLowerCase().replace(' ', '-').replace(' ', '-')}">
                                                         ${subUser.license}
                                                     </span>
                                                 </td>
