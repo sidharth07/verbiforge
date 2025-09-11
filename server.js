@@ -1398,6 +1398,129 @@ app.post('/fix-project-ids', requireAuth, async (req, res) => {
     }
 });
 
+// Fix database schema issues (admin only)
+app.post('/fix-database-schema', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        console.log('🔧 Fixing database schema issues...');
+        
+        const results = {
+            usersTable: { success: false, message: '', details: [] },
+            projectsTable: { success: false, message: '', details: [] }
+        };
+        
+        // Fix Users table - ensure user_id column exists and has data
+        try {
+            console.log('🔧 Checking Users table...');
+            
+            // Check if user_id column exists
+            const columnExists = await dbHelpers.query(`
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'users' AND column_name = 'user_id'
+            `);
+            
+            if (columnExists.length === 0) {
+                console.log('🔧 Adding user_id column to users table...');
+                await dbHelpers.query(`
+                    ALTER TABLE users ADD COLUMN user_id INTEGER UNIQUE
+                `);
+                results.usersTable.details.push('Added user_id column');
+            } else {
+                results.usersTable.details.push('user_id column already exists');
+            }
+            
+            // Check for users without user_id
+            const usersWithoutId = await dbHelpers.query(`
+                SELECT COUNT(*) as count FROM users WHERE user_id IS NULL
+            `);
+            
+            if (usersWithoutId[0].count > 0) {
+                console.log(`🔧 Found ${usersWithoutId[0].count} users without user_id, assigning...`);
+                await assignUserIdsToExistingUsers();
+                results.usersTable.details.push(`Assigned user_id to ${usersWithoutId[0].count} users`);
+            } else {
+                results.usersTable.details.push('All users already have user_id');
+            }
+            
+            results.usersTable.success = true;
+            results.usersTable.message = 'Users table schema fixed successfully';
+            
+        } catch (error) {
+            console.error('❌ Error fixing users table:', error);
+            results.usersTable.success = false;
+            results.usersTable.message = 'Failed to fix users table: ' + error.message;
+        }
+        
+        // Fix Projects table - add project_id column if missing
+        try {
+            console.log('🔧 Checking Projects table...');
+            
+            // Check if project_id column exists
+            const projectIdColumnExists = await dbHelpers.query(`
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'projects' AND column_name = 'project_id'
+            `);
+            
+            if (projectIdColumnExists.length === 0) {
+                console.log('🔧 Adding project_id column to projects table...');
+                await dbHelpers.query(`
+                    ALTER TABLE projects ADD COLUMN project_id VARCHAR(20)
+                `);
+                results.projectsTable.details.push('Added project_id column');
+                
+                // Generate project IDs for existing projects
+                const projects = await dbHelpers.query(`
+                    SELECT id FROM projects WHERE project_id IS NULL OR project_id = ''
+                `);
+                
+                console.log(`🔧 Found ${projects.length} projects without project_id, generating...`);
+                let generatedCount = 0;
+                
+                for (const project of projects) {
+                    try {
+                        const projectId = await generateProjectId();
+                        await dbHelpers.run(`
+                            UPDATE projects SET project_id = $1 WHERE id = $2
+                        `, [projectId, project.id]);
+                        generatedCount++;
+                    } catch (error) {
+                        console.error('❌ Failed to generate project ID for:', project.id, error.message);
+                    }
+                }
+                
+                results.projectsTable.details.push(`Generated project_id for ${generatedCount} projects`);
+            } else {
+                results.projectsTable.details.push('project_id column already exists');
+            }
+            
+            results.projectsTable.success = true;
+            results.projectsTable.message = 'Projects table schema fixed successfully';
+            
+        } catch (error) {
+            console.error('❌ Error fixing projects table:', error);
+            results.projectsTable.success = false;
+            results.projectsTable.message = 'Failed to fix projects table: ' + error.message;
+        }
+        
+        console.log('✅ Database schema fix completed');
+        res.json({
+            success: true,
+            message: 'Database schema fix completed',
+            results
+        });
+        
+    } catch (error) {
+        console.error('❌ Error fixing database schema:', error);
+        res.status(500).json({ error: 'Failed to fix database schema: ' + error.message });
+    }
+});
+
 // Check database schema (admin only)
 app.get('/debug/schema', requireAuth, async (req, res) => {
     try {
@@ -1406,27 +1529,54 @@ app.get('/debug/schema', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'Admin access required' });
         }
         
-        // Get table schema
-        const schema = await dbHelpers.query(`
+        console.log('🔍 Checking database schema...');
+        
+        // Check users table schema
+        const usersColumns = await dbHelpers.query(`
+            SELECT column_name, data_type, is_nullable, column_default
+            FROM information_schema.columns 
+            WHERE table_name = 'users' 
+            ORDER BY ordinal_position
+        `);
+        
+        // Check projects table schema
+        const projectsColumns = await dbHelpers.query(`
             SELECT column_name, data_type, is_nullable, column_default
             FROM information_schema.columns 
             WHERE table_name = 'projects' 
             ORDER BY ordinal_position
         `);
         
-        // Get sample project data
-        const sampleProject = await dbHelpers.get('SELECT * FROM projects LIMIT 1');
+        // Check sample data
+        const sampleUsers = await dbHelpers.query(`
+            SELECT id, user_id, email, name, role, license 
+            FROM users 
+            LIMIT 5
+        `);
+        
+        const sampleProjects = await dbHelpers.query(`
+            SELECT id, user_id, project_id, name, status 
+            FROM projects 
+            LIMIT 5
+        `);
         
         res.json({
             success: true,
-            schema,
-            sampleProject,
-            tableExists: !!schema.length
+            schema: {
+                users: {
+                    columns: usersColumns,
+                    sampleData: sampleUsers
+                },
+                projects: {
+                    columns: projectsColumns,
+                    sampleData: sampleProjects
+                }
+            }
         });
         
     } catch (error) {
-        console.error('❌ Error checking schema:', error);
-        res.status(500).json({ error: 'Failed to check schema: ' + error.message });
+        console.error('❌ Error checking database schema:', error);
+        res.status(500).json({ error: 'Failed to check database schema: ' + error.message });
     }
 });
 
