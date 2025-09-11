@@ -6572,29 +6572,32 @@
         }
 
         async function removeSubUser(parentUserId, subUserId) {
-            if (!confirm('Are you sure you want to remove this sub-user?')) {
-                return;
-            }
-            
-            try {
+            showConfirmationModal(
+                'Remove Sub-User',
+                'Are you sure you want to remove this sub-user from the organization?',
+                'warning',
+                async () => {
+                    try {
                 const response = await Auth.authFetch(`/admin/users/${parentUserId}/sub-users/${subUserId}`, {
                     method: 'DELETE'
                 });
                 
-                if (response.ok) {
-                    showSuccess('Sub-user removed successfully');
-                    // Reload user details using stored database ID
-                    if (currentUserId) {
-                        showUserDetails(currentUserId);
+                        if (response.ok) {
+                            showSuccess('Sub-user removed successfully');
+                            // Reload user details using stored database ID
+                            if (currentUserId) {
+                                showUserDetails(currentUserId);
+                            }
+                        } else {
+                            const error = await response.json();
+                            showError('Failed to remove sub-user: ' + error.error);
+                        }
+                    } catch (error) {
+                        console.error('❌ Error removing sub-user:', error);
+                        showError('Network error removing sub-user');
                     }
-                } else {
-                    const error = await response.json();
-                    showError('Failed to remove sub-user: ' + error.error);
                 }
-            } catch (error) {
-                console.error('❌ Error removing sub-user:', error);
-                showError('Network error removing sub-user');
-            }
+            );
         }
 
         // Close modal when clicking outside

@@ -2653,8 +2653,12 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
 
         // Update sub-user to have parent_user_id and modify license if Professional
         let newLicense = subUser.license;
+        console.log('🔍 Sub-user current license:', subUser.license);
         if (subUser.license === 'Professional') {
             newLicense = 'Professional - Sub Account';
+            console.log('🔄 Changing license from Professional to Professional - Sub Account');
+        } else {
+            console.log('ℹ️ License remains:', newLicense);
         }
 
         await dbHelpers.run(`
@@ -2664,6 +2668,7 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
         `, [parentUser.id, newLicense, subUser.id]);
 
         console.log(`✅ Added sub-user ${subUser.email} under parent ${parentUser.email}`);
+        console.log(`✅ Sub-user license set to: ${newLicense}`);
         res.json({ 
             success: true, 
             message: 'Sub-user added successfully',
