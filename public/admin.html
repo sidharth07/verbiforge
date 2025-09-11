@@ -475,7 +475,8 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             overflow: hidden;
-            table-layout: fixed;
+            table-layout: auto;
+            min-width: 800px;
         }
 
         .org-table th {
@@ -491,12 +492,12 @@
 
         /* Column width control - more flexible layout */
         .org-table th:nth-child(1), .org-table td:nth-child(1) { width: 60px; } /* Type */
-        .org-table th:nth-child(2), .org-table td:nth-child(2) { width: 80px; } /* ID */
-        .org-table th:nth-child(3), .org-table td:nth-child(3) { width: 120px; } /* Name */
-        .org-table th:nth-child(4), .org-table td:nth-child(4) { width: 200px; } /* Email */
-        .org-table th:nth-child(5), .org-table td:nth-child(5) { width: 150px; } /* License */
-        .org-table th:nth-child(6), .org-table td:nth-child(6) { width: 100px; } /* Joined */
-        .org-table th:nth-child(7), .org-table td:nth-child(7) { width: 120px; } /* Actions */
+        .org-table th:nth-child(2), .org-table td:nth-child(2) { width: 70px; } /* ID */
+        .org-table th:nth-child(3), .org-table td:nth-child(3) { width: 100px; } /* Name */
+        .org-table th:nth-child(4), .org-table td:nth-child(4) { width: 180px; } /* Email */
+        .org-table th:nth-child(5), .org-table td:nth-child(5) { width: 140px; } /* License */
+        .org-table th:nth-child(6), .org-table td:nth-child(6) { width: 90px; } /* Joined */
+        .org-table th:nth-child(7), .org-table td:nth-child(7) { width: 140px; } /* Actions */
 
         .org-table td {
             padding: 12px 16px;
@@ -518,7 +519,8 @@
         /* Actions column styling */
         .org-table td:nth-child(7) {
             text-align: center;
-            padding: 8px 4px;
+            padding: 8px 8px;
+            white-space: nowrap;
         }
 
         .org-table tr:hover {
@@ -6523,7 +6525,8 @@
                         <!-- Organization Table -->
                         <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
                             <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 16px; font-weight: 600;">Organization Structure</h3>
-                            <table class="org-table">
+                            <div style="overflow-x: auto;">
+                                <table class="org-table">
                                 <thead>
                                     <tr>
                                         <th>Type</th>
@@ -6575,6 +6578,7 @@
                                     }
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     `;
                     
