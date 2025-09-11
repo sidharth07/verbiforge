@@ -1942,7 +1942,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 30000;
             backdrop-filter: blur(4px);
         }
 
@@ -6653,6 +6653,9 @@
                     } catch (error) {
                         console.error('❌ Error removing sub-user:', error);
                         showError('Network error removing sub-user');
+                    } finally {
+                        // Close the confirmation modal
+                        closeConfirmationModal();
                     }
                 }
             );

@@ -2653,12 +2653,16 @@ app.post('/admin/users/:parentUserId/sub-users', requireAuth, async (req, res) =
 
         // Update sub-user to have parent_user_id and modify license if Professional
         let newLicense = subUser.license;
-        console.log('🔍 Sub-user current license:', subUser.license);
+        console.log('🔍 Sub-user current license:', JSON.stringify(subUser.license));
+        console.log('🔍 License type:', typeof subUser.license);
+        console.log('🔍 License length:', subUser.license ? subUser.license.length : 'null');
+        console.log('🔍 License comparison result:', subUser.license === 'Professional');
+        
         if (subUser.license === 'Professional') {
             newLicense = 'Professional - Sub Account';
             console.log('🔄 Changing license from Professional to Professional - Sub Account');
         } else {
-            console.log('ℹ️ License remains:', newLicense);
+            console.log('ℹ️ License remains:', newLicense, '(not Professional)');
         }
 
         await dbHelpers.run(`
