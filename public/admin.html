@@ -475,6 +475,7 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             overflow: hidden;
+            table-layout: fixed;
         }
 
         .org-table th {
@@ -488,11 +489,30 @@
             font-weight: 600;
         }
 
+        /* Column width control */
+        .org-table th:nth-child(1), .org-table td:nth-child(1) { width: 8%; } /* Type */
+        .org-table th:nth-child(2), .org-table td:nth-child(2) { width: 12%; } /* ID */
+        .org-table th:nth-child(3), .org-table td:nth-child(3) { width: 18%; } /* Name */
+        .org-table th:nth-child(4), .org-table td:nth-child(4) { width: 25%; } /* Email */
+        .org-table th:nth-child(5), .org-table td:nth-child(5) { width: 15%; } /* License */
+        .org-table th:nth-child(6), .org-table td:nth-child(6) { width: 12%; } /* Joined */
+        .org-table th:nth-child(7), .org-table td:nth-child(7) { width: 10%; } /* Actions */
+
         .org-table td {
             padding: 12px 16px;
             border-bottom: 1px solid #f3f4f6;
             color: #374151;
             font-size: 14px;
+            word-wrap: break-word;
+            overflow: hidden;
+        }
+
+        /* Text truncation for long content */
+        .org-table td:nth-child(3), .org-table td:nth-child(4) {
+            max-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .org-table tr:hover {
@@ -554,14 +574,21 @@
         }
 
         .action-btn.remove {
-            border-color: #fca5a5;
-            color: #dc2626;
+            background: #6b7280;
+            color: white;
+            border: 1px solid #6b7280;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .action-btn.remove:hover {
-            background: #dc2626;
-            color: white;
-            border-color: #dc2626;
+            background: #4b5563;
+            border-color: #4b5563;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         @keyframes fadeIn {
