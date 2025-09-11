@@ -220,6 +220,10 @@ git checkout master
 git merge staging
 git push origin master
 
+# Database sync
+npm run sync-db                    # Manual sync (recommended)
+npm run sync-db-manual            # Direct sync (advanced)
+
 # Check deployment status
 curl www.verbiforge.com/health
 curl staging.verbiforge.com/health
@@ -262,6 +266,15 @@ curl www.verbiforge.com/robots.txt
 - **Connection Strings**: Separate for each environment (staging/production)
 - **Data Integrity**: All data successfully migrated with no loss
 - **ON CONFLICT Handling**: Implemented fallback logic for database compatibility
+
+## Database Sync System
+- **Automatic Sync**: Production database automatically syncs to staging daily at 2 AM UTC
+- **Manual Sync**: Run `npm run sync-db` for immediate sync
+- **Data Anonymization**: Sensitive data (emails, messages) automatically anonymized for staging
+- **GitHub Actions**: Automated sync via GitHub Actions workflow
+- **Sync Logs**: Detailed logs saved in `sync-logs/` directory
+- **Security**: Separate databases maintained with anonymized staging data
+- **Testing**: Staging environment always reflects production state for accurate testing
 
 ## Contact Information
 - **Developer**: Sidharth Bandewar

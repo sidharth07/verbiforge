@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "sync-db": "node sync-staging.js",
+    "sync-db-manual": "node database-sync.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
