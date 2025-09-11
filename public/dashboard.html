@@ -3548,8 +3548,17 @@
                 console.error('❌ Error loading organization projects:', error);
                 console.error('❌ Error details:', error.message);
                 
+                // Debug: Check if orgProjectsList element exists
+                const orgProjectsList = document.getElementById('orgProjectsList');
+                console.log('🔧 DEBUG: orgProjectsList element:', orgProjectsList);
+                
+                if (!orgProjectsList) {
+                    console.error('❌ orgProjectsList element not found!');
+                    return;
+                }
+                
                 // Show a more helpful error message
-                document.getElementById('orgProjectsList').innerHTML = `
+                const errorHtml = `
                     <div class="error-message">
                         <p>⚠️ Unable to load organization projects</p>
                         <p><strong>Error:</strong> ${error.message}</p>
@@ -3558,6 +3567,10 @@
                         <button onclick="debugSubAccounts()" class="retry-btn" style="background: #10b981; margin-left: 10px;">🔧 Debug</button>
                     </div>
                 `;
+                
+                console.log('🔧 DEBUG: Setting error HTML:', errorHtml);
+                orgProjectsList.innerHTML = errorHtml;
+                console.log('🔧 DEBUG: Error HTML set successfully');
             }
         }
 
@@ -3732,6 +3745,20 @@
                 `;
             }
         }
+        
+        // Manual debug function - can be called from browser console
+        window.debugSubAccountsManual = async function() {
+            console.log('🔧 Manual debug: Testing sub-accounts API...');
+            try {
+                const response = await Auth.authFetch('/api/debug-sub-accounts');
+                const data = await response.json();
+                console.log('🔧 MANUAL DEBUG RESULTS:', data);
+                return data;
+            } catch (error) {
+                console.error('🔧 Manual debug error:', error);
+                return { error: error.message };
+            }
+        };
 
         function renderProjects(projects, containerId = 'projectsList') {
             const container = document.getElementById(containerId);
