@@ -492,12 +492,11 @@
 
         /* Column width control - more flexible layout */
         .org-table th:nth-child(1), .org-table td:nth-child(1) { width: 60px; } /* Type */
-        .org-table th:nth-child(2), .org-table td:nth-child(2) { width: 70px; } /* ID */
-        .org-table th:nth-child(3), .org-table td:nth-child(3) { width: 100px; } /* Name */
-        .org-table th:nth-child(4), .org-table td:nth-child(4) { width: 180px; } /* Email */
-        .org-table th:nth-child(5), .org-table td:nth-child(5) { width: 140px; } /* License */
-        .org-table th:nth-child(6), .org-table td:nth-child(6) { width: 90px; } /* Joined */
-        .org-table th:nth-child(7), .org-table td:nth-child(7) { width: 140px; } /* Actions */
+        .org-table th:nth-child(2), .org-table td:nth-child(2) { width: 80px; } /* ID */
+        .org-table th:nth-child(3), .org-table td:nth-child(3) { width: 120px; } /* Name */
+        .org-table th:nth-child(4), .org-table td:nth-child(4) { width: 200px; } /* Email */
+        .org-table th:nth-child(5), .org-table td:nth-child(5) { width: 150px; } /* License */
+        .org-table th:nth-child(6), .org-table td:nth-child(6) { width: 140px; } /* Actions */
 
         .org-table td {
             padding: 12px 16px;
@@ -517,7 +516,7 @@
         }
 
         /* Actions column styling */
-        .org-table td:nth-child(7) {
+        .org-table td:nth-child(6) {
             text-align: center;
             padding: 8px 8px;
             white-space: nowrap;
@@ -6525,8 +6524,7 @@
                         <!-- Organization Table -->
                         <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
                             <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 16px; font-weight: 600;">Organization Structure</h3>
-                            <div style="overflow-x: auto;">
-                                <table class="org-table">
+                            <table class="org-table">
                                 <thead>
                                     <tr>
                                         <th>Type</th>
@@ -6534,7 +6532,6 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>License</th>
-                                        <th>Joined</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -6550,8 +6547,12 @@
                                                 ${user.license}
                                             </span>
                                         </td>
-                                        <td style="color: #6b7280;">${new Date(user.created_at).toLocaleDateString()}</td>
-                                        <td>-</td>
+                                        <td>
+                                            <button onclick="changeLicense('${user.user_id}')" 
+                                                    class="action-btn">
+                                                Change License
+                                            </button>
+                                        </td>
                                     </tr>
                                     ${user.subUsers && user.subUsers.length > 0 ? 
                                         user.subUsers.map(subUser => `
@@ -6565,7 +6566,6 @@
                                                         ${subUser.license}
                                                     </span>
                                                 </td>
-                                                <td style="color: #6b7280;">${new Date(subUser.created_at).toLocaleDateString()}</td>
                                                 <td>
                                                     <button onclick="removeSubUser('${user.user_id}', '${subUser.user_id}')" 
                                                             class="action-btn remove">
@@ -6574,11 +6574,10 @@
                                                 </td>
                                             </tr>
                                         `).join('') : 
-                                        '<tr><td colspan="7" style="text-align: center; color: #9ca3af; font-style: italic; padding: 24px;">No sub-users attached</td></tr>'
+                                        '<tr><td colspan="6" style="text-align: center; color: #9ca3af; font-style: italic; padding: 24px;">No sub-users attached</td></tr>'
                                     }
                                 </tbody>
                             </table>
-                            </div>
                         </div>
                     `;
                     
