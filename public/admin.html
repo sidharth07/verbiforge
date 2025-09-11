@@ -6378,9 +6378,13 @@
         }
 
         // User Details Modal Functions
+        let currentUserId = null; // Store the database ID for reloading
+        
         async function showUserDetails(userId) {
             try {
                 console.log('🔍 Loading user details for:', userId);
+                
+                currentUserId = userId; // Store the database ID
                 
                 const modal = document.getElementById('userDetailsModal');
                 const loading = document.getElementById('userDetailsLoading');
@@ -6525,6 +6529,7 @@
 
         function closeUserDetailsModal() {
             document.getElementById('userDetailsModal').style.display = 'none';
+            currentUserId = null; // Clear the stored ID
         }
 
         async function addSubUser(parentUserId) {
@@ -6550,8 +6555,10 @@
                 if (response.ok) {
                     showSuccess('Sub-user added successfully');
                     subUserIdInput.value = '';
-                    // Reload user details
-                    showUserDetails(parentUserId);
+                    // Reload user details using stored database ID
+                    if (currentUserId) {
+                        showUserDetails(currentUserId);
+                    }
                 } else {
                     const error = await response.json();
                     console.error('❌ API Error:', error);
@@ -6575,8 +6582,10 @@
                 
                 if (response.ok) {
                     showSuccess('Sub-user removed successfully');
-                    // Reload user details
-                    showUserDetails(parentUserId);
+                    // Reload user details using stored database ID
+                    if (currentUserId) {
+                        showUserDetails(currentUserId);
+                    }
                 } else {
                     const error = await response.json();
                     showError('Failed to remove sub-user: ' + error.error);
