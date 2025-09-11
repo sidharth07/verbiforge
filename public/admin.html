@@ -355,6 +355,38 @@
             border-right: 1px solid #334155;
         }
 
+        /* Custom Scrollbar for Sidebar */
+        .admin-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .admin-sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .admin-sidebar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #475569 0%, #334155 100%);
+            border-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .admin-sidebar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #64748b 0%, #475569 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-sidebar::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+        }
+
+        /* Firefox Scrollbar */
+        .admin-sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #475569 rgba(255, 255, 255, 0.05);
+        }
+
         .sidebar-header {
             padding: 24px 20px 16px;
             border-bottom: 1px solid #334155;
