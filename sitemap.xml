@@ -64,4 +64,18 @@
   <changefreq>monthly</changefreq>
 </url>
 
+<url>
+  <loc>https://www.verbiforge.com/privacy.html</loc>
+  <lastmod>2025-10-01T00:00:00+00:00</lastmod>
+  <priority>0.60</priority>
+  <changefreq>monthly</changefreq>
+</url>
+
+<url>
+  <loc>https://www.verbiforge.com/terms.html</loc>
+  <lastmod>2025-10-01T00:00:00+00:00</lastmod>
+  <priority>0.60</priority>
+  <changefreq>monthly</changefreq>
+</url>
+
 </urlset>

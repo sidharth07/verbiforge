@@ -26,6 +26,8 @@ Allow: /about.html
 Allow: /contact.html
 Allow: /login.html
 Allow: /signup.html
+Allow: /privacy.html
+Allow: /terms.html
 
 # Disallow admin and dashboard areas (optional - for security)
 Disallow: /admin.html
