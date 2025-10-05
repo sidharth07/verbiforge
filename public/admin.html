@@ -3416,6 +3416,15 @@
             const inProgressProjects = allProjects.filter(p => ['in_progress', 'proofreading', 'ready'].includes(p.status));
             const completedProjects = allProjects.filter(p => p.status === 'completed');
 
+            // Debug logging
+            console.log('🔍 Project filtering results:', {
+                totalProjects: allProjects.length,
+                submittedProjects: submittedProjects.length,
+                inProgressProjects: inProgressProjects.length,
+                completedProjects: completedProjects.length,
+                allProjectStatuses: allProjects.map(p => ({ id: p.projectId || p.id, status: p.status }))
+            });
+
             // Update counts
             document.getElementById('submitted-count').textContent = submittedProjects.length;
             document.getElementById('in-progress-count').textContent = inProgressProjects.length;
@@ -3441,23 +3450,42 @@
                 projectsContent = document.getElementById('projectsContent');
                 emptyState = document.getElementById('emptyState');
                 tbody = document.getElementById('projectsTableBody');
+            } else if (tabType === 'in-progress') {
+                // Handle the hyphenated tab type
+                loadingState = document.getElementById('inProgressLoadingState');
+                projectsContent = document.getElementById('inProgressProjectsContent');
+                emptyState = document.getElementById('inProgressEmptyState');
+                tbody = document.getElementById('inProgressTableBody');
             } else {
+                // For completed and other tabs
                 loadingState = document.getElementById(`${tabType}LoadingState`);
                 projectsContent = document.getElementById(`${tabType}ProjectsContent`);
                 emptyState = document.getElementById(`${tabType}EmptyState`);
                 tbody = document.getElementById(`${tabType}TableBody`);
             }
 
+            // Debug logging
+            console.log(`🔍 Rendering ${tabType} tab:`, {
+                tabType,
+                projectsCount: projects.length,
+                loadingState: loadingState ? 'found' : 'not found',
+                projectsContent: projectsContent ? 'found' : 'not found',
+                emptyState: emptyState ? 'found' : 'not found',
+                tbody: tbody ? 'found' : 'not found'
+            });
+
             // Hide loading state
             if (loadingState) loadingState.style.display = 'none';
 
             if (projects.length === 0) {
+                console.log(`📭 No projects for ${tabType} tab, showing empty state`);
                 if (emptyState) emptyState.style.display = 'block';
                 if (projectsContent) projectsContent.style.display = 'none';
                 return;
             }
 
             // Show projects content and hide empty state
+            console.log(`📋 Showing ${projects.length} projects for ${tabType} tab`);
             if (emptyState) emptyState.style.display = 'none';
             if (projectsContent) projectsContent.style.display = 'block';
 
