@@ -551,6 +551,17 @@ async function initializeDatabase() {
             )
         `);
         console.log('✅ Settings table ready');
+        
+        // Ensure unique constraint exists on key column
+        try {
+            await dbHelpers.run(`
+                ALTER TABLE settings ADD CONSTRAINT settings_key_unique UNIQUE (key)
+            `);
+            console.log('✅ Settings unique constraint added');
+        } catch (error) {
+            // Constraint might already exist, that's fine
+            console.log('ℹ️ Settings unique constraint already exists or not needed');
+        }
 
         // Create email_templates table
         await dbHelpers.run(`
@@ -604,19 +615,25 @@ async function initializeDatabase() {
                 ('multiplier', '1.3')
                 ON CONFLICT (key) DO NOTHING
             `);
+            console.log('✅ Default settings inserted successfully');
         } catch (error) {
             // If ON CONFLICT fails, try without it (for databases without proper constraints)
-            console.log('⚠️ ON CONFLICT not supported, using alternative approach');
-            await dbHelpers.run(`
-                INSERT INTO settings (key, value) 
-                SELECT 'languages', '{"English": 25, "Arabic": 50, "Chinese (Simplified)": 35, "Dutch": 40, "French": 35, "German": 45, "Portuguese (Brazil)": 35, "Portuguese (Portugal)": 35, "Spanish (Latin America)": 35, "Spanish (Spain)": 35, "Italian": 40, "Japanese": 45, "Korean": 40, "Russian": 35, "Turkish": 35, "Vietnamese": 30, "Thai": 35, "Indonesian": 30, "Malay": 30, "Filipino": 30, "Hindi": 25, "Bengali": 25, "Urdu": 25, "Persian": 35, "Hebrew": 40, "Greek": 40, "Polish": 35, "Czech": 35, "Hungarian": 35, "Romanian": 35, "Bulgarian": 35, "Croatian": 35, "Serbian": 35, "Slovak": 35, "Slovenian": 35, "Estonian": 40, "Latvian": 40, "Lithuanian": 40, "Finnish": 45, "Swedish": 45, "Norwegian": 45, "Danish": 45, "Icelandic": 50, "Catalan": 35, "Basque": 45, "Galician": 35, "Welsh": 45, "Irish": 45, "Scottish Gaelic": 50, "Maltese": 45, "Luxembourgish": 50, "Faroese": 55, "Greenlandic": 60}'
-                WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = 'languages')
-            `);
-            await dbHelpers.run(`
-                INSERT INTO settings (key, value) 
-                SELECT 'multiplier', '1.3'
-                WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = 'multiplier')
-            `);
+            console.log('⚠️ ON CONFLICT not supported, using alternative approach for settings');
+            try {
+                await dbHelpers.run(`
+                    INSERT INTO settings (key, value) 
+                    SELECT 'languages', '{"English": 25, "Arabic": 50, "Chinese (Simplified)": 35, "Dutch": 40, "French": 35, "German": 45, "Portuguese (Brazil)": 35, "Portuguese (Portugal)": 35, "Spanish (Latin America)": 35, "Spanish (Spain)": 35, "Italian": 40, "Japanese": 45, "Korean": 40, "Russian": 35, "Turkish": 35, "Vietnamese": 30, "Thai": 35, "Indonesian": 30, "Malay": 30, "Filipino": 30, "Hindi": 25, "Bengali": 25, "Urdu": 25, "Persian": 35, "Hebrew": 40, "Greek": 40, "Polish": 35, "Czech": 35, "Hungarian": 35, "Romanian": 35, "Bulgarian": 35, "Croatian": 35, "Serbian": 35, "Slovak": 35, "Slovenian": 35, "Estonian": 40, "Latvian": 40, "Lithuanian": 40, "Finnish": 45, "Swedish": 45, "Norwegian": 45, "Danish": 45, "Icelandic": 50, "Catalan": 35, "Basque": 45, "Galician": 35, "Welsh": 45, "Irish": 45, "Scottish Gaelic": 50, "Maltese": 45, "Luxembourgish": 50, "Faroese": 55, "Greenlandic": 60}'
+                    WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = 'languages')
+                `);
+                await dbHelpers.run(`
+                    INSERT INTO settings (key, value) 
+                    SELECT 'multiplier', '1.3'
+                    WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = 'multiplier')
+                `);
+                console.log('✅ Default settings inserted using alternative method');
+            } catch (fallbackError) {
+                console.error('❌ Failed to insert default settings:', fallbackError);
+            }
         }
         console.log('✅ Default settings ensured');
         
@@ -3511,16 +3528,24 @@ app.put('/admin/languages', requireAuth, async (req, res) => {
                 INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
                 ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
             `, ['languages', JSON.stringify(languages)]);
+            console.log('✅ Languages settings updated successfully');
         } catch (error) {
+            console.log('⚠️ ON CONFLICT failed, using fallback method for languages update');
             // Fallback for databases without proper constraints
-            await dbHelpers.run(`
-                UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
-            `, ['languages', JSON.stringify(languages)]);
-            const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['languages']);
-            if (result.count === 0) {
+            try {
                 await dbHelpers.run(`
-                    INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
                 `, ['languages', JSON.stringify(languages)]);
+                const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['languages']);
+                if (result.count === 0) {
+                    await dbHelpers.run(`
+                        INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    `, ['languages', JSON.stringify(languages)]);
+                }
+                console.log('✅ Languages settings updated using fallback method');
+            } catch (fallbackError) {
+                console.error('❌ Failed to update languages settings:', fallbackError);
+                throw fallbackError;
             }
         }
         
@@ -3599,16 +3624,24 @@ app.post('/admin/languages/reset', requireAuth, async (req, res) => {
                 INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
                 ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
             `, ['languages', JSON.stringify(defaultLanguages)]);
+            console.log('✅ Default languages reset successfully');
         } catch (error) {
+            console.log('⚠️ ON CONFLICT failed, using fallback method for languages reset');
             // Fallback for databases without proper constraints
-            await dbHelpers.run(`
-                UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
-            `, ['languages', JSON.stringify(defaultLanguages)]);
-            const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['languages']);
-            if (result.count === 0) {
+            try {
                 await dbHelpers.run(`
-                    INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
                 `, ['languages', JSON.stringify(defaultLanguages)]);
+                const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['languages']);
+                if (result.count === 0) {
+                    await dbHelpers.run(`
+                        INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    `, ['languages', JSON.stringify(defaultLanguages)]);
+                }
+                console.log('✅ Default languages reset using fallback method');
+            } catch (fallbackError) {
+                console.error('❌ Failed to reset languages settings:', fallbackError);
+                throw fallbackError;
             }
         }
         
@@ -3649,16 +3682,24 @@ app.put('/admin/multiplier', requireAuth, async (req, res) => {
                 INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
                 ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
             `, ['multiplier', multiplier.toString()]);
+            console.log('✅ Multiplier settings updated successfully');
         } catch (error) {
+            console.log('⚠️ ON CONFLICT failed, using fallback method for multiplier update');
             // Fallback for databases without proper constraints
-            await dbHelpers.run(`
-                UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
-            `, ['multiplier', multiplier.toString()]);
-            const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['multiplier']);
-            if (result.count === 0) {
+            try {
                 await dbHelpers.run(`
-                    INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
                 `, ['multiplier', multiplier.toString()]);
+                const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['multiplier']);
+                if (result.count === 0) {
+                    await dbHelpers.run(`
+                        INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    `, ['multiplier', multiplier.toString()]);
+                }
+                console.log('✅ Multiplier settings updated using fallback method');
+            } catch (fallbackError) {
+                console.error('❌ Failed to update multiplier settings:', fallbackError);
+                throw fallbackError;
             }
         }
         
