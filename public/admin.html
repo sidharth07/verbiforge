@@ -3426,33 +3426,43 @@
             renderProjectsTab('in-progress', inProgressProjects);
             renderProjectsTab('completed', completedProjects);
 
+            // Ensure Submitted tab is shown by default
+            switchTab('submitted');
+
             attachDynamicButtonListeners();
         }
 
         function renderProjectsTab(tabType, projects) {
-            const loadingState = document.getElementById(`${tabType}LoadingState` || 'loadingState');
-            const projectsContent = document.getElementById(`${tabType}ProjectsContent` || 'projectsContent');
-            const emptyState = document.getElementById(`${tabType}EmptyState` || 'emptyState');
-            const tbody = document.getElementById(`${tabType}TableBody` || 'projectsTableBody');
+            // Handle different tab naming conventions properly
+            let loadingState, projectsContent, emptyState, tbody;
+            
+            if (tabType === 'submitted') {
+                loadingState = document.getElementById('loadingState');
+                projectsContent = document.getElementById('projectsContent');
+                emptyState = document.getElementById('emptyState');
+                tbody = document.getElementById('projectsTableBody');
+            } else {
+                loadingState = document.getElementById(`${tabType}LoadingState`);
+                projectsContent = document.getElementById(`${tabType}ProjectsContent`);
+                emptyState = document.getElementById(`${tabType}EmptyState`);
+                tbody = document.getElementById(`${tabType}TableBody`);
+            }
 
-            // Handle different tab naming conventions
-            const actualLoadingState = tabType === 'submitted' ? document.getElementById('loadingState') : loadingState;
-            const actualProjectsContent = tabType === 'submitted' ? document.getElementById('projectsContent') : projectsContent;
-            const actualEmptyState = tabType === 'submitted' ? document.getElementById('emptyState') : emptyState;
-            const actualTbody = tabType === 'submitted' ? document.getElementById('projectsTableBody') : tbody;
-
-            if (actualLoadingState) actualLoadingState.style.display = 'none';
+            // Hide loading state
+            if (loadingState) loadingState.style.display = 'none';
 
             if (projects.length === 0) {
-                if (actualEmptyState) actualEmptyState.style.display = 'block';
-                if (actualProjectsContent) actualProjectsContent.style.display = 'none';
+                if (emptyState) emptyState.style.display = 'block';
+                if (projectsContent) projectsContent.style.display = 'none';
                 return;
             }
 
-            if (actualEmptyState) actualEmptyState.style.display = 'none';
-            if (actualProjectsContent) actualProjectsContent.style.display = 'block';
+            // Show projects content and hide empty state
+            if (emptyState) emptyState.style.display = 'none';
+            if (projectsContent) projectsContent.style.display = 'block';
 
-            actualTbody.innerHTML = '';
+            // Clear and populate table
+            if (tbody) tbody.innerHTML = '';
 
             projects.forEach(project => {
                 const row = document.createElement('tr');
@@ -3505,7 +3515,7 @@
                     </td>
                 `;
 
-                actualTbody.appendChild(row);
+                if (tbody) tbody.appendChild(row);
             });
         }
 
@@ -3540,11 +3550,11 @@
 
         // Tab switching functionality
         function switchTab(tabName) {
-            // Hide all tab contents
-            const allTabContents = document.querySelectorAll('.tab-content');
-            allTabContents.forEach(tab => tab.style.display = 'none');
+            // Hide only project tab contents, not all tab-content elements
+            const projectTabContents = document.querySelectorAll('#submitted-tab, #in-progress-tab, #completed-tab');
+            projectTabContents.forEach(tab => tab.style.display = 'none');
 
-            // Remove active class from all tab buttons
+            // Remove active class from all project tab buttons
             const allTabButtons = document.querySelectorAll('.tab-btn');
             allTabButtons.forEach(btn => {
                 btn.style.color = '#6c757d';
@@ -6440,8 +6450,12 @@
                         statusDiv.innerHTML = `<div style="color: #155724; background: #d4edda; padding: 8px; border-radius: 4px;">Found ${projects.length} project(s) matching "${searchInput}"</div>`;
                     } else {
                         statusDiv.innerHTML = `<div style="color: #721c24; background: #f8d7da; padding: 8px; border-radius: 4px;">No projects found matching "${searchInput}"</div>`;
-                        // Clear the table
-                        document.getElementById('projectsTableBody').innerHTML = '';
+                        // Clear all tab tables
+                        const allTbodies = ['projectsTableBody', 'inProgressTableBody', 'completedTableBody'];
+                        allTbodies.forEach(tbodyId => {
+                            const tbody = document.getElementById(tbodyId);
+                            if (tbody) tbody.innerHTML = '';
+                        });
                     }
                 } else {
                     const error = await response.json();
@@ -6463,6 +6477,14 @@
             document.getElementById('projectSearch').value = '';
             document.getElementById('searchStatus').style.display = 'none';
             await loadProjects(); // Reload all projects
+            // Ensure we stay on the current tab after clearing search
+            const activeTab = document.querySelector('.tab-btn[style*="color: rgb(0, 123, 255)"]');
+            if (activeTab) {
+                const tabName = activeTab.getAttribute('data-tab');
+                switchTab(tabName);
+            } else {
+                switchTab('submitted'); // Default to submitted tab
+            }
         }
 
         // Load dashboard data
