@@ -3485,10 +3485,59 @@
             }
         };
 
+        // Tab switching function
+        function switchTab(tabName) {
+            console.log('🔄 Switching to tab:', tabName);
+            
+            // Convert kebab-case to camelCase for tab ID
+            const tabId = tabName.replace(/-([a-z])/g, (g) => g[1].toUpperCase()) + 'Tab';
+            console.log('📝 Tab ID:', tabId);
+            
+            // Hide all tabs
+            const allTabs = document.querySelectorAll('.tab-content');
+            allTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all sidebar buttons
+            const allButtons = document.querySelectorAll('.sidebar-btn');
+            allButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            } else {
+                console.error('❌ Tab not found:', tabId);
+            }
+            
+            // Add active class to clicked button
+            const selectedButton = document.querySelector(`[data-admin-tab="${tabName}"]`);
+            if (selectedButton) {
+                selectedButton.classList.add('active');
+            }
+        }
+
+        // Initialize tab switching
+        function initializeTabs() {
+            const tabButtons = document.querySelectorAll('[data-admin-tab]');
+            console.log('🔧 Initializing', tabButtons.length, 'tab buttons');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-admin-tab');
+                    switchTab(tabName);
+                });
+            });
+        }
+
         // Check admin access and load data when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 Admin panel DOM loaded, checking authentication...');
             checkAdminAccess();
+            initializeTabs(); // Initialize tab switching
             
             // Check for new contact messages every 30 seconds
             setInterval(loadContactsCount, 30000);
