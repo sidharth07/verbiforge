@@ -58,7 +58,7 @@
 
         .left-section {
             flex: 0 0 65%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -79,7 +79,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -187,9 +187,9 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #475569;
             background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.1);
         }
 
         .auth-btn {
@@ -226,7 +226,7 @@
         }
 
         .auth-switch a {
-            color: #667eea;
+            color: #475569;
             text-decoration: none;
             font-weight: 500;
         }
@@ -242,7 +242,7 @@
         }
 
         .footer-links a {
-            color: #667eea;
+            color: #475569;
             text-decoration: none;
             margin: 0 15px;
             font-weight: 500;
@@ -367,13 +367,13 @@
         }
 
         .checkbox-label:hover .checkmark {
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+            border-color: #475569;
+            box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.1);
         }
 
         .checkbox-label input:checked ~ .checkmark {
-            background-color: #667eea;
-            border-color: #667eea;
+            background-color: #475569;
+            border-color: #475569;
         }
 
         .checkmark:after {
@@ -397,7 +397,7 @@
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
                 min-height: 100vh;
             }
 
@@ -587,8 +587,8 @@
                     <svg width="50" height="50" viewBox="0 0 50 50" style="margin-right: 15px; vertical-align: middle;">
                         <defs>
                             <linearGradient id="loginLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#667eea"/>
-                                <stop offset="100%" style="stop-color:#764ba2"/>
+                                <stop offset="0%" style="stop-color:#475569"/>
+                                <stop offset="100%" style="stop-color:#1e293b"/>
                             </linearGradient>
                         </defs>
                         <circle cx="25" cy="25" r="22" fill="url(#loginLogoGradient)" stroke="white" stroke-width="4"/>
@@ -792,6 +792,89 @@
             document.getElementById('loading').style.display = show ? 'block' : 'none';
             document.getElementById('loginBtn').disabled = show;
         }
+
+        // ==================================================================
+        // THEME SYSTEM - Load and Apply Theme
+        // ==================================================================
+
+        const THEMES = {
+            'slate-gray': { primary: '#475569', secondary: '#1e293b', rgba1: '71, 85, 105', rgba2: '30, 41, 59' },
+            'charcoal-black': { primary: '#374151', secondary: '#111827', rgba1: '55, 65, 81', rgba2: '17, 24, 39' },
+            'cool-gray': { primary: '#64748b', secondary: '#334155', rgba1: '100, 116, 139', rgba2: '51, 65, 85' },
+            'graphite': { primary: '#4b5563', secondary: '#1f2937', rgba1: '75, 85, 99', rgba2: '31, 41, 55' },
+            'silver-charcoal': { primary: '#71717a', secondary: '#27272a', rgba1: '113, 113, 122', rgba2: '39, 39, 42' },
+            'warm-gray': { primary: '#78716c', secondary: '#292524', rgba1: '120, 113, 108', rgba2: '41, 37, 36' },
+            'sky-blue': { primary: '#0ea5e9', secondary: '#2563eb', rgba1: '14, 165, 233', rgba2: '37, 99, 235' },
+            'purple-gradient': { primary: '#667eea', secondary: '#764ba2', rgba1: '102, 126, 234', rgba2: '118, 75, 162' }
+        };
+
+        async function loadAndApplyTheme() {
+            try {
+                const response = await fetch('/api/admin/get-theme');
+                const data = await response.json();
+                const themeId = data.theme || 'slate-gray';
+                const theme = THEMES[themeId];
+                
+                if (theme) {
+                    // Update all gradients
+                    const elementsToUpdate = document.querySelectorAll('*');
+                    elementsToUpdate.forEach(el => {
+                        const style = el.getAttribute('style');
+                        if (!style) return;
+
+                        let newStyle = style;
+                        
+                        // Replace primary gradient colors
+                        Object.values(THEMES).forEach(oldTheme => {
+                            newStyle = newStyle.replace(
+                                new RegExp(`linear-gradient\\(135deg,\\s*${oldTheme.primary}\\s*0%,\\s*${oldTheme.secondary}\\s*100%\\)`, 'gi'),
+                                `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`
+                            );
+                            newStyle = newStyle.replace(
+                                new RegExp(`linear-gradient\\(135deg,\\s*rgba\\(${oldTheme.rgba1}`, 'gi'),
+                                `linear-gradient(135deg, rgba(${theme.rgba1}`
+                            );
+                            newStyle = newStyle.replace(
+                                new RegExp(`rgba\\(${oldTheme.rgba2}`, 'gi'),
+                                `rgba(${theme.rgba2}`
+                            );
+                        });
+                        
+                        el.setAttribute('style', newStyle);
+                    });
+
+                    // Update CSS classes
+                    const styleSheets = document.styleSheets;
+                    for (let sheet of styleSheets) {
+                        try {
+                            const rules = sheet.cssRules || sheet.rules;
+                            for (let rule of rules) {
+                                if (rule.style && rule.style.background) {
+                                    Object.values(THEMES).forEach(oldTheme => {
+                                        if (rule.style.background.includes(oldTheme.primary)) {
+                                            rule.style.background = rule.style.background.replace(
+                                                new RegExp(oldTheme.primary, 'g'),
+                                                theme.primary
+                                            ).replace(
+                                                new RegExp(oldTheme.secondary, 'g'),
+                                                theme.secondary
+                                            );
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            // Skip cross-origin stylesheets
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Using default theme');
+            }
+        }
+
+        // Load theme on page load
+        window.addEventListener('load', loadAndApplyTheme);
     </script>
 </body>
 

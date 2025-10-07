@@ -49,7 +49,7 @@
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-gradient: linear-gradient(135deg, #475569 0%, #1e293b 100%);
             --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --text-primary: #1e293b;
@@ -228,7 +228,7 @@
         /* Hero Section */
         .hero {
             padding: 8rem 0 6rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
             color: white;
             position: relative;
             overflow: hidden;
@@ -973,6 +973,40 @@
         document.querySelectorAll('.feature-card, .use-case-card, .testimonial-card').forEach(el => {
             observer.observe(el);
         });
+
+        // ==================================================================
+        // THEME SYSTEM - Load and Apply Theme
+        // ==================================================================
+
+        const THEMES = {
+            'slate-gray': { primary: '#475569', secondary: '#1e293b' },
+            'charcoal-black': { primary: '#374151', secondary: '#111827' },
+            'cool-gray': { primary: '#64748b', secondary: '#334155' },
+            'graphite': { primary: '#4b5563', secondary: '#1f2937' },
+            'silver-charcoal': { primary: '#71717a', secondary: '#27272a' },
+            'warm-gray': { primary: '#78716c', secondary: '#292524' },
+            'sky-blue': { primary: '#0ea5e9', secondary: '#2563eb' },
+            'purple-gradient': { primary: '#667eea', secondary: '#764ba2' }
+        };
+
+        async function loadAndApplyTheme() {
+            try {
+                const response = await fetch('/api/admin/get-theme');
+                const data = await response.json();
+                const themeId = data.theme || 'slate-gray';
+                const theme = THEMES[themeId];
+                
+                if (theme) {
+                    document.documentElement.style.setProperty('--primary-gradient', 
+                        `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`);
+                }
+            } catch (error) {
+                console.log('Using default theme');
+            }
+        }
+
+        // Load theme on page load
+        window.addEventListener('load', loadAndApplyTheme);
     </script>
 </body>
 </html>
