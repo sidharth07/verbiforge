@@ -3538,8 +3538,16 @@
                         ${submittedDate ? `<div style="font-size: 0.8em; color: #666;">Submitted: ${submittedDate}</div>` : ''}
                     </td>
                     <td>
-                        <a href="/admin/projects/${project.id}/download" class="action-btn download" 
-                           target="_blank">Download</a>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <a href="/admin/projects/${project.id}/download" class="action-btn download" 
+                               target="_blank">Download</a>
+                            ${isSuperAdmin ? `
+                                <button class="action-btn delete" onclick="deleteProject('${project.id}')" 
+                                        style="background: #dc3545; padding: 6px 12px; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
+                                    Delete
+                                </button>
+                            ` : ''}
+                        </div>
                     </td>
                 `;
 
@@ -3557,6 +3565,84 @@
                 'completed': 'Completed'
             };
             return texts[status] || status;
+        }
+
+        async function deleteProject(projectId) {
+            if (!isSuperAdmin) {
+                alert('Only super admins can delete projects');
+                return;
+            }
+
+            // Show confirmation modal
+            const modal = document.createElement('div');
+            modal.className = 'test-email-modal';
+            modal.innerHTML = `
+                <div class="test-email-content">
+                    <div class="test-email-header">
+                        <div class="test-email-icon" style="background: #dc3545;">🗑️</div>
+                        <div class="test-email-title">Delete Project</div>
+                        <div class="test-email-subtitle">Are you sure you want to delete this project? This action cannot be undone.</div>
+                    </div>
+                    
+                    <div class="test-email-buttons">
+                        <button type="button" class="test-email-btn secondary" onclick="this.closest('.test-email-modal').remove()">
+                            Cancel
+                        </button>
+                        <button type="button" class="test-email-btn primary" style="background: #dc3545;" onclick="confirmDeleteProject('${projectId}')">
+                            Delete Project
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        async function confirmDeleteProject(projectId) {
+            // Close the confirmation modal
+            const modal = document.querySelector('.test-email-modal');
+            if (modal) modal.remove();
+
+            try {
+                const response = await Auth.authFetch(`/admin/projects/${projectId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    // Show success message
+                    const successModal = document.createElement('div');
+                    successModal.className = 'test-email-modal';
+                    successModal.innerHTML = `
+                        <div class="test-email-content">
+                            <div class="test-email-header">
+                                <div class="test-email-icon" style="background: #28a745;">✅</div>
+                                <div class="test-email-title">Project Deleted Successfully</div>
+                                <div class="test-email-subtitle">The project has been permanently deleted from the system.</div>
+                            </div>
+                            
+                            <div class="test-email-buttons">
+                                <button type="button" class="test-email-btn primary" onclick="this.closest('.test-email-modal').remove()">
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(successModal);
+                    
+                    // Auto-close after 2 seconds and reload projects
+                    setTimeout(() => {
+                        successModal.remove();
+                        loadProjects();
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    alert('Failed to delete project: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('❌ Error deleting project:', error);
+                alert('Network error deleting project: ' + error.message);
+            }
         }
 
         function updateStats() {
