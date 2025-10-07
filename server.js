@@ -4253,24 +4253,35 @@ app.use('*', (req, res) => {
 // Save theme preference (admin only)
 app.post('/api/admin/save-theme', requireAuth, async (req, res) => {
     try {
+        console.log('🎨 Save theme request received');
+        console.log('👤 User:', req.user);
+        console.log('📦 Body:', req.body);
+        
         const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        console.log('🔐 Is admin?', isAdmin);
+        
         if (!isAdmin) {
+            console.log('❌ Access denied - not admin');
             return res.status(403).json({ error: 'Admin access required' });
         }
 
         const { theme } = req.body;
+        console.log('🎨 Theme to save:', theme);
 
         if (!theme) {
+            console.log('❌ No theme provided');
             return res.status(400).json({ error: 'Theme is required' });
         }
 
         // Valid theme IDs
         const validThemes = ['slate-gray', 'charcoal-black', 'cool-gray', 'graphite', 'silver-charcoal', 'warm-gray', 'sky-blue', 'purple-gradient'];
         if (!validThemes.includes(theme)) {
+            console.log('❌ Invalid theme:', theme);
             return res.status(400).json({ error: 'Invalid theme' });
         }
 
         // Ensure settings table exists
+        console.log('📋 Creating settings table if not exists...');
         await dbHelpers.run(`
             CREATE TABLE IF NOT EXISTS settings (
                 id SERIAL PRIMARY KEY,
@@ -4280,32 +4291,40 @@ app.post('/api/admin/save-theme', requireAuth, async (req, res) => {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        console.log('✅ Settings table ready');
 
         // Check if settings table has a theme entry
+        console.log('🔍 Checking for existing theme...');
         const existingTheme = await dbHelpers.query(`
             SELECT * FROM settings WHERE key = 'site_theme'
         `);
+        console.log('📊 Existing theme count:', existingTheme.length);
 
         if (existingTheme.length > 0) {
             // Update existing theme
+            console.log('🔄 Updating existing theme...');
             await dbHelpers.run(`
                 UPDATE settings 
                 SET value = $1, updated_at = CURRENT_TIMESTAMP
                 WHERE key = 'site_theme'
             `, [theme]);
+            console.log('✅ Theme updated');
         } else {
             // Insert new theme setting
+            console.log('➕ Inserting new theme...');
             await dbHelpers.run(`
                 INSERT INTO settings (key, value) 
                 VALUES ('site_theme', $1)
             `, [theme]);
+            console.log('✅ Theme inserted');
         }
 
-        console.log(`🎨 Theme changed to: ${theme}`);
+        console.log(`✅ Theme successfully changed to: ${theme}`);
         res.json({ success: true, theme });
     } catch (error) {
-        console.error('Error saving theme:', error);
-        res.status(500).json({ error: 'Failed to save theme' });
+        console.error('❌ Error saving theme:', error);
+        console.error('❌ Error stack:', error.stack);
+        res.status(500).json({ error: error.message || 'Failed to save theme' });
     }
 });
 

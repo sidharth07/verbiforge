@@ -7423,6 +7423,9 @@
         // Save theme preference to backend
         async function saveTheme(themeId) {
             try {
+                console.log('💾 Saving theme:', themeId);
+                console.log('🔑 Token:', localStorage.getItem('token') ? 'Present' : 'Missing');
+                
                 const response = await fetch('/api/admin/save-theme', {
                     method: 'POST',
                     headers: {
@@ -7432,8 +7435,14 @@
                     body: JSON.stringify({ theme: themeId })
                 });
 
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response ok:', response.ok);
+                
                 const data = await response.json();
+                console.log('📡 Response data:', data);
+                
                 if (!response.ok) {
+                    console.error('❌ Server error:', data.error);
                     throw new Error(data.error || 'Failed to save theme');
                 }
 
@@ -7441,6 +7450,7 @@
                 return true;
             } catch (error) {
                 console.error('❌ Error saving theme:', error);
+                console.error('❌ Error message:', error.message);
                 return false;
             }
         }
