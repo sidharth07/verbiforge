@@ -2265,6 +2265,17 @@
                     Database Tools
                 </button>
             </div>
+
+            <!-- Theme Management Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">Appearance</div>
+                <button class="sidebar-btn" data-admin-tab="theme-manager" id="themeManagerTabBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                    </svg>
+                    Theme Manager
+                </button>
+            </div>
         </nav>
             
             <!-- Account Section -->
@@ -2991,6 +3002,148 @@
                         <div style="background: #fff; padding: 10px; border-radius: 4px; margin-top: 10px; border: 1px solid #bee5eb;">
                             <strong style="color: #0c5460;">Note:</strong> This migration is safe and will not delete any existing data.
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Manager Tab -->
+        <div id="themeManagerTab" class="tab-content">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>Theme Manager</h2>
+                    <p>Choose your website color theme - changes apply across all pages instantly</p>
+                </div>
+                
+                <div style="padding: 20px;">
+                    <!-- Current Theme Display -->
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 2px solid #dee2e6;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <div>
+                                <h3 style="margin: 0 0 8px 0; color: #1a1a1a; font-size: 18px; font-weight: 600;">Current Theme</h3>
+                                <p style="margin: 0; color: #6c757d; font-size: 14px;">Currently active color scheme</p>
+                            </div>
+                            <div id="currentThemeBadge" style="padding: 12px 24px; background: linear-gradient(135deg, #475569 0%, #1e293b 100%); color: white; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3);">
+                                Slate Gray
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <div style="width: 120px; height: 48px; background: linear-gradient(135deg, #475569 0%, #1e293b 100%); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" id="currentThemePreview"></div>
+                            <span style="color: #6c757d; font-size: 13px;">Preview of current theme gradient</span>
+                        </div>
+                    </div>
+
+                    <!-- Theme Options Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        
+                        <!-- Theme 1: Slate Gray (Current) -->
+                        <div class="theme-card" data-theme="slate-gray">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#475569';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Slate Gray</h4>
+                                    <div class="current-badge" style="display: inline-block; padding: 4px 12px; background: #10b981; color: white; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Active</div>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #475569 0%, #1e293b 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(71, 85, 105, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Modern, professional, subtle sophistication. Similar to Linear, Vercel, GitHub.</p>
+                                <button class="apply-theme-btn" data-theme-id="slate-gray" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #475569 0%, #1e293b 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme 2: Charcoal Black -->
+                        <div class="theme-card" data-theme="charcoal-black">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#374151';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Charcoal Black</h4>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #374151 0%, #111827 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(55, 65, 81, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Bold, dramatic, high contrast. Similar to Apple's dark interfaces.</p>
+                                <button class="apply-theme-btn" data-theme-id="charcoal-black" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #374151 0%, #111827 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme 3: Cool Gray -->
+                        <div class="theme-card" data-theme="cool-gray">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#64748b';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Cool Gray</h4>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #64748b 0%, #334155 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(100, 116, 139, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Softer, more approachable gray. Similar to Notion, Slack.</p>
+                                <button class="apply-theme-btn" data-theme-id="cool-gray" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #64748b 0%, #334155 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme 4: Graphite -->
+                        <div class="theme-card" data-theme="graphite">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#4b5563';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Graphite</h4>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(75, 85, 99, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Balanced, neutral, professional. Similar to Tailwind UI, Stripe.</p>
+                                <button class="apply-theme-btn" data-theme-id="graphite" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme 5: Silver Charcoal -->
+                        <div class="theme-card" data-theme="silver-charcoal">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#71717a';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Silver Charcoal</h4>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #71717a 0%, #27272a 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(113, 113, 122, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Sophisticated, metallic feel. Similar to Tesla, premium tech.</p>
+                                <button class="apply-theme-btn" data-theme-id="silver-charcoal" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #71717a 0%, #27272a 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme 6: Warm Gray -->
+                        <div class="theme-card" data-theme="warm-gray">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#78716c';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Warm Gray</h4>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #78716c 0%, #292524 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(120, 113, 108, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Warmer, less cold than pure grays. Similar to Medium, Substack.</p>
+                                <button class="apply-theme-btn" data-theme-id="warm-gray" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #78716c 0%, #292524 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme 7: Sky Blue -->
+                        <div class="theme-card" data-theme="sky-blue">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#0ea5e9';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Sky Blue</h4>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Clean, trust-inspiring blue. Similar to Dropbox, LinkedIn.</p>
+                                <button class="apply-theme-btn" data-theme-id="sky-blue" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme 8: Purple Gradient -->
+                        <div class="theme-card" data-theme="purple-gradient">
+                            <div style="background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'; this.style.borderColor='#667eea';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e9ecef';">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                    <h4 style="margin: 0; color: #1a1a1a; font-size: 17px; font-weight: 600;">Purple Gradient</h4>
+                                </div>
+                                <div style="height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);"></div>
+                                <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 13px; line-height: 1.5;">Creative, vibrant, energetic. Similar to Twitch, Discord.</p>
+                                <button class="apply-theme-btn" data-theme-id="purple-gradient" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">Apply Theme</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Info Section -->
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-top: 32px; border: 1px solid #90caf9;">
+                        <h3 style="margin: 0 0 12px 0; color: #1565c0; font-size: 16px; font-weight: 600;">ℹ️ How It Works</h3>
+                        <ul style="margin: 0; padding-left: 20px; color: #1565c0; font-size: 14px; line-height: 1.8;">
+                            <li>Click "Apply Theme" on any theme card to change the entire website's color scheme</li>
+                            <li>Changes apply instantly across all pages (Dashboard, Admin Panel, etc.)</li>
+                            <li>Your theme preference is saved automatically and persists across sessions</li>
+                            <li>All users will see the theme you select (site-wide setting)</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -7004,6 +7157,283 @@
                 closeUserDetailsModal();
             }
         }
+
+        // ==================================================================
+        // THEME MANAGEMENT SYSTEM
+        // ==================================================================
+
+        // Theme Configuration
+        const THEMES = {
+            'slate-gray': {
+                name: 'Slate Gray',
+                primary: '#475569',
+                secondary: '#1e293b',
+                hover1: '#334155',
+                hover2: '#0f172a',
+                rgba: '71, 85, 105',
+                lightBg1: '#f1f5f9',
+                lightBg2: '#e2e8f0'
+            },
+            'charcoal-black': {
+                name: 'Charcoal Black',
+                primary: '#374151',
+                secondary: '#111827',
+                hover1: '#1f2937',
+                hover2: '#030712',
+                rgba: '55, 65, 81',
+                lightBg1: '#f9fafb',
+                lightBg2: '#f3f4f6'
+            },
+            'cool-gray': {
+                name: 'Cool Gray',
+                primary: '#64748b',
+                secondary: '#334155',
+                hover1: '#475569',
+                hover2: '#1e293b',
+                rgba: '100, 116, 139',
+                lightBg1: '#f8fafc',
+                lightBg2: '#f1f5f9'
+            },
+            'graphite': {
+                name: 'Graphite',
+                primary: '#4b5563',
+                secondary: '#1f2937',
+                hover1: '#374151',
+                hover2: '#111827',
+                rgba: '75, 85, 99',
+                lightBg1: '#f9fafb',
+                lightBg2: '#e5e7eb'
+            },
+            'silver-charcoal': {
+                name: 'Silver Charcoal',
+                primary: '#71717a',
+                secondary: '#27272a',
+                hover1: '#52525b',
+                hover2: '#18181b',
+                rgba: '113, 113, 122',
+                lightBg1: '#fafafa',
+                lightBg2: '#f4f4f5'
+            },
+            'warm-gray': {
+                name: 'Warm Gray',
+                primary: '#78716c',
+                secondary: '#292524',
+                hover1: '#57534e',
+                hover2: '#1c1917',
+                rgba: '120, 113, 108',
+                lightBg1: '#fafaf9',
+                lightBg2: '#f5f5f4'
+            },
+            'sky-blue': {
+                name: 'Sky Blue',
+                primary: '#0ea5e9',
+                secondary: '#2563eb',
+                hover1: '#0284c7',
+                hover2: '#1d4ed8',
+                rgba: '14, 165, 233',
+                lightBg1: '#f0f9ff',
+                lightBg2: '#e0f2fe'
+            },
+            'purple-gradient': {
+                name: 'Purple Gradient',
+                primary: '#667eea',
+                secondary: '#764ba2',
+                hover1: '#5a67d8',
+                hover2: '#6b46c1',
+                rgba: '102, 126, 234',
+                lightBg1: '#f5f3ff',
+                lightBg2: '#ede9fe'
+            }
+        };
+
+        // Apply theme to current page
+        function applyThemeToPage(themeId) {
+            const theme = THEMES[themeId];
+            if (!theme) return;
+
+            console.log(`🎨 Applying theme: ${theme.name}`);
+
+            // Get all elements with gradients
+            const elementsToUpdate = document.querySelectorAll('*');
+            
+            elementsToUpdate.forEach(el => {
+                const style = el.getAttribute('style');
+                if (!style) return;
+
+                // Replace gradient colors
+                if (style.includes('linear-gradient')) {
+                    let newStyle = style;
+                    
+                    // Replace all theme color combinations
+                    Object.values(THEMES).forEach(oldTheme => {
+                        // Primary to secondary gradient
+                        newStyle = newStyle.replace(
+                            new RegExp(`linear-gradient\\(135deg,\\s*${oldTheme.primary}\\s*0%,\\s*${oldTheme.secondary}\\s*100%\\)`, 'gi'),
+                            `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`
+                        );
+                        // Hover gradients
+                        newStyle = newStyle.replace(
+                            new RegExp(`linear-gradient\\(135deg,\\s*${oldTheme.hover1}\\s*0%,\\s*${oldTheme.hover2}\\s*100%\\)`, 'gi'),
+                            `linear-gradient(135deg, ${theme.hover1} 0%, ${theme.hover2} 100%)`
+                        );
+                    });
+                    
+                    el.setAttribute('style', newStyle);
+                }
+
+                // Replace rgba colors in box-shadows
+                if (style.includes('rgba')) {
+                    let newStyle = style;
+                    Object.values(THEMES).forEach(oldTheme => {
+                        newStyle = newStyle.replace(
+                            new RegExp(`rgba\\(${oldTheme.rgba}`, 'gi'),
+                            `rgba(${theme.rgba}`
+                        );
+                    });
+                    el.setAttribute('style', newStyle);
+                }
+
+                // Replace solid hex colors
+                Object.values(THEMES).forEach(oldTheme => {
+                    if (style.includes(oldTheme.primary)) {
+                        let newStyle = style.replace(
+                            new RegExp(oldTheme.primary, 'gi'),
+                            theme.primary
+                        );
+                        el.setAttribute('style', newStyle);
+                    }
+                    if (style.includes(oldTheme.secondary)) {
+                        let newStyle = style.replace(
+                            new RegExp(oldTheme.secondary, 'gi'),
+                            theme.secondary
+                        );
+                        el.setAttribute('style', newStyle);
+                    }
+                });
+            });
+
+            // Update current theme display
+            const currentThemeBadge = document.getElementById('currentThemeBadge');
+            const currentThemePreview = document.getElementById('currentThemePreview');
+            
+            if (currentThemeBadge) {
+                currentThemeBadge.textContent = theme.name;
+                currentThemeBadge.style.background = `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`;
+                currentThemeBadge.style.boxShadow = `0 4px 12px rgba(${theme.rgba}, 0.3)`;
+            }
+            
+            if (currentThemePreview) {
+                currentThemePreview.style.background = `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`;
+            }
+
+            // Update active badges on theme cards
+            document.querySelectorAll('.theme-card .current-badge').forEach(badge => {
+                badge.style.display = 'none';
+            });
+            const activeCard = document.querySelector(`.theme-card[data-theme="${themeId}"] .current-badge`);
+            if (activeCard) {
+                activeCard.style.display = 'inline-block';
+            }
+        }
+
+        // Save theme preference to backend
+        async function saveTheme(themeId) {
+            try {
+                const response = await fetch('/api/admin/save-theme', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ theme: themeId })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to save theme');
+                }
+
+                console.log('✅ Theme saved successfully');
+                return true;
+            } catch (error) {
+                console.error('❌ Error saving theme:', error);
+                return false;
+            }
+        }
+
+        // Load current theme from backend
+        async function loadCurrentTheme() {
+            try {
+                const response = await fetch('/api/admin/get-theme', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok && data.theme) {
+                    return data.theme;
+                }
+                return 'slate-gray'; // Default theme
+            } catch (error) {
+                console.error('❌ Error loading theme:', error);
+                return 'slate-gray'; // Default theme
+            }
+        }
+
+        // Initialize theme management
+        async function initializeThemeManager() {
+            // Load and apply current theme
+            const currentTheme = await loadCurrentTheme();
+            applyThemeToPage(currentTheme);
+
+            // Add click handlers to all theme buttons
+            document.querySelectorAll('.apply-theme-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const themeId = e.target.getAttribute('data-theme-id');
+                    const theme = THEMES[themeId];
+                    
+                    if (!theme) return;
+
+                    // Show loading state
+                    const originalText = e.target.textContent;
+                    e.target.textContent = 'Applying...';
+                    e.target.disabled = true;
+
+                    // Apply theme to current page
+                    applyThemeToPage(themeId);
+
+                    // Save to backend
+                    const saved = await saveTheme(themeId);
+
+                    // Reset button
+                    e.target.textContent = saved ? '✓ Applied!' : '✗ Error';
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                        e.target.disabled = false;
+                    }, 2000);
+
+                    if (saved) {
+                        // Show success message
+                        showSuccess(`Theme changed to ${theme.name}! Refresh other pages to see changes.`);
+                    } else {
+                        showError('Failed to save theme. Please try again.');
+                    }
+                });
+            });
+        }
+
+        // Call initialization when theme manager tab is opened
+        document.getElementById('themeManagerTabBtn')?.addEventListener('click', () => {
+            setTimeout(initializeThemeManager, 100);
+        });
+
+        // Load theme on page load
+        window.addEventListener('load', async () => {
+            const currentTheme = await loadCurrentTheme();
+            applyThemeToPage(currentTheme);
+        });
+
         </script>
 </body>
 </html>

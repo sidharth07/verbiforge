@@ -4239,9 +4239,82 @@ app.use('*', (req, res) => {
             'PUT /admin/contacts/:id/read',
             'PUT /admin/contacts/:id/status',
             'DELETE /admin/contacts/:id',
+            'POST /api/admin/save-theme',
+            'GET /api/admin/get-theme',
             'GET /health'
         ]
     });
+});
+
+// ==================================================================
+// THEME MANAGEMENT ROUTES
+// ==================================================================
+
+// Save theme preference (admin only)
+app.post('/api/admin/save-theme', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { theme } = req.body;
+
+        if (!theme) {
+            return res.status(400).json({ error: 'Theme is required' });
+        }
+
+        // Valid theme IDs
+        const validThemes = ['slate-gray', 'charcoal-black', 'cool-gray', 'graphite', 'silver-charcoal', 'warm-gray', 'sky-blue', 'purple-gradient'];
+        if (!validThemes.includes(theme)) {
+            return res.status(400).json({ error: 'Invalid theme' });
+        }
+
+        // Check if settings table has a theme entry
+        const existingTheme = await dbHelpers.query(`
+            SELECT * FROM settings WHERE key = 'site_theme'
+        `);
+
+        if (existingTheme.length > 0) {
+            // Update existing theme
+            await dbHelpers.run(`
+                UPDATE settings 
+                SET value = $1, updated_at = CURRENT_TIMESTAMP
+                WHERE key = 'site_theme'
+            `, [theme]);
+        } else {
+            // Insert new theme setting
+            await dbHelpers.run(`
+                INSERT INTO settings (key, value) 
+                VALUES ('site_theme', $1)
+            `, [theme]);
+        }
+
+        console.log(`🎨 Theme changed to: ${theme}`);
+        res.json({ success: true, theme });
+    } catch (error) {
+        console.error('Error saving theme:', error);
+        res.status(500).json({ error: 'Failed to save theme' });
+    }
+});
+
+// Get current theme (any authenticated user)
+app.get('/api/admin/get-theme', requireAuth, async (req, res) => {
+    try {
+        const theme = await dbHelpers.query(`
+            SELECT value FROM settings WHERE key = 'site_theme'
+        `);
+
+        if (theme.length > 0) {
+            res.json({ theme: theme[0].value });
+        } else {
+            // Default theme
+            res.json({ theme: 'slate-gray' });
+        }
+    } catch (error) {
+        console.error('Error getting theme:', error);
+        res.status(500).json({ error: 'Failed to get theme', theme: 'slate-gray' });
+    }
 });
 
 // Start server

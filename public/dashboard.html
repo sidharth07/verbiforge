@@ -4830,6 +4830,180 @@
                 dropdownArrow.style.transform = 'rotate(0deg)';
             }
         }
+
+        // ==================================================================
+        // THEME SYSTEM - Load and Apply Theme
+        // ==================================================================
+
+        const THEMES = {
+            'slate-gray': {
+                name: 'Slate Gray',
+                primary: '#475569',
+                secondary: '#1e293b',
+                hover1: '#334155',
+                hover2: '#0f172a',
+                rgba: '71, 85, 105',
+                lightBg1: '#f1f5f9',
+                lightBg2: '#e2e8f0'
+            },
+            'charcoal-black': {
+                name: 'Charcoal Black',
+                primary: '#374151',
+                secondary: '#111827',
+                hover1: '#1f2937',
+                hover2: '#030712',
+                rgba: '55, 65, 81',
+                lightBg1: '#f9fafb',
+                lightBg2: '#f3f4f6'
+            },
+            'cool-gray': {
+                name: 'Cool Gray',
+                primary: '#64748b',
+                secondary: '#334155',
+                hover1: '#475569',
+                hover2: '#1e293b',
+                rgba: '100, 116, 139',
+                lightBg1: '#f8fafc',
+                lightBg2: '#f1f5f9'
+            },
+            'graphite': {
+                name: 'Graphite',
+                primary: '#4b5563',
+                secondary: '#1f2937',
+                hover1: '#374151',
+                hover2: '#111827',
+                rgba: '75, 85, 99',
+                lightBg1: '#f9fafb',
+                lightBg2: '#e5e7eb'
+            },
+            'silver-charcoal': {
+                name: 'Silver Charcoal',
+                primary: '#71717a',
+                secondary: '#27272a',
+                hover1: '#52525b',
+                hover2: '#18181b',
+                rgba: '113, 113, 122',
+                lightBg1: '#fafafa',
+                lightBg2: '#f4f4f5'
+            },
+            'warm-gray': {
+                name: 'Warm Gray',
+                primary: '#78716c',
+                secondary: '#292524',
+                hover1: '#57534e',
+                hover2: '#1c1917',
+                rgba: '120, 113, 108',
+                lightBg1: '#fafaf9',
+                lightBg2: '#f5f5f4'
+            },
+            'sky-blue': {
+                name: 'Sky Blue',
+                primary: '#0ea5e9',
+                secondary: '#2563eb',
+                hover1: '#0284c7',
+                hover2: '#1d4ed8',
+                rgba: '14, 165, 233',
+                lightBg1: '#f0f9ff',
+                lightBg2: '#e0f2fe'
+            },
+            'purple-gradient': {
+                name: 'Purple Gradient',
+                primary: '#667eea',
+                secondary: '#764ba2',
+                hover1: '#5a67d8',
+                hover2: '#6b46c1',
+                rgba: '102, 126, 234',
+                lightBg1: '#f5f3ff',
+                lightBg2: '#ede9fe'
+            }
+        };
+
+        // Apply theme to current page
+        function applyThemeToPage(themeId) {
+            const theme = THEMES[themeId];
+            if (!theme) return;
+
+            console.log(`🎨 Applying theme: ${theme.name}`);
+
+            const elementsToUpdate = document.querySelectorAll('*');
+            
+            elementsToUpdate.forEach(el => {
+                const style = el.getAttribute('style');
+                if (!style) return;
+
+                if (style.includes('linear-gradient')) {
+                    let newStyle = style;
+                    
+                    Object.values(THEMES).forEach(oldTheme => {
+                        newStyle = newStyle.replace(
+                            new RegExp(`linear-gradient\\(135deg,\\s*${oldTheme.primary}\\s*0%,\\s*${oldTheme.secondary}\\s*100%\\)`, 'gi'),
+                            `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`
+                        );
+                        newStyle = newStyle.replace(
+                            new RegExp(`linear-gradient\\(135deg,\\s*${oldTheme.hover1}\\s*0%,\\s*${oldTheme.hover2}\\s*100%\\)`, 'gi'),
+                            `linear-gradient(135deg, ${theme.hover1} 0%, ${theme.hover2} 100%)`
+                        );
+                    });
+                    
+                    el.setAttribute('style', newStyle);
+                }
+
+                if (style.includes('rgba')) {
+                    let newStyle = style;
+                    Object.values(THEMES).forEach(oldTheme => {
+                        newStyle = newStyle.replace(
+                            new RegExp(`rgba\\(${oldTheme.rgba}`, 'gi'),
+                            `rgba(${theme.rgba}`
+                        );
+                    });
+                    el.setAttribute('style', newStyle);
+                }
+
+                Object.values(THEMES).forEach(oldTheme => {
+                    if (style.includes(oldTheme.primary)) {
+                        let newStyle = style.replace(
+                            new RegExp(oldTheme.primary, 'gi'),
+                            theme.primary
+                        );
+                        el.setAttribute('style', newStyle);
+                    }
+                    if (style.includes(oldTheme.secondary)) {
+                        let newStyle = style.replace(
+                            new RegExp(oldTheme.secondary, 'gi'),
+                            theme.secondary
+                        );
+                        el.setAttribute('style', newStyle);
+                    }
+                });
+            });
+        }
+
+        // Load current theme from backend
+        async function loadCurrentTheme() {
+            try {
+                const response = await fetch('/api/admin/get-theme', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok && data.theme) {
+                    return data.theme;
+                }
+                return 'slate-gray';
+            } catch (error) {
+                console.error('❌ Error loading theme:', error);
+                return 'slate-gray';
+            }
+        }
+
+        // Load theme on page load
+        window.addEventListener('load', async () => {
+            const currentTheme = await loadCurrentTheme();
+            applyThemeToPage(currentTheme);
+        });
+
     </script>
 
     <style>
