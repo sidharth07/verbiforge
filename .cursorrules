@@ -268,6 +268,17 @@ curl www.verbiforge.com/robots.txt
 - **Email**: sid@verbiforge.com
 - **GitHub**: https://github.com/sidharth07/verbiforge
 
+## Recent Updates & Changes
+- **Current Version**: Rolled back to commit 3e3b511 "Fix In-progress tab loading issue"
+- **Last Update**: October 7, 2025
+- **Rollback Reason**: Removed PDF generation system and template customization features
+- **Both Environments Synced**: Production and staging are at the same stable point
+- **Removed Features**: 
+  - PDF generation system (PDFKit)
+  - PDF template customization
+  - Privacy Policy and Terms of Service pages
+  - Database sync system
+
 ## Project Context for AI
 When working on this project:
 - Always maintain existing functionality
@@ -281,3 +292,5 @@ When working on this project:
 - **CRITICAL**: Update .cursorrules file after any significant changes
 - **CRITICAL**: Include admin credentials and deployment information
 - **CRITICAL**: Document any new environment variables or configuration changes
+- **ROLLBACK PROTOCOL**: If issues arise, use `git reset --hard <commit>` and `git push origin <branch> --force`
+- **CURRENT STABLE COMMIT**: 3e3b511 (Fix In-progress tab loading issue)
