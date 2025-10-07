@@ -3603,6 +3603,10 @@
             const modal = document.querySelector('.test-email-modal');
             if (modal) modal.remove();
 
+            // Remember the current active tab
+            const activeTab = document.querySelector('.tab-btn[style*="color: rgb(0, 123, 255)"]');
+            const currentTab = activeTab ? activeTab.getAttribute('data-tab') : 'submitted';
+
             try {
                 const response = await Auth.authFetch(`/admin/projects/${projectId}`, {
                     method: 'DELETE'
@@ -3630,10 +3634,12 @@
                     
                     document.body.appendChild(successModal);
                     
-                    // Auto-close after 2 seconds and reload projects
-                    setTimeout(() => {
+                    // Auto-close after 2 seconds and reload projects, then switch back to the same tab
+                    setTimeout(async () => {
                         successModal.remove();
-                        loadProjects();
+                        await loadProjects();
+                        // Switch back to the tab that was active before deletion
+                        switchTab(currentTab);
                     }, 2000);
                 } else {
                     const error = await response.json();
