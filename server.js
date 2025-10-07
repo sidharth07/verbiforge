@@ -4168,86 +4168,8 @@ app.post('/admin/email-templates/:id/test', requireAuth, async (req, res) => {
     }
 });
 
-// Catch-all route for undefined endpoints
-app.use('*', (req, res) => {
-    console.error('❌ 404 - Route not found:', req.originalUrl);
-    console.error('❌ Available routes:');
-    console.error('   - POST /login');
-    console.error('   - POST /signup');
-    console.error('   - GET /me');
-    console.error('   - POST /logout');
-    console.error('   - GET /languages');
-    console.error('   - GET /multiplier');
-    console.error('   - POST /analyze');
-    console.error('   - POST /projects');
-    console.error('   - GET /projects');
-    console.error('   - DELETE /projects/:id');
-    console.error('   - PUT /projects/:id/submit');
-    console.error('   - GET /admin/check');
-    console.error('   - POST /contact');
-    console.error('   - GET /admin/projects');
-    console.error('   - GET /admin/projects/:id');
-    console.error('   - PUT /admin/projects/:id/status');
-    console.error('   - PUT /admin/projects/:id/eta');
-    console.error('   - GET /admin/projects/:id/download');
-    console.error('   - POST /admin/projects/:id/upload-translated');
-    console.error('   - GET /projects/:id/download-translated');
-    console.error('   - POST /projects/:id/upload-translated');
-    console.error('   - GET /admin/users');
-    console.error('   - DELETE /admin/users/:id');
-    console.error('   - GET /admin/admins');
-    console.error('   - POST /admin/admins');
-    console.error('   - DELETE /admin/admins/:email');
-    console.error('   - GET /admin/contacts');
-    console.error('   - PUT /admin/contacts/:id/read');
-    console.error('   - PUT /admin/contacts/:id/status');
-    console.error('   - DELETE /admin/contacts/:id');
-    console.error('   - GET /health');
-    
-    res.status(404).json({ 
-        error: 'Route not found',
-        url: req.originalUrl,
-        method: req.method,
-        availableRoutes: [
-            'POST /login',
-            'POST /signup', 
-            'GET /me',
-            'POST /logout',
-            'GET /languages',
-            'GET /multiplier',
-            'POST /analyze',
-            'POST /projects',
-            'GET /projects',
-            'DELETE /projects/:id',
-            'PUT /projects/:id/submit',
-            'GET /admin/check',
-            'POST /contact',
-            'GET /admin/projects',
-            'GET /admin/projects/:id',
-            'PUT /admin/projects/:id/status',
-            'PUT /admin/projects/:id/eta',
-            'GET /admin/projects/:id/download',
-            'POST /admin/projects/:id/upload-translated',
-            'GET /projects/:id/download-translated',
-            'POST /projects/:id/upload-translated',
-            'GET /admin/users',
-            'DELETE /admin/users/:id',
-            'GET /admin/admins',
-            'POST /admin/admins',
-            'DELETE /admin/admins/:email',
-            'GET /admin/contacts',
-            'PUT /admin/contacts/:id/read',
-            'PUT /admin/contacts/:id/status',
-            'DELETE /admin/contacts/:id',
-            'POST /api/admin/save-theme',
-            'GET /api/admin/get-theme',
-            'GET /health'
-        ]
-    });
-});
-
 // ==================================================================
-// THEME MANAGEMENT ROUTES
+// THEME MANAGEMENT ROUTES (must be BEFORE catch-all)
 // ==================================================================
 
 // Save theme preference (admin only)
@@ -4345,6 +4267,84 @@ app.get('/api/admin/get-theme', async (req, res) => {
         console.error('Error getting theme:', error);
         res.status(500).json({ error: 'Failed to get theme', theme: 'slate-gray' });
     }
+});
+
+// Catch-all route for undefined endpoints
+app.use('*', (req, res) => {
+    console.error('❌ 404 - Route not found:', req.originalUrl);
+    console.error('❌ Available routes:');
+    console.error('   - POST /login');
+    console.error('   - POST /signup');
+    console.error('   - GET /me');
+    console.error('   - POST /logout');
+    console.error('   - GET /languages');
+    console.error('   - GET /multiplier');
+    console.error('   - POST /analyze');
+    console.error('   - POST /projects');
+    console.error('   - GET /projects');
+    console.error('   - DELETE /projects/:id');
+    console.error('   - PUT /projects/:id/submit');
+    console.error('   - GET /admin/check');
+    console.error('   - POST /contact');
+    console.error('   - GET /admin/projects');
+    console.error('   - GET /admin/projects/:id');
+    console.error('   - PUT /admin/projects/:id/status');
+    console.error('   - PUT /admin/projects/:id/eta');
+    console.error('   - GET /admin/projects/:id/download');
+    console.error('   - POST /admin/projects/:id/upload-translated');
+    console.error('   - GET /projects/:id/download-translated');
+    console.error('   - POST /projects/:id/upload-translated');
+    console.error('   - GET /admin/users');
+    console.error('   - DELETE /admin/users/:id');
+    console.error('   - GET /admin/admins');
+    console.error('   - POST /admin/admins');
+    console.error('   - DELETE /admin/admins/:email');
+    console.error('   - GET /admin/contacts');
+    console.error('   - PUT /admin/contacts/:id/read');
+    console.error('   - PUT /admin/contacts/:id/status');
+    console.error('   - DELETE /admin/contacts/:id');
+    console.error('   - GET /health');
+    
+    res.status(404).json({ 
+        error: 'Route not found',
+        url: req.originalUrl,
+        method: req.method,
+        availableRoutes: [
+            'POST /login',
+            'POST /signup', 
+            'GET /me',
+            'POST /logout',
+            'GET /languages',
+            'GET /multiplier',
+            'POST /analyze',
+            'POST /projects',
+            'GET /projects',
+            'DELETE /projects/:id',
+            'PUT /projects/:id/submit',
+            'GET /admin/check',
+            'POST /contact',
+            'GET /admin/projects',
+            'GET /admin/projects/:id',
+            'PUT /admin/projects/:id/status',
+            'PUT /admin/projects/:id/eta',
+            'GET /admin/projects/:id/download',
+            'POST /admin/projects/:id/upload-translated',
+            'GET /projects/:id/download-translated',
+            'POST /projects/:id/upload-translated',
+            'GET /admin/users',
+            'DELETE /admin/users/:id',
+            'GET /admin/admins',
+            'POST /admin/admins',
+            'DELETE /admin/admins/:email',
+            'GET /admin/contacts',
+            'PUT /admin/contacts/:id/read',
+            'PUT /admin/contacts/:id/status',
+            'DELETE /admin/contacts/:id',
+            'POST /api/admin/save-theme',
+            'GET /api/admin/get-theme',
+            'GET /health'
+        ]
+    });
 });
 
 // Start server 
