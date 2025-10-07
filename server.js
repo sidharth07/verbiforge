@@ -4317,7 +4317,7 @@ app.get('/api/admin/get-theme', requireAuth, async (req, res) => {
     }
 });
 
-// Start server
+// Start server 
 async function startServer() {
     try {
         console.log('🚀 Starting VerbiForge PostgreSQL server...');
