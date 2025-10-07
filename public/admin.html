@@ -7336,6 +7336,11 @@
             const elementsToUpdate = document.querySelectorAll('*');
             
             elementsToUpdate.forEach(el => {
+                // Skip theme preview cards to preserve their original colors
+                if (el.closest('.theme-card') || el.classList.contains('theme-card')) {
+                    return;
+                }
+                
                 const style = el.getAttribute('style');
                 if (!style) return;
 

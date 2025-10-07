@@ -4270,6 +4270,17 @@ app.post('/api/admin/save-theme', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Invalid theme' });
         }
 
+        // Ensure settings table exists
+        await dbHelpers.run(`
+            CREATE TABLE IF NOT EXISTS settings (
+                id SERIAL PRIMARY KEY,
+                key VARCHAR(255) UNIQUE NOT NULL,
+                value TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Check if settings table has a theme entry
         const existingTheme = await dbHelpers.query(`
             SELECT * FROM settings WHERE key = 'site_theme'
