@@ -3491,12 +3491,14 @@
             
             // Convert kebab-case to camelCase for tab ID
             const tabId = tabName.replace(/-([a-z])/g, (g) => g[1].toUpperCase()) + 'Tab';
-            console.log('📝 Tab ID:', tabId);
+            console.log('📝 Converted tab ID:', tabId);
             
             // Hide all tabs
             const allTabs = document.querySelectorAll('.tab-content');
+            console.log('🔍 Hiding', allTabs.length, 'tabs');
             allTabs.forEach(tab => {
                 tab.classList.remove('active');
+                console.log('  - Hiding:', tab.id);
             });
             
             // Remove active class from all sidebar buttons
@@ -3507,16 +3509,27 @@
             
             // Show selected tab
             const selectedTab = document.getElementById(tabId);
+            console.log('🔍 Looking for tab element with ID:', tabId);
+            console.log('📍 Found element:', selectedTab);
+            
             if (selectedTab) {
                 selectedTab.classList.add('active');
+                console.log('✅ Activated tab:', tabId);
+                console.log('📊 Tab classes:', selectedTab.className);
+                console.log('📊 Tab display:', window.getComputedStyle(selectedTab).display);
             } else {
-                console.error('❌ Tab not found:', tabId);
+                console.error('❌ Tab not found with ID:', tabId);
+                console.log('🔍 Available tab IDs:');
+                document.querySelectorAll('.tab-content').forEach(t => console.log('  -', t.id));
             }
             
             // Add active class to clicked button
             const selectedButton = document.querySelector(`[data-admin-tab="${tabName}"]`);
             if (selectedButton) {
                 selectedButton.classList.add('active');
+                console.log('✅ Activated button for:', tabName);
+            } else {
+                console.error('❌ Button not found for:', tabName);
             }
         }
 
@@ -3526,10 +3539,20 @@
             console.log('🔧 Initializing', tabButtons.length, 'tab buttons');
             
             tabButtons.forEach(button => {
+                const tabName = button.getAttribute('data-admin-tab');
+                console.log('📌 Found button for tab:', tabName);
                 button.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-admin-tab');
-                    switchTab(tabName);
+                    const clickedTabName = this.getAttribute('data-admin-tab');
+                    console.log('🖱️ Button clicked for tab:', clickedTabName);
+                    switchTab(clickedTabName);
                 });
+            });
+            
+            // Verify all tab content elements exist
+            const allTabContents = document.querySelectorAll('.tab-content');
+            console.log('📄 Found', allTabContents.length, 'tab content elements:');
+            allTabContents.forEach(tab => {
+                console.log('  -', tab.id);
             });
         }
 
