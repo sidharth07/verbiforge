@@ -4298,8 +4298,8 @@ app.post('/api/admin/save-theme', requireAuth, async (req, res) => {
     }
 });
 
-// Get current theme (any authenticated user)
-app.get('/api/admin/get-theme', requireAuth, async (req, res) => {
+// Get current theme (public endpoint - no auth required)
+app.get('/api/admin/get-theme', async (req, res) => {
     try {
         const theme = await dbHelpers.query(`
             SELECT value FROM settings WHERE key = 'site_theme'

@@ -4280,6 +4280,8 @@
                 tabBtnId = 'emailTemplatesTabBtn';
             } else if (tab === 'database-tools') {
                 tabBtnId = 'databaseToolsTabBtn';
+            } else if (tab === 'theme-manager') {
+                tabBtnId = 'themeManagerTabBtn';
             }
             
             const tabBtn = document.getElementById(tabBtnId);
@@ -4301,6 +4303,8 @@
                 tabContentId = 'emailTemplatesTab';
             } else if (tab === 'database-tools') {
                 tabContentId = 'databaseToolsTab';
+            } else if (tab === 'theme-manager') {
+                tabContentId = 'themeManagerTab';
             }
             
             const tabContent = document.getElementById(tabContentId);
@@ -4330,6 +4334,9 @@
             } else if (tab === 'database-tools') {
                 // Database tools tab doesn't need to load data on switch
                 // Data is loaded when buttons are clicked
+            } else if (tab === 'theme-manager') {
+                // Initialize theme manager when switching to this tab
+                setTimeout(initializeThemeManager, 100);
             }
         }
 
