@@ -3019,6 +3019,36 @@ app.put('/admin/projects/:id/status', requireAuth, async (req, res) => {
     }
 });
 
+// Delete project (super admin only)
+app.delete('/admin/projects/:id', requireAuth, async (req, res) => {
+    try {
+        const isSuperAdmin = req.user.role === 'super_admin';
+        if (!isSuperAdmin) {
+            return res.status(403).json({ error: 'Super admin access required' });
+        }
+        
+        const { id } = req.params;
+        
+        console.log('🗑️ Deleting project:', { projectId: id, superAdminId: req.user.id });
+        
+        // Check if project exists
+        const project = await dbHelpers.get('SELECT * FROM projects WHERE id = $1', [id]);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        
+        // Delete the project
+        await dbHelpers.run('DELETE FROM projects WHERE id = $1', [id]);
+        
+        console.log('✅ Project deleted successfully:', { projectId: id });
+        res.json({ success: true, message: 'Project deleted successfully' });
+        
+    } catch (error) {
+        console.error('❌ Error deleting project:', error);
+        res.status(500).json({ error: 'Failed to delete project: ' + error.message });
+    }
+});
+
 // Update project ETA (admin)
 app.put('/admin/projects/:id/eta', requireAuth, async (req, res) => {
     try {
@@ -4138,6 +4168,8 @@ app.post('/admin/email-templates/:id/test', requireAuth, async (req, res) => {
     }
 });
 
+// Theme management routes removed
+
 // Catch-all route for undefined endpoints
 app.use('*', (req, res) => {
     console.error('❌ 404 - Route not found:', req.originalUrl);
@@ -4209,12 +4241,14 @@ app.use('*', (req, res) => {
             'PUT /admin/contacts/:id/read',
             'PUT /admin/contacts/:id/status',
             'DELETE /admin/contacts/:id',
+            'POST /api/admin/save-theme',
+            'GET /api/admin/get-theme',
             'GET /health'
         ]
     });
 });
 
-// Start server
+// Start server 
 async function startServer() {
     try {
         console.log('🚀 Starting VerbiForge PostgreSQL server...');

@@ -49,7 +49,7 @@
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-gradient: linear-gradient(135deg, #475569 0%, #1e293b 100%);
             --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --text-primary: #1e293b;
@@ -77,6 +77,75 @@
             color: var(--text-primary);
             background-color: var(--bg-primary);
             overflow-x: hidden;
+        }
+
+        /* Professional Loading Screen */
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader-wrapper.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .loader-dots {
+            display: inline-block;
+        }
+
+        .loader-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
         }
 
         .container {
@@ -228,7 +297,7 @@
         /* Hero Section */
         .hero {
             padding: 8rem 0 6rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
             color: white;
             position: relative;
             overflow: hidden;
@@ -714,6 +783,15 @@
     </style>
 </head>
 <body>
+    <!-- Professional Loading Screen -->
+    <div class="loader-wrapper" id="loader">
+        <div class="loader-content">
+            <div class="loader-logo">VerbiForge</div>
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Loading<span class="loader-dots"></span></div>
+        </div>
+    </div>
+
     <!-- Header / Navigation -->
     <header class="header" id="header">
         <div class="container">
@@ -972,6 +1050,51 @@
         // Observe elements for animation
         document.querySelectorAll('.feature-card, .use-case-card, .testimonial-card').forEach(el => {
             observer.observe(el);
+        });
+
+        // ==================================================================
+        // THEME SYSTEM - Load and Apply Theme
+        // ==================================================================
+
+        const THEMES = {
+            'slate-gray': { primary: '#475569', secondary: '#1e293b' },
+            'charcoal-black': { primary: '#374151', secondary: '#111827' },
+            'cool-gray': { primary: '#64748b', secondary: '#334155' },
+            'graphite': { primary: '#4b5563', secondary: '#1f2937' },
+            'silver-charcoal': { primary: '#71717a', secondary: '#27272a' },
+            'warm-gray': { primary: '#78716c', secondary: '#292524' },
+            'sky-blue': { primary: '#0ea5e9', secondary: '#2563eb' },
+            'purple-gradient': { primary: '#667eea', secondary: '#764ba2' }
+        };
+
+        async function loadAndApplyTheme() {
+            try {
+                const response = await fetch('/api/admin/get-theme');
+                const data = await response.json();
+                const themeId = data.theme || 'slate-gray';
+                const theme = THEMES[themeId];
+                
+                if (theme) {
+                    document.documentElement.style.setProperty('--primary-gradient', 
+                        `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`);
+                }
+            } catch (error) {
+                console.log('Using default theme');
+            }
+        }
+
+        // Load theme on page load
+        window.addEventListener('load', loadAndApplyTheme);
+    </script>
+
+    <!-- Loader Script -->
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            // Hide loader after 4.5 seconds with smooth fade out
+            setTimeout(function() {
+                loader.classList.add('fade-out');
+            }, 4500);
         });
     </script>
 </body>
