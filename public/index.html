@@ -79,6 +79,11 @@
             overflow-x: hidden;
         }
 
+        /* Hide scrollbar during loading */
+        body.loading {
+            overflow: hidden;
+        }
+
         /* Professional Loading Screen */
         .loader-wrapper {
             position: fixed;
@@ -782,7 +787,7 @@
         }
     </style>
 </head>
-<body>
+<body class="loading">
     <!-- Professional Loading Screen -->
     <div class="loader-wrapper" id="loader">
         <div class="loader-content">
@@ -1094,6 +1099,7 @@
             // Hide loader after 4.5 seconds with smooth fade out
             setTimeout(function() {
                 loader.classList.add('fade-out');
+                document.body.classList.remove('loading');
             }, 4500);
         });
     </script>

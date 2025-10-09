@@ -44,6 +44,8 @@ VerbiForge is a comprehensive translation management platform built with Node.js
 - File encryption and security
 - SEO optimization with sitemap and robots.txt
 - Professional footer with LLP registration information
+- **Professional Loading Screen**: 4.5-second branded loader on landing page
+- **Enhanced Create Project UI**: Compact forms with checkbox-based multi-select language picker
 - **License System**: Free/Professional license management with restrictions
 - **User ID System**: Unique 5-digit incremental user IDs starting from 70000
 - **Main User & Sub-Users**: Organization structure with main users and sub-accounts
@@ -269,11 +271,22 @@ curl www.verbiforge.com/robots.txt
 - **GitHub**: https://github.com/sidharth07/verbiforge
 
 ## Recent Updates & Changes
-- **Current Version**: Rolled back to commit 3e3b511 "Fix In-progress tab loading issue"
-- **Last Update**: October 7, 2025
-- **Rollback Reason**: Removed PDF generation system and template customization features
-- **Both Environments Synced**: Production and staging are at the same stable point
+- **Last Update**: October 9, 2025
+- **Recent Changes**:
+  - ✅ Removed theme manager feature from admin panel
+  - ✅ Added professional loading screen to landing page (4.5-second delay)
+  - ✅ Improved Create Project UI on dashboard:
+    - Compact project type buttons (horizontal layout)
+    - Multi-select language dropdown with checkboxes
+    - Language tags match website theme (slate gray gradient)
+    - Removed pricing display from language dropdown
+    - Reduced banner size by 60%
+    - Reduced file upload area by 50%
+  - ✅ Enhanced user experience with visual checkboxes for language selection
+  - ✅ All changes deployed to production (www.verbiforge.com)
+- **Previous Version**: Rolled back to commit 3e3b511 "Fix In-progress tab loading issue" (October 7, 2025)
 - **Removed Features**: 
+  - Theme management system (removed October 9, 2025)
   - PDF generation system (PDFKit)
   - PDF template customization
   - Privacy Policy and Terms of Service pages
@@ -293,4 +306,5 @@ When working on this project:
 - **CRITICAL**: Include admin credentials and deployment information
 - **CRITICAL**: Document any new environment variables or configuration changes
 - **ROLLBACK PROTOCOL**: If issues arise, use `git reset --hard <commit>` and `git push origin <branch> --force`
-- **CURRENT STABLE COMMIT**: 3e3b511 (Fix In-progress tab loading issue)
+- **UI/UX IMPROVEMENTS**: Recent updates focused on compact, professional design with better user experience
+- **Theme System**: Removed due to implementation complexity - keeping hardcoded slate gray theme
