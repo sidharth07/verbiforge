@@ -276,7 +276,7 @@ curl www.verbiforge.com/robots.txt
   - ✅ Fixed About Us page styling to match website theme
     - Updated primary gradient from purple (#667eea, #764ba2) to slate gray (#475569, #1e293b)
     - Updated founder name color to match theme
-    - Reduced banner size to 35% of original size for more compact appearance
+    - Reduced banner size by 40% and removed logo for more compact appearance
   - ✅ Redesigned Contact page with professional full-page layout
     - Replaced card layout with full-page design matching About Us page
     - Added navigation bar with logo and action buttons
