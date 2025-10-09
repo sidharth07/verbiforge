@@ -4202,20 +4202,7 @@ app.post('/api/admin/save-theme', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Invalid theme' });
         }
 
-        // Ensure settings table exists
-        console.log('📋 Creating settings table if not exists...');
-        await dbHelpers.run(`
-            CREATE TABLE IF NOT EXISTS settings (
-                id SERIAL PRIMARY KEY,
-                key VARCHAR(255) UNIQUE NOT NULL,
-                value TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log('✅ Settings table ready');
-
-        // Check if settings table has a theme entry
+        // Check if settings table has a theme entry (table already created at startup)
         console.log('🔍 Checking for existing theme...');
         const existingTheme = await dbHelpers.query(`
             SELECT * FROM settings WHERE key = 'site_theme'
@@ -4232,11 +4219,13 @@ app.post('/api/admin/save-theme', requireAuth, async (req, res) => {
             `, [theme]);
             console.log('✅ Theme updated');
         } else {
-            // Insert new theme setting
+            // Insert new theme setting using UPSERT to handle conflicts
             console.log('➕ Inserting new theme...');
             await dbHelpers.run(`
-                INSERT INTO settings (key, value) 
-                VALUES ('site_theme', $1)
+                INSERT INTO settings (key, value, updated_at) 
+                VALUES ('site_theme', $1, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE 
+                SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
             `, [theme]);
             console.log('✅ Theme inserted');
         }
