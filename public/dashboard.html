@@ -3041,20 +3041,26 @@
             });
 
             Object.entries(filteredLanguages).forEach(([name, price]) => {
+                const isSelected = selectedLanguages.includes(name);
                 const option = document.createElement('div');
-                option.style.cssText = 'padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; border-bottom: 1px solid #f0f0f0;';
-                option.onmouseover = () => option.style.background = selectedLanguages.includes(name) ? '#e3f2fd' : '#f8f9fa';
-                option.onmouseout = () => option.style.background = selectedLanguages.includes(name) ? '#e3f2fd' : 'white';
-                option.onclick = () => toggleLanguage(name);
+                option.style.cssText = 'padding: 10px 15px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: background 0.2s; border-bottom: 1px solid #f0f0f0;';
+                option.onmouseover = () => option.style.background = isSelected ? '#e3f2fd' : '#f8f9fa';
+                option.onmouseout = () => option.style.background = isSelected ? '#e3f2fd' : 'white';
+                option.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleLanguage(name);
+                };
 
-                if (selectedLanguages.includes(name)) {
+                if (isSelected) {
                     option.style.background = '#e3f2fd';
-                    option.style.color = '#1976d2';
                 }
 
                 option.innerHTML = `
-                    <div style="font-weight: 500;">${name}</div>
-                    <div style="font-size: 18px; color: #28a745;">${selectedLanguages.includes(name) ? '✓' : ''}</div>
+                    <div style="position: relative; width: 20px; height: 20px; border: 2px solid ${isSelected ? '#475569' : '#d1d5db'}; border-radius: 4px; background: ${isSelected ? '#475569' : 'white'}; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                        ${isSelected ? '<svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: white;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' : ''}
+                    </div>
+                    <div style="flex: 1; font-weight: ${isSelected ? '600' : '500'}; color: ${isSelected ? '#1976d2' : '#1a1a1a'};">${name}</div>
+                    <div style="font-size: 13px; color: #6c757d; font-weight: 500;">$${price}</div>
                 `;
 
                 languageList.appendChild(option);
