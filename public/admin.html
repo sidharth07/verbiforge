@@ -746,14 +746,14 @@
         .sidebar-btn:hover {
             background: rgba(255, 255, 255, 0.05);
             color: white;
-            border-left-color: #475569;
+            border-left-color: var(--theme-primary, #475569);
         }
 
         .sidebar-btn.active {
-            background: rgba(71, 85, 105, 0.1);
+            background: var(--theme-active-bg, rgba(71, 85, 105, 0.1));
             color: white;
             font-weight: 600;
-            border-left-color: #475569;
+            border-left-color: var(--theme-primary, #475569);
         }
 
         .sidebar-btn svg {
@@ -7331,6 +7331,17 @@
             if (!theme) return;
 
             console.log(`🎨 Applying theme: ${theme.name}`);
+
+            // Set CSS custom properties on the root element
+            const root = document.documentElement;
+            root.style.setProperty('--theme-primary', theme.primary);
+            root.style.setProperty('--theme-secondary', theme.secondary);
+            root.style.setProperty('--theme-hover1', theme.hover1);
+            root.style.setProperty('--theme-hover2', theme.hover2);
+            root.style.setProperty('--theme-rgba', theme.rgba);
+            root.style.setProperty('--theme-active-bg', `rgba(${theme.rgba}, 0.1)`);
+            root.style.setProperty('--theme-gradient', `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`);
+            console.log('✅ CSS variables applied');
 
             // Get all elements with gradients
             const elementsToUpdate = document.querySelectorAll('*');
