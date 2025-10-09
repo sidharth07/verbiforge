@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance - VerbiForge</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .maintenance-container {
+            text-align: center;
+            max-width: 600px;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .icon-container {
+            margin-bottom: 2rem;
+        }
+
+        .maintenance-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .maintenance-icon::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #475569 20%, #1e293b 80%);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.2;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.3;
+            }
+        }
+
+        .maintenance-icon svg {
+            width: 50px;
+            height: 50px;
+            fill: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .message {
+            background: #f8fafc;
+            padding: 20px 30px;
+            border-radius: 12px;
+            border-left: 4px solid #475569;
+            margin-bottom: 2rem;
+        }
+
+        .message p {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #475569;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer-text {
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .maintenance-container {
+                padding: 40px 30px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .maintenance-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .maintenance-icon svg {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="logo">VerbiForge</div>
+        
+        <div class="icon-container">
+            <div class="maintenance-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            </div>
+            <div class="spinner"></div>
+        </div>
+
+        <h1>We'll Be Right Back!</h1>
+        <p class="subtitle">Our website is currently undergoing a quick upgrade to serve you better.</p>
+
+        <div class="message">
+            <p><strong>What's happening?</strong><br>
+            We're deploying new improvements and features. This usually takes just 2-3 minutes.</p>
+        </div>
+
+        <div class="status">
+            <div class="status-dot"></div>
+            <span>System is updating...</span>
+        </div>
+
+        <p class="footer-text">Thank you for your patience! Please refresh this page in a moment.</p>
+    </div>
+
+    <script>
+        // Auto-refresh every 10 seconds to check if site is back
+        setTimeout(function() {
+            location.reload();
+        }, 10000);
+    </script>
+</body>
+</html>
+
