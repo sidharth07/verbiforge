@@ -7424,13 +7424,12 @@
         async function saveTheme(themeId) {
             try {
                 console.log('💾 Saving theme:', themeId);
-                console.log('🔑 Token:', localStorage.getItem('token') ? 'Present' : 'Missing');
+                console.log('🔑 Token:', Auth.getToken() ? 'Present' : 'Missing');
                 
-                const response = await fetch('/api/admin/save-theme', {
+                const response = await Auth.authFetch('/api/admin/save-theme', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ theme: themeId })
                 });
