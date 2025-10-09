@@ -7341,7 +7341,48 @@
             root.style.setProperty('--theme-rgba', theme.rgba);
             root.style.setProperty('--theme-active-bg', `rgba(${theme.rgba}, 0.1)`);
             root.style.setProperty('--theme-gradient', `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`);
-            console.log('✅ CSS variables applied');
+            
+            // Inject dynamic CSS to override all hardcoded theme colors
+            let dynamicStyleTag = document.getElementById('dynamic-theme-styles');
+            if (!dynamicStyleTag) {
+                dynamicStyleTag = document.createElement('style');
+                dynamicStyleTag.id = 'dynamic-theme-styles';
+                document.head.appendChild(dynamicStyleTag);
+            }
+            
+            // Replace all instances of slate-gray theme colors with current theme
+            dynamicStyleTag.textContent = `
+                /* Override all theme colors dynamically */
+                .admin-header,
+                .control-btn.primary,
+                .edit-btn,
+                .sidebar-toggle:hover {
+                    background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%) !important;
+                }
+                
+                .modal-header,
+                .admin-sidebar::-webkit-scrollbar-thumb,
+                .modal-content::-webkit-scrollbar-thumb {
+                    background: linear-gradient(180deg, ${theme.primary} 0%, ${theme.hover1} 100%) !important;
+                }
+                
+                .control-input:focus,
+                .language-price-input:focus {
+                    border-color: ${theme.primary} !important;
+                    box-shadow: 0 0 0 3px rgba(${theme.rgba}, 0.1) !important;
+                }
+                
+                .metric-card.users::before {
+                    --accent-color: ${theme.primary} !important;
+                    --accent-color-light: ${theme.secondary} !important;
+                }
+                
+                .admin-sidebar {
+                    scrollbar-color: ${theme.primary} rgba(255, 255, 255, 0.05) !important;
+                }
+            `;
+            
+            console.log('✅ CSS variables and dynamic styles applied');
 
             // Get all elements with gradients
             const elementsToUpdate = document.querySelectorAll('*');
@@ -7468,16 +7509,17 @@
         // Load current theme from backend
         async function loadCurrentTheme() {
             try {
-                const response = await fetch('/api/admin/get-theme', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
+                console.log('🎨 Loading current theme from database...');
+                const response = await fetch('/api/admin/get-theme');
 
                 const data = await response.json();
+                console.log('📡 Theme data received:', data);
+                
                 if (response.ok && data.theme) {
+                    console.log('✅ Theme loaded:', data.theme);
                     return data.theme;
                 }
+                console.log('⚠️ No theme found, using default');
                 return 'slate-gray'; // Default theme
             } catch (error) {
                 console.error('❌ Error loading theme:', error);
