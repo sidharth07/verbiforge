@@ -3746,6 +3746,152 @@ app.post('/admin/languages/add', requireAuth, async (req, res) => {
     }
 });
 
+// Admin delete language endpoint
+app.delete('/admin/languages/:languageName', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { languageName } = req.params;
+        
+        if (!languageName) {
+            return res.status(400).json({ error: 'Language name is required' });
+        }
+        
+        // Get current languages
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        
+        // Check if language exists
+        if (!languages[languageName]) {
+            return res.status(404).json({ error: 'Language not found' });
+        }
+        
+        // Check if it's a default language (prevent deletion of default languages)
+        const defaultLanguages = {
+            "English": 25,
+            "Arabic": 50,
+            "Chinese (Simplified)": 35,
+            "Dutch": 40,
+            "French": 35,
+            "German": 45,
+            "Portuguese (Brazil)": 35,
+            "Portuguese (Portugal)": 35,
+            "Spanish (Latin America)": 35,
+            "Spanish (Spain)": 35,
+            "Italian": 40,
+            "Japanese": 45,
+            "Korean": 40,
+            "Russian": 35,
+            "Turkish": 35,
+            "Vietnamese": 30,
+            "Thai": 35,
+            "Indonesian": 30,
+            "Malay": 30,
+            "Filipino": 30,
+            "Hindi": 35,
+            "Bengali": 35,
+            "Urdu": 35,
+            "Tamil": 35,
+            "Telugu": 35,
+            "Marathi": 35,
+            "Gujarati": 35,
+            "Punjabi": 35,
+            "Kannada": 35,
+            "Malayalam": 35,
+            "Odia": 35,
+            "Assamese": 35,
+            "Nepali": 35,
+            "Sinhala": 35,
+            "Burmese": 35,
+            "Khmer": 35,
+            "Lao": 35,
+            "Mongolian": 40,
+            "Tibetan": 45,
+            "Uyghur": 40,
+            "Kazakh": 35,
+            "Kyrgyz": 35,
+            "Tajik": 35,
+            "Turkmen": 35,
+            "Uzbek": 35,
+            "Azerbaijani": 35,
+            "Georgian": 40,
+            "Armenian": 40,
+            "Persian": 35,
+            "Hebrew": 40,
+            "Greek": 40,
+            "Polish": 35,
+            "Czech": 35,
+            "Hungarian": 35,
+            "Romanian": 35,
+            "Bulgarian": 35,
+            "Croatian": 35,
+            "Serbian": 35,
+            "Slovak": 35,
+            "Slovenian": 35,
+            "Estonian": 40,
+            "Latvian": 40,
+            "Lithuanian": 40,
+            "Finnish": 45,
+            "Swedish": 45,
+            "Norwegian": 45,
+            "Danish": 45,
+            "Icelandic": 50,
+            "Catalan": 35,
+            "Basque": 45,
+            "Galician": 35,
+            "Welsh": 45,
+            "Irish": 45,
+            "Scottish Gaelic": 50,
+            "Maltese": 45,
+            "Luxembourgish": 50,
+            "Faroese": 55,
+            "Greenlandic": 60
+        };
+        
+        if (defaultLanguages[languageName]) {
+            return res.status(400).json({ error: 'Cannot delete default language' });
+        }
+        
+        // Delete the language
+        delete languages[languageName];
+        
+        // Save updated languages
+        try {
+            await dbHelpers.run(`
+                INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
+            `, ['languages', JSON.stringify(languages)]);
+            console.log('✅ Language deleted successfully:', languageName);
+        } catch (error) {
+            console.log('⚠️ ON CONFLICT failed, using fallback method for deleting language');
+            // Fallback for databases without proper constraints
+            try {
+                await dbHelpers.run(`
+                    UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
+                `, ['languages', JSON.stringify(languages)]);
+                const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['languages']);
+                if (result.count === 0) {
+                    await dbHelpers.run(`
+                        INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    `, ['languages', JSON.stringify(languages)]);
+                }
+                console.log('✅ Language deleted using fallback method:', languageName);
+            } catch (fallbackError) {
+                console.error('❌ Failed to delete language:', fallbackError);
+                throw fallbackError;
+            }
+        }
+        
+        res.json({ success: true, languages });
+    } catch (error) {
+        console.error('Error deleting language:', error);
+        res.status(500).json({ error: 'Failed to delete language' });
+    }
+});
+
 // Admin multiplier management
 app.get('/admin/multiplier', requireAuth, async (req, res) => {
     try {
