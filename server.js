@@ -3682,6 +3682,70 @@ app.post('/admin/languages/reset', requireAuth, async (req, res) => {
     }
 });
 
+// Admin add language endpoint
+app.post('/admin/languages/add', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { languageName, price } = req.body;
+        
+        if (!languageName || !price) {
+            return res.status(400).json({ error: 'Language name and price are required' });
+        }
+        
+        if (price < 1 || price > 999) {
+            return res.status(400).json({ error: 'Price must be between 1 and 999 cents' });
+        }
+        
+        // Get current languages
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
+        const languages = setting ? JSON.parse(setting.value) : {};
+        
+        // Check if language already exists
+        if (languages[languageName]) {
+            return res.status(400).json({ error: 'Language already exists' });
+        }
+        
+        // Add new language
+        languages[languageName] = price;
+        
+        // Save updated languages
+        try {
+            await dbHelpers.run(`
+                INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
+            `, ['languages', JSON.stringify(languages)]);
+            console.log('✅ New language added successfully:', languageName, price);
+        } catch (error) {
+            console.log('⚠️ ON CONFLICT failed, using fallback method for adding language');
+            // Fallback for databases without proper constraints
+            try {
+                await dbHelpers.run(`
+                    UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
+                `, ['languages', JSON.stringify(languages)]);
+                const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['languages']);
+                if (result.count === 0) {
+                    await dbHelpers.run(`
+                        INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    `, ['languages', JSON.stringify(languages)]);
+                }
+                console.log('✅ New language added using fallback method:', languageName, price);
+            } catch (fallbackError) {
+                console.error('❌ Failed to add language:', fallbackError);
+                throw fallbackError;
+            }
+        }
+        
+        res.json({ success: true, languages });
+    } catch (error) {
+        console.error('Error adding language:', error);
+        res.status(500).json({ error: 'Failed to add language' });
+    }
+});
+
 // Admin multiplier management
 app.get('/admin/multiplier', requireAuth, async (req, res) => {
     try {
