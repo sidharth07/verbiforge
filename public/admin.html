@@ -969,6 +969,12 @@
             border: 1px solid #fca5a5;
         }
 
+        .status-message.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
         .language-list-section {
             background: white;
             border-radius: 12px;
@@ -5136,10 +5142,13 @@
                 statusDiv.className = `status-message global ${type}`;
                 statusDiv.style.display = 'block';
                 
+                // Ensure the status message is visible by scrolling to it
+                statusDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
                 if (type === 'success' || type === 'error') {
                     setTimeout(() => {
                         statusDiv.style.display = 'none';
-                    }, 3000);
+                    }, 5000); // Increased timeout to 5 seconds for better visibility
                 }
             } else {
                 console.error('❌ Status message element not found');
