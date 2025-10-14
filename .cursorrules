@@ -271,8 +271,17 @@ curl www.verbiforge.com/robots.txt
 - **GitHub**: https://github.com/sidharth07/verbiforge
 
 ## Recent Updates & Changes
-- **Last Update**: October 9, 2025
+- **Last Update**: December 19, 2024
 - **Recent Changes**:
+  - ✅ Updated About Us page founder information:
+    - Replaced Sidharth with Sayali as founder
+    - Updated to reflect 6 years of experience in translation services
+    - Highlighted pharmaceutical expertise as Quality System Specialist at Sanofi
+    - Emphasized multiple translation projects for Sanofi's global operations
+    - Added focus on pharmaceutical documentation, regulatory compliance, and clinical trials
+    - Updated content to emphasize healthcare translation and patient safety
+    - Fixed image cropping issues with proper object-fit and positioning
+    - Replaced em dash with regular hyphen for consistent punctuation
   - ✅ Fixed About Us page styling to match website theme
     - Updated primary gradient from purple (#667eea, #764ba2) to slate gray (#475569, #1e293b)
     - Updated founder name color to match theme
@@ -320,3 +329,4 @@ When working on this project:
 - **ROLLBACK PROTOCOL**: If issues arise, use `git reset --hard <commit>` and `git push origin <branch> --force`
 - **UI/UX IMPROVEMENTS**: Recent updates focused on compact, professional design with better user experience
 - **Theme System**: Removed due to implementation complexity - keeping hardcoded slate gray theme
+- **PUNCTUATION RULE**: Never use em dashes (—) in content - always use regular hyphens (-) for consistency
