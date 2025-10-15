@@ -5087,8 +5087,6 @@
                 if (languagesResponse.ok && defaultsResponse.ok) {
                     allLanguages = await languagesResponse.json();
                     DEFAULT_LANGUAGES = await defaultsResponse.json();
-                    console.log('📊 Loaded languages from database:', allLanguages);
-                    console.log('🔍 Loaded data types:', Object.entries(allLanguages).map(([lang, price]) => `${lang}: ${typeof price} = ${price}`));
                     renderLanguageGrid();
                 } else {
                     showError('Failed to load languages');
@@ -5258,9 +5256,7 @@
 
         async function applyGlobalPricing() {
             const globalPrice = document.getElementById('globalPrice').value;
-            console.log('🔍 Client - Raw input value:', globalPrice, 'type:', typeof globalPrice);
             const price = parseFloat(globalPrice);
-            console.log('🔍 Client - After parseFloat:', price, 'type:', typeof price);
             
             if (!price || price < 0.01 || price > 999.99) {
                 CustomModal.warning('Please enter a valid price between 0.01 and 999.99 cents');
@@ -5279,24 +5275,16 @@
                         Object.keys(allLanguages).forEach(language => {
                             updatedLanguages[language] = price;
                         });
-                        console.log('🔍 Before saving - price type:', typeof price, 'price value:', price);
-                        console.log('🔍 Before saving - updatedLanguages:', updatedLanguages);
-                        
-                        const payload = { languages: updatedLanguages };
-                        const payloadString = JSON.stringify(payload);
-                        console.log('🔍 Client - Payload to send:', payload);
-                        console.log('🔍 Client - JSON stringified (first 200 chars):', payloadString.substring(0, 200));
                         
                         const response = await Auth.authFetch('/admin/languages', {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: payloadString
+                            body: JSON.stringify({ languages: updatedLanguages })
                         });
                         
                         if (response.ok) {
                             // Update local data
                             allLanguages = updatedLanguages;
-                            console.log('💾 Saved languages to database:', updatedLanguages);
                             
                             // Update all language inputs in the UI
                             const inputs = document.querySelectorAll('.language-price-input');
