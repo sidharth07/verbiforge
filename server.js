@@ -2245,7 +2245,7 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
         const effectiveMultiplier = projectType === 'pure' ? globalMultiplier : 1.0;
         
         selectedLanguages.forEach(language => {
-            const basePrice = languagePricing[language] || 25;
+            const basePrice = parseFloat(languagePricing[language]) || 25;
             // Convert cents per word to dollars (divide by 100)
             const cost = (wordCount * basePrice * effectiveMultiplier) / 100;
             
