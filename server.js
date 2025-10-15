@@ -2259,16 +2259,21 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
             subtotal += cost;
         });
 
-        // Calculate project management cost: 1% of subtotal or $500, whichever is lower
-        const onePercentOfSubtotal = subtotal * 0.01;
-        const projectManagementCost = Math.min(onePercentOfSubtotal, 500.00);
+        // Get PM percentage from settings (default 1%)
+        const pmSetting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['pm_percentage']);
+        const pmPercentage = pmSetting ? parseFloat(pmSetting.value) : 1.0;
+        
+        // Calculate project management cost: percentage of subtotal, capped at $500
+        const percentageAmount = subtotal * (pmPercentage / 100);
+        const projectManagementCost = Math.min(percentageAmount, 500.00);
         const total = subtotal + projectManagementCost;
 
         console.log('💰 Final calculation:', {
             wordCount,
             subtotal: subtotal.toFixed(2),
-            projectManagementCost: projectManagementCost.toFixed(2),
-            projectManagementCalc: `1% of $${subtotal.toFixed(2)} = $${onePercentOfSubtotal.toFixed(2)}, capped at $500`,
+            pmPercentage: `${pmPercentage}%`,
+            pmCalculation: `${pmPercentage}% of $${subtotal.toFixed(2)} = $${percentageAmount.toFixed(2)}`,
+            projectManagementCost: projectManagementCost.toFixed(2) + ' (capped at $500)',
             total: total.toFixed(2),
             multiplier: effectiveMultiplier
         });
@@ -3950,6 +3955,70 @@ app.put('/admin/multiplier', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error updating multiplier:', error);
         res.status(500).json({ error: 'Failed to update multiplier' });
+    }
+});
+
+// Get PM percentage setting
+app.get('/admin/pm-percentage', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['pm_percentage']);
+        const percentage = setting ? parseFloat(setting.value) : 1.0; // Default 1%
+        res.json({ percentage });
+    } catch (error) {
+        console.error('Error loading PM percentage:', error);
+        res.status(500).json({ error: 'Failed to load PM percentage' });
+    }
+});
+
+// Update PM percentage setting
+app.put('/admin/pm-percentage', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        const { percentage } = req.body;
+        
+        if (percentage < 0 || percentage > 100) {
+            return res.status(400).json({ error: 'Percentage must be between 0 and 100' });
+        }
+        
+        try {
+            await dbHelpers.run(`
+                INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
+            `, ['pm_percentage', percentage.toString()]);
+            console.log('✅ PM percentage settings updated successfully');
+        } catch (error) {
+            console.log('⚠️ ON CONFLICT failed, using fallback method for PM percentage update');
+            // Fallback for databases without proper constraints
+            try {
+                await dbHelpers.run(`
+                    UPDATE settings SET value = $2, updated_at = CURRENT_TIMESTAMP WHERE key = $1
+                `, ['pm_percentage', percentage.toString()]);
+                const result = await dbHelpers.get('SELECT COUNT(*) as count FROM settings WHERE key = $1', ['pm_percentage']);
+                if (result.count === 0) {
+                    await dbHelpers.run(`
+                        INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
+                    `, ['pm_percentage', percentage.toString()]);
+                }
+                console.log('✅ PM percentage settings updated using fallback method');
+            } catch (fallbackError) {
+                console.error('❌ Failed to update PM percentage settings:', fallbackError);
+                throw fallbackError;
+            }
+        }
+        
+        res.json({ success: true, percentage });
+    } catch (error) {
+        console.error('Error updating PM percentage:', error);
+        res.status(500).json({ error: 'Failed to update PM percentage' });
     }
 });
 

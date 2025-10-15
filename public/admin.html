@@ -2682,6 +2682,22 @@
                     </div>
                     <div id="multiplierStatus" class="status-message"></div>
                 </div>
+                
+                <div class="control-card">
+                    <div class="control-card-header">
+                        <div class="control-icon">💼</div>
+                        <h3>Project Management Fee</h3>
+                    </div>
+                    <p>Set percentage for project management cost (capped at $500)</p>
+                    <div class="control-input-group">
+                        <div class="input-wrapper">
+                            <input type="number" id="pmPercentageValue" step="0.1" min="0" max="100" class="control-input" placeholder="1.0">
+                            <span class="input-suffix">%</span>
+                        </div>
+                        <button id="updatePmPercentageBtn" class="control-btn primary">Apply</button>
+                    </div>
+                    <div id="pmPercentageStatus" class="status-message"></div>
+                </div>
             </div>
             
             <!-- Language List Section -->
@@ -3467,6 +3483,7 @@
                 loadLanguages();
                 loadContactsCount(); // Load initial contact count
                 loadMultiplier(); // Load current multiplier
+                loadPmPercentage(); // Load current PM percentage
             } catch (error) {
                 console.error('Error checking admin access:', error);
                 window.location.href = 'login.html';
@@ -4176,6 +4193,7 @@
                 loadContacts();
             } else if (tab === 'languages') {
                 loadMultiplier(); // Reload multiplier when switching to languages tab
+                loadPmPercentage(); // Reload PM percentage when switching to languages tab
             } else if (tab === 'create-project') {
                 // Reset the create project form when switching to this tab
                 resetProjectCreation();
@@ -6094,6 +6112,62 @@
             }
         }
 
+        async function loadPmPercentage() {
+            try {
+                const response = await Auth.authFetch('/admin/pm-percentage');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('pmPercentageValue').value = data.percentage;
+                }
+            } catch (error) {
+                console.error('Error loading PM percentage:', error);
+            }
+        }
+
+        async function updatePmPercentage() {
+            const percentage = parseFloat(document.getElementById('pmPercentageValue').value);
+            
+            if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+                CustomModal.warning('Please enter a valid percentage between 0 and 100');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('pmPercentageStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d1ecf1';
+            statusDiv.style.color = '#0c5460';
+            statusDiv.textContent = 'Updating project management percentage...';
+            
+            try {
+                const response = await Auth.authFetch('/admin/pm-percentage', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ percentage })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.textContent = `✅ Project management percentage updated to ${percentage}%! (capped at $500)`;
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 5000);
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.textContent = '❌ Error: ' + data.error;
+                }
+            } catch (error) {
+                console.error('Error updating PM percentage:', error);
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.textContent = '❌ Network error updating PM percentage';
+            }
+        }
+
         function showError(message) {
             CustomModal.error(message);
         }
@@ -6187,6 +6261,7 @@
             document.getElementById('applyGlobalPricingBtn').addEventListener('click', applyGlobalPricing);
             document.getElementById('addNewLanguageBtn').addEventListener('click', addNewLanguage);
             document.getElementById('updateMultiplierBtn').addEventListener('click', updateMultiplier);
+            document.getElementById('updatePmPercentageBtn').addEventListener('click', updatePmPercentage);
             
             // Database tools buttons
             document.getElementById('checkSchemaBtn').addEventListener('click', checkDatabaseSchema);
