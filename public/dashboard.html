@@ -1220,6 +1220,11 @@
             overflow: hidden;
         }
         
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+            align-items: center;
+        }
+        
         .detail-label {
             font-size: 0.75em;
             color: #64748b;
@@ -3854,7 +3859,7 @@
                                     <div class="detail-label">Words</div>
                                     <div class="detail-value">${(project.wordCount || 0).toLocaleString()}</div>
                                 </div>
-                                <div class="detail-item" style="align-items: center;">
+                                <div class="detail-item full-width">
                                     <div class="detail-label">Type</div>
                                     <div class="detail-value">
                                         <span class="project-type ${projectType}">${projectType === 'pure' ? 'Pure' : 'Fusion'}</span>
