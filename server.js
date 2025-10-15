@@ -2259,13 +2259,16 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
             subtotal += cost;
         });
 
-        const projectManagementCost = 500.00;
+        // Calculate project management cost: 1% of subtotal or $500, whichever is lower
+        const onePercentOfSubtotal = subtotal * 0.01;
+        const projectManagementCost = Math.min(onePercentOfSubtotal, 500.00);
         const total = subtotal + projectManagementCost;
 
         console.log('💰 Final calculation:', {
             wordCount,
             subtotal: subtotal.toFixed(2),
-            projectManagementCost,
+            projectManagementCost: projectManagementCost.toFixed(2),
+            projectManagementCalc: `1% of $${subtotal.toFixed(2)} = $${onePercentOfSubtotal.toFixed(2)}, capped at $500`,
             total: total.toFixed(2),
             multiplier: effectiveMultiplier
         });
