@@ -2698,7 +2698,7 @@
             <div class="analysis-loading-steps">
                 <div class="analysis-loading-step" id="step1">
                     <div class="analysis-loading-step-icon"></div>
-                    <span>Reading Excel file...</span>
+                    <span>Reading file...</span>
                 </div>
                 <div class="analysis-loading-step" id="step2">
                     <div class="analysis-loading-step-icon"></div>
@@ -4048,19 +4048,19 @@
                 step.classList.remove('completed', 'active');
             }
             
-            // Start step animation with 7-8 second total duration
-            setTimeout(() => activateStep(1), 800);
-            setTimeout(() => completeStep(1), 1600);
-            setTimeout(() => activateStep(2), 2000);
-            setTimeout(() => completeStep(2), 2800);
-            setTimeout(() => activateStep(3), 3200);
-            setTimeout(() => completeStep(3), 4000);
-            setTimeout(() => activateStep(4), 4400);
-            setTimeout(() => completeStep(4), 5200);
-            setTimeout(() => activateStep(5), 5600);
-            setTimeout(() => completeStep(5), 6400);
+            // Start step animation with 9 second total duration
+            setTimeout(() => activateStep(1), 1000);
+            setTimeout(() => completeStep(1), 2000);
+            setTimeout(() => activateStep(2), 2500);
+            setTimeout(() => completeStep(2), 3500);
+            setTimeout(() => activateStep(3), 4000);
+            setTimeout(() => completeStep(3), 5000);
+            setTimeout(() => activateStep(4), 5500);
+            setTimeout(() => completeStep(4), 6500);
+            setTimeout(() => activateStep(5), 7000);
+            setTimeout(() => completeStep(5), 8000);
             
-            // Total duration: ~7.5 seconds
+            // Total duration: ~9 seconds
         }
 
         function hideAnalysisLoading() {
