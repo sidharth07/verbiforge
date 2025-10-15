@@ -3469,6 +3469,7 @@ app.get('/admin/languages', requireAuth, async (req, res) => {
         const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
         const languages = setting ? JSON.parse(setting.value) : {};
         console.log('📊 Retrieved languages from database:', languages);
+        console.log('🔍 Retrieved data types:', Object.entries(languages).map(([lang, price]) => `${lang}: ${typeof price} = ${price}`));
         res.json(languages);
     } catch (error) {
         console.error('Error loading admin languages:', error);
@@ -3555,6 +3556,7 @@ app.put('/admin/languages', requireAuth, async (req, res) => {
         
         const { languages } = req.body;
         console.log('💾 Saving languages to database:', languages);
+        console.log('🔍 Saving data types:', Object.entries(languages).map(([lang, price]) => `${lang}: ${typeof price} = ${price}`));
         try {
             await dbHelpers.run(`
                 INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
