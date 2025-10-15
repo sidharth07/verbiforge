@@ -271,8 +271,13 @@ curl www.verbiforge.com/robots.txt
 - **GitHub**: https://github.com/sidharth07/verbiforge
 
 ## Recent Updates & Changes
-- **Last Update**: December 19, 2024
+- **Last Update**: October 15, 2025
 - **Recent Changes**:
+  - ✅ **Fixed decimal pricing persistence issue** (October 15, 2025):
+    - Global pricing now correctly accepts and persists decimal values (e.g., 13.5, 14.5)
+    - Fixed parseFloat validation order in applyGlobalPricing function
+    - Decimal values now properly saved to database and retrieved on page reload
+    - Issue was caused by string-to-number comparison before parseFloat conversion
   - ✅ Updated About Us page founder information:
     - Replaced Sidharth with Sayali as founder
     - Updated to reflect 6 years of experience in translation services
