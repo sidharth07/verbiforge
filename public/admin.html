@@ -5258,13 +5258,14 @@
 
         async function applyGlobalPricing() {
             const globalPrice = document.getElementById('globalPrice').value;
+            console.log('🔍 Client - Raw input value:', globalPrice, 'type:', typeof globalPrice);
+            const price = parseFloat(globalPrice);
+            console.log('🔍 Client - After parseFloat:', price, 'type:', typeof price);
             
-            if (!globalPrice || globalPrice < 0.01 || globalPrice > 999.99) {
+            if (!price || price < 0.01 || price > 999.99) {
                 CustomModal.warning('Please enter a valid price between 0.01 and 999.99 cents');
                 return;
             }
-            
-            const price = parseFloat(globalPrice);
             
             CustomModal.confirm(
                 `Are you sure you want to set all languages to ${price} cents per word?`,
@@ -5281,10 +5282,15 @@
                         console.log('🔍 Before saving - price type:', typeof price, 'price value:', price);
                         console.log('🔍 Before saving - updatedLanguages:', updatedLanguages);
                         
+                        const payload = { languages: updatedLanguages };
+                        const payloadString = JSON.stringify(payload);
+                        console.log('🔍 Client - Payload to send:', payload);
+                        console.log('🔍 Client - JSON stringified (first 200 chars):', payloadString.substring(0, 200));
+                        
                         const response = await Auth.authFetch('/admin/languages', {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ languages: updatedLanguages })
+                            body: payloadString
                         });
                         
                         if (response.ok) {
