@@ -1228,6 +1228,10 @@
             font-size: 0.9em;
             color: #334155;
             font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
         }
         
         .project-type {
@@ -3840,7 +3844,7 @@
                             <div class="project-details">
                                 <div class="detail-item">
                                     <div class="detail-label">File</div>
-                                    <div class="detail-value">${project.fileName}</div>
+                                    <div class="detail-value" title="${project.fileName}">${project.fileName}</div>
                                 </div>
                                 <div class="detail-item">
                                     <div class="detail-label">Words</div>
