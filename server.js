@@ -3467,13 +3467,7 @@ app.get('/admin/languages', requireAuth, async (req, res) => {
         }
         
         const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
-        console.log('📊 Retrieved from DB - Raw value:', setting ? setting.value.substring(0, 300) : 'null');
         const languages = setting ? JSON.parse(setting.value) : {};
-        console.log('📊 After JSON.parse - Sample prices:', {
-            English: languages.English,
-            Spanish: languages['Spanish (Spain)'],
-            French: languages.French
-        });
         res.json(languages);
     } catch (error) {
         console.error('Error loading admin languages:', error);
@@ -3559,18 +3553,12 @@ app.put('/admin/languages', requireAuth, async (req, res) => {
         }
         
         const { languages } = req.body;
-        const jsonString = JSON.stringify(languages);
-        console.log('💾 Saving to database - JSON string:', jsonString.substring(0, 300));
         try {
             await dbHelpers.run(`
                 INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
                 ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
-            `, ['languages', jsonString]);
+            `, ['languages', JSON.stringify(languages)]);
             console.log('✅ Languages settings updated successfully');
-            
-            // Verify what was saved by reading it back immediately
-            const verify = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
-            console.log('🔍 Verification - Read back from DB:', verify ? verify.value.substring(0, 300) : 'null');
         } catch (error) {
             console.log('⚠️ ON CONFLICT failed, using fallback method for languages update');
             // Fallback for databases without proper constraints
