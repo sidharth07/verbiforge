@@ -2287,6 +2287,7 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
             breakdown: breakdown,
             subtotal: subtotal.toFixed(2),
             projectManagementCost: projectManagementCost.toFixed(2),
+            pmPercentage: pmPercentage,
             total: total.toFixed(2),
             tempFileId: req.file.filename
         });

@@ -3249,6 +3249,7 @@
                         breakdown: result.breakdown,
                         subtotal: result.subtotal,
                         projectManagementCost: result.projectManagementCost || '500.00',
+                        pmPercentage: result.pmPercentage || 1,
                         total: result.total,
                         tempFileId: result.tempFileId
                     };
@@ -3340,7 +3341,7 @@
                 <div style="margin-bottom: 20px;">
                     <h3 style="margin-bottom: 15px;">📋 Additional Costs</h3>
                     <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee;">
-                        <span>Project Management</span>
+                        <span>Project Management <span style="color: #64748b; font-size: 0.9em;">(${data.pmPercentage || 1}% of subtotal or $500, whichever is lower)</span></span>
                         <span>$${data.projectManagementCost || '500.00'}</span>
                     </div>
                 </div>
