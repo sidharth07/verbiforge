@@ -2640,7 +2640,7 @@
                     <p>Set the same price for all languages at once</p>
                     <div class="control-input-group">
                         <div class="input-wrapper">
-                            <input type="number" id="globalPrice" placeholder="35" min="1" max="999" class="control-input">
+                            <input type="number" id="globalPrice" placeholder="35.50" min="0.01" max="999.99" step="0.01" class="control-input">
                             <span class="input-suffix">¢/word</span>
                         </div>
                         <button id="applyGlobalPricingBtn" class="control-btn primary">Update</button>
@@ -2659,7 +2659,7 @@
                             <input type="text" id="newLanguageName" placeholder="e.g., Swahili" class="control-input">
                         </div>
                         <div class="input-wrapper">
-                            <input type="number" id="newLanguagePrice" placeholder="35" min="1" max="999" class="control-input">
+                            <input type="number" id="newLanguagePrice" placeholder="35.50" min="0.01" max="999.99" step="0.01" class="control-input">
                             <span class="input-suffix">¢/word</span>
                         </div>
                         <button id="addNewLanguageBtn" class="control-btn primary">Add</button>
@@ -5114,7 +5114,7 @@
                         ${isCustomLanguage ? '<span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-left: 8px;">CUSTOM</span>' : ''}
                     </div>
                     <input type="number" class="language-price-input" value="${price}" 
-                           min="1" max="999" data-language="${language}" placeholder="35">
+                           min="0.01" max="999.99" step="0.01" data-language="${language}" placeholder="35.50">
                     <button class="save-language-btn" onclick="saveLanguagePrice('${language}')" title="Save ${language} price">
                         ✓
                     </button>
@@ -5159,10 +5159,10 @@
 
         async function saveLanguagePrice(language) {
             const input = document.querySelector(`input[data-language="${language}"]`);
-            const price = parseInt(input.value);
+            const price = parseFloat(input.value);
             
-            if (!price || price < 1 || price > 999) {
-                showStatusMessage('Please enter a valid price between 1 and 999 cents', 'error');
+            if (!price || price < 0.01 || price > 999.99) {
+                showStatusMessage('Please enter a valid price between 0.01 and 999.99 cents', 'error');
                 return;
             }
             
@@ -5257,12 +5257,12 @@
         async function applyGlobalPricing() {
             const globalPrice = document.getElementById('globalPrice').value;
             
-            if (!globalPrice || globalPrice < 1 || globalPrice > 999) {
-                CustomModal.warning('Please enter a valid price between 1 and 999 cents');
+            if (!globalPrice || globalPrice < 0.01 || globalPrice > 999.99) {
+                CustomModal.warning('Please enter a valid price between 0.01 and 999.99 cents');
                 return;
             }
             
-            const price = parseInt(globalPrice);
+            const price = parseFloat(globalPrice);
             
             CustomModal.confirm(
                 `Are you sure you want to set all languages to ${price} cents per word?`,
@@ -5312,15 +5312,15 @@
 
         async function addNewLanguage() {
             const languageName = document.getElementById('newLanguageName').value.trim();
-            const price = parseInt(document.getElementById('newLanguagePrice').value);
+            const price = parseFloat(document.getElementById('newLanguagePrice').value);
             
             if (!languageName) {
                 CustomModal.warning('Please enter a language name');
                 return;
             }
             
-            if (!price || price < 1 || price > 999) {
-                CustomModal.warning('Please enter a valid price between 1 and 999 cents');
+            if (!price || price < 0.01 || price > 999.99) {
+                CustomModal.warning('Please enter a valid price between 0.01 and 999.99 cents');
                 return;
             }
             

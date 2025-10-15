@@ -3696,8 +3696,8 @@ app.post('/admin/languages/add', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Language name and price are required' });
         }
         
-        if (price < 1 || price > 999) {
-            return res.status(400).json({ error: 'Price must be between 1 and 999 cents' });
+        if (price < 0.01 || price > 999.99) {
+            return res.status(400).json({ error: 'Price must be between 0.01 and 999.99 cents' });
         }
         
         // Get current languages
