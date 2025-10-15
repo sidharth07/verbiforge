@@ -3467,6 +3467,7 @@ app.get('/admin/languages', requireAuth, async (req, res) => {
         }
         
         const setting = await dbHelpers.get('SELECT value FROM settings WHERE key = $1', ['languages']);
+        console.log('🔍 Raw database value:', setting ? setting.value : 'null');
         const languages = setting ? JSON.parse(setting.value) : {};
         console.log('📊 Retrieved languages from database:', languages);
         console.log('🔍 Retrieved data types:', Object.entries(languages).map(([lang, price]) => `${lang}: ${typeof price} = ${price}`));
@@ -3557,11 +3558,13 @@ app.put('/admin/languages', requireAuth, async (req, res) => {
         const { languages } = req.body;
         console.log('💾 Saving languages to database:', languages);
         console.log('🔍 Saving data types:', Object.entries(languages).map(([lang, price]) => `${lang}: ${typeof price} = ${price}`));
+        const jsonString = JSON.stringify(languages);
+        console.log('🔍 JSON stringified value (first 200 chars):', jsonString.substring(0, 200));
         try {
             await dbHelpers.run(`
                 INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP)
                 ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = CURRENT_TIMESTAMP
-            `, ['languages', JSON.stringify(languages)]);
+            `, ['languages', jsonString]);
             console.log('✅ Languages settings updated successfully');
         } catch (error) {
             console.log('⚠️ ON CONFLICT failed, using fallback method for languages update');
