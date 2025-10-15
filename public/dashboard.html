@@ -3239,14 +3239,7 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Complete all steps before showing results
-                    for (let i = 1; i <= 5; i++) {
-                        completeStep(i);
-                    }
-                    
-                    // Wait a moment for the final step to be visible
-                    await new Promise(resolve => setTimeout(resolve, 800));
-                    
+                    // Store the result but don't show it yet - wait for full 9 seconds
                     currentAnalysis = {
                         projectName,
                         fileName: result.fileName,
@@ -3259,17 +3252,33 @@
                         total: result.total,
                         tempFileId: result.tempFileId
                     };
-                    showResults(result);
+                    
+                    // Wait for the full 9-second animation to complete before showing results
+                    setTimeout(() => {
+                        // Complete all steps before showing results
+                        for (let i = 1; i <= 5; i++) {
+                            completeStep(i);
+                        }
+                        
+                        // Wait a moment for the final step to be visible
+                        setTimeout(() => {
+                            showResults(result);
+                            hideAnalysisLoading();
+                            showLoading(false);
+                        }, 500);
+                    }, 9000); // Wait for full 9 seconds
                 } else {
+                    // For errors, hide immediately
+                    hideAnalysisLoading();
+                    showLoading(false);
                     showError(result.error);
                 }
             } catch (error) {
+                // For network errors, hide immediately
+                hideAnalysisLoading();
+                showLoading(false);
                 showError('Network error. Please try again.');
             }
-
-            // Hide the analysis loading modal
-            hideAnalysisLoading();
-            showLoading(false);
         }
 
         function showResults(data) {
