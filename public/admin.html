@@ -5087,6 +5087,7 @@
                 if (languagesResponse.ok && defaultsResponse.ok) {
                     allLanguages = await languagesResponse.json();
                     DEFAULT_LANGUAGES = await defaultsResponse.json();
+                    console.log('📊 Loaded languages from database:', allLanguages);
                     renderLanguageGrid();
                 } else {
                     showError('Failed to load languages');
@@ -5286,6 +5287,7 @@
                         if (response.ok) {
                             // Update local data
                             allLanguages = updatedLanguages;
+                            console.log('💾 Saved languages to database:', updatedLanguages);
                             
                             // Update all language inputs in the UI
                             const inputs = document.querySelectorAll('.language-price-input');
