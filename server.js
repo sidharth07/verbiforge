@@ -668,7 +668,7 @@ async function initializeEmailTemplates() {
             {
                 id: uuidv4(),
                 name: 'welcome_email',
-                subject: 'Welcome to VerbiForge! 🚀',
+                subject: 'Welcome to VerbiForge!',
                 description: 'Email sent to new users when they sign up',
                 variables: JSON.stringify([
                     { name: 'userName', description: 'User\'s first name', example: 'John' },
@@ -677,13 +677,13 @@ async function initializeEmailTemplates() {
                 ]),
                 html_content: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <div style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
                             <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to VerbiForge!</h1>
                             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Professional Translation Services</p>
                         </div>
                         
                         <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}! 👋</h2>
+                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}!</h2>
                             
                             <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
                                 Thank you for joining VerbiForge! We're excited to help you with your translation projects.
@@ -692,17 +692,17 @@ async function initializeEmailTemplates() {
                             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                                 <h3 style="color: #333; margin-top: 0;">What you can do now:</h3>
                                 <ul style="color: #666; line-height: 1.8;">
-                                    <li>📁 Upload your documents for translation</li>
-                                    <li>🌍 Choose from 100+ languages</li>
-                                    <li>💰 Get instant pricing quotes</li>
-                                    <li>📊 Track your project progress</li>
-                                    <li>📥 Download completed translations</li>
+                                    <li>Upload your documents for translation</li>
+                                    <li>Choose from 100+ languages</li>
+                                    <li>Get instant pricing quotes</li>
+                                    <li>Track your project progress</li>
+                                    <li>Download completed translations</li>
                                 </ul>
                             </div>
                             
                             <div style="text-align: center; margin: 30px 0;">
                                 <a href="{{appUrl}}/dashboard.html" 
-                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                   style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                                     Get Started with Your First Project
                                 </a>
                             </div>
@@ -724,7 +724,7 @@ async function initializeEmailTemplates() {
             {
                 id: uuidv4(),
                 name: 'project_created',
-                subject: 'Project Created: {{projectName}} 📋',
+                subject: 'Project Created: {{projectName}}',
                 description: 'Email sent to users when a project is created',
                 variables: JSON.stringify([
                     { name: 'userName', description: 'User\'s first name', example: 'John' },
@@ -738,13 +738,13 @@ async function initializeEmailTemplates() {
                 ]),
                 html_content: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <div style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
                             <h1 style="color: white; margin: 0; font-size: 28px;">Project Created Successfully!</h1>
                             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Your translation project is ready</p>
                         </div>
                         
                         <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}! 🎉</h2>
+                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}!</h2>
                             
                             <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
                                 Your translation project has been created successfully. Here are the details:
@@ -786,7 +786,7 @@ async function initializeEmailTemplates() {
                             
                             <div style="text-align: center; margin: 30px 0;">
                                 <a href="{{appUrl}}/dashboard.html" 
-                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                   style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                                     View Project Dashboard
                                 </a>
                             </div>
@@ -804,7 +804,7 @@ async function initializeEmailTemplates() {
             {
                 id: uuidv4(),
                 name: 'project_completed',
-                subject: 'Project Completed: {{projectName}} ✅',
+                subject: 'Project Completed: {{projectName}}',
                 description: 'Email sent to users when a project is completed',
                 variables: JSON.stringify([
                     { name: 'userName', description: 'User\'s first name', example: 'John' },
@@ -819,12 +819,12 @@ async function initializeEmailTemplates() {
                 html_content: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
                         <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                            <h1 style="color: white; margin: 0; font-size: 28px;">Project Completed! 🎉</h1>
+                            <h1 style="color: white; margin: 0; font-size: 28px;">Project Completed</h1>
                             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Your translation is ready for download</p>
                         </div>
                         
                         <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}! 🚀</h2>
+                            <h2 style="color: #333; margin-bottom: 20px;">Hi {{userName}}!</h2>
                             
                             <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
                                 Great news! Your translation project has been completed successfully. Your files are ready for download.
@@ -857,7 +857,7 @@ async function initializeEmailTemplates() {
                             </div>
                             
                             <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
-                                <h4 style="color: #155724; margin-top: 0;">Ready for Download! 📥</h4>
+                                <h4 style="color: #155724; margin-top: 0;">Ready for Download</h4>
                                 <p style="color: #666; margin-bottom: 0;">
                                     Your translated file is now available in your dashboard. You can download it anytime.
                                 </p>
@@ -871,7 +871,7 @@ async function initializeEmailTemplates() {
                             </div>
                             
                             <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
-                                <h4 style="color: #856404; margin-top: 0;">We'd Love Your Feedback! ⭐</h4>
+                                <h4 style="color: #856404; margin-top: 0;">We'd Love Your Feedback</h4>
                                 <p style="color: #666; margin-bottom: 0;">
                                     How was your experience with VerbiForge? We'd appreciate your feedback to help us improve our services.
                                 </p>
@@ -890,7 +890,7 @@ async function initializeEmailTemplates() {
             {
                 id: uuidv4(),
                 name: 'admin_notification',
-                subject: 'New Project Created: {{projectName}} 📋',
+                subject: 'New Project Created: {{projectName}}',
                 description: 'Email sent to admin when a new project is created',
                 variables: JSON.stringify([
                     { name: 'projectName', description: 'Name of the project', example: 'Website Translation' },
@@ -905,13 +905,13 @@ async function initializeEmailTemplates() {
                 ]),
                 html_content: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f9fa;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                            <h1 style="color: white; margin: 0; font-size: 28px;">New Project Alert! 🚨</h1>
+                        <div style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">New Project Alert</h1>
                             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">A new project has been created</p>
                         </div>
                         
                         <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #333; margin-bottom: 20px;">Project Details 📊</h2>
+                            <h2 style="color: #333; margin-bottom: 20px;">Project Details</h2>
                             
                             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                                 <h3 style="color: #333; margin-top: 0;">Project Information:</h3>
@@ -959,7 +959,7 @@ async function initializeEmailTemplates() {
                             
                             <div style="text-align: center; margin: 30px 0;">
                                 <a href="{{appUrl}}/admin.html" 
-                                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                   style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                                     View Project in Admin Panel
                                 </a>
                             </div>
