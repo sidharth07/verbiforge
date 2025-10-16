@@ -2905,9 +2905,16 @@
         
         <div id="emailTemplatesTab" class="tab-content">
             <div class="projects-section">
-                <div class="section-header">
-                    <h2>Email Templates</h2>
-                    <p>Customize email templates for notifications and communications</p>
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2>Email Templates</h2>
+                        <p>Customize email templates for notifications and communications</p>
+                    </div>
+                    <button id="resetTemplatesBtn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" 
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';" 
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';">
+                        Reset to Defaults
+                    </button>
                 </div>
                 
                 <div id="emailTemplatesContent" style="padding: 20px;">
@@ -4222,6 +4229,31 @@
                 console.error('❌ Error loading email templates:', error);
                 showError('Network error loading email templates');
             }
+        }
+
+        async function resetEmailTemplates() {
+            CustomModal.confirm(
+                'Are you sure you want to reset all email templates to defaults? This will remove any customizations you made.',
+                async () => {
+                    try {
+                        const response = await Auth.authFetch('/admin/email-templates/reset', {
+                            method: 'POST'
+                        });
+                        
+                        if (response.ok) {
+                            CustomModal.success('Email templates reset to defaults successfully!');
+                            // Reload templates
+                            loadEmailTemplates();
+                        } else {
+                            const data = await response.json();
+                            CustomModal.error('Failed to reset templates: ' + data.error);
+                        }
+                    } catch (error) {
+                        console.error('Error resetting templates:', error);
+                        CustomModal.error('Network error resetting templates');
+                    }
+                }
+            );
         }
 
         function renderEmailTemplates(templates) {
@@ -6274,6 +6306,9 @@
                 console.error('❌ Save All Changes button not found');
             }
             document.getElementById('resetLanguagePricingBtn').addEventListener('click', resetLanguagePricing);
+            
+            // Email templates button
+            document.getElementById('resetTemplatesBtn').addEventListener('click', resetEmailTemplates);
 
             // Admin management buttons
             document.getElementById('createAdminBtn').addEventListener('click', createAdmin);

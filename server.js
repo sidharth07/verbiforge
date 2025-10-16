@@ -4480,6 +4480,27 @@ app.post('/admin/email-templates/:id/test', requireAuth, async (req, res) => {
     }
 });
 
+// Reset email templates to defaults
+app.post('/admin/email-templates/reset', requireAuth, async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        // Delete existing templates
+        await dbHelpers.run('DELETE FROM email_templates');
+        
+        // Re-initialize with updated templates
+        await initializeEmailTemplates();
+        
+        res.json({ success: true, message: 'Email templates reset to defaults successfully' });
+    } catch (error) {
+        console.error('Error resetting email templates:', error);
+        res.status(500).json({ error: 'Failed to reset email templates' });
+    }
+});
+
 // Theme management routes removed
 
 // Catch-all route for undefined endpoints
