@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const XLSX = require('xlsx');
+const mammoth = require('mammoth');
 const EmailService = require('./email-service');
 const FileManager = require('./fileManager');
 
@@ -2206,8 +2207,10 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
         // Calculate word count
         let wordCount = 0;
         const fileName = req.file.originalname;
+        const fileExtension = fileName.toLowerCase();
         
-        if (fileName.toLowerCase().endsWith('.xlsx') || fileName.toLowerCase().endsWith('.xls')) {
+        if (fileExtension.endsWith('.xlsx') || fileExtension.endsWith('.xls')) {
+            // Handle Excel files
             try {
                 const workbook = XLSX.readFile(req.file.path);
                 wordCount = 0;
@@ -2220,7 +2223,7 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
                         if (Array.isArray(row)) {
                             row.forEach(cell => {
                                 if (cell && typeof cell === 'string') {
-                                    wordCount += cell.split(/\s+/).length;
+                                    wordCount += cell.split(/\s+/).filter(word => word.length > 0).length;
                                 }
                             });
                         }
@@ -2230,12 +2233,24 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
                 console.log('📊 Excel word count calculated:', wordCount);
             } catch (excelError) {
                 console.error('❌ Excel parsing error, using estimation:', excelError);
-                // Fallback to estimation
+                wordCount = Math.ceil(req.file.size / 100);
+            }
+        } else if (fileExtension.endsWith('.docx') || fileExtension.endsWith('.doc')) {
+            // Handle Word documents
+            try {
+                const result = await mammoth.extractRawText({ path: req.file.path });
+                const text = result.value;
+                // Count words by splitting on whitespace and filtering empty strings
+                wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                console.log('📊 Word document word count calculated:', wordCount);
+            } catch (wordError) {
+                console.error('❌ Word document parsing error, using estimation:', wordError);
                 wordCount = Math.ceil(req.file.size / 100);
             }
         } else {
-            // For other file types, estimate word count
+            // For other file types, estimate word count based on file size
             wordCount = Math.ceil(req.file.size / 100);
+            console.log('📊 Estimated word count for unsupported file type:', wordCount);
         }
 
         // Calculate costs for each language
