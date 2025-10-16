@@ -9,6 +9,7 @@ const fs = require('fs');
 const multer = require('multer');
 const XLSX = require('xlsx');
 const mammoth = require('mammoth');
+const pdfParse = require('pdf-parse');
 const EmailService = require('./email-service');
 const FileManager = require('./fileManager');
 
@@ -2245,6 +2246,19 @@ app.post('/analyze', requireAuth, upload.single('file'), async (req, res) => {
                 console.log('📊 Word document word count calculated:', wordCount);
             } catch (wordError) {
                 console.error('❌ Word document parsing error, using estimation:', wordError);
+                wordCount = Math.ceil(req.file.size / 100);
+            }
+        } else if (fileExtension.endsWith('.pdf')) {
+            // Handle PDF files
+            try {
+                const dataBuffer = fs.readFileSync(req.file.path);
+                const data = await pdfParse(dataBuffer);
+                const text = data.text;
+                // Count words by splitting on whitespace and filtering empty strings
+                wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                console.log('📊 PDF word count calculated:', wordCount);
+            } catch (pdfError) {
+                console.error('❌ PDF parsing error, using estimation:', pdfError);
                 wordCount = Math.ceil(req.file.size / 100);
             }
         } else {
